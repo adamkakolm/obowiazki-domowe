@@ -55,6 +55,16 @@
     <h1>Obowiązki domowe 🏡</h1>
   </header>
 
+<div id="loginScreen">
+  <h2>Wprowadź hasło, aby wejść</h2>
+  <input type="password" id="passwordInput" placeholder="Hasło">
+  <button id="loginBtn">Zaloguj</button>
+  <p id="loginError" style="color:red;"></p>
+</div>
+
+<div id="mainContent" style="display:none;">
+ 
+</div>
   <main>
     <form id="taskForm">
       <input type="date" id="date" required>
@@ -127,7 +137,54 @@
         `;
         tableBody.appendChild(row);
       });
+const correctPassword = "lista123!"; // zmień na własne
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("passwordInput");
+const loginError = document.getElementById("loginError");
+
+loginBtn.addEventListener("click", () => {
+  if(passwordInput.value === correctPassword){
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+  } else {
+    loginError.textContent = "Nieprawidłowe hasło!";
+    passwordInput.value = "";
+  }
+
     });
+const form = document.getElementById("taskForm");
+const tableBody = document.querySelector("#taskTable tbody");
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const date = document.getElementById("date").value;
+  const task = document.getElementById("taskType").value;
+  const name = document.getElementById("name").value.trim();
+
+  if(!date || !task || !name){
+    alert("Wypełnij wszystkie pola");
+    return;
+  }
+
+  tasksRef.push({ date, task, name });
+  form.reset();
+});
+  tasksRef.on("value", (snapshot) => {
+    tableBody.innerHTML = "";
+    snapshot.forEach((child) => {
+      const data = child.val();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.task}</td>
+        <td>${data.name}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  });
   </script>
 </body>
 </html>
