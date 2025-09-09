@@ -118,22 +118,22 @@
 
     let isAdmin = false;
 
-    loginBtn.addEventListener("click", () => {
-      const userPassword = passwordInput.value;
+   loginBtn.addEventListener("click", () => {
+  const userPassword = passwordInput.value;
 
-      if(userPassword === "admin123!") {
-        isAdmin = true; // admin
-        loginScreen.style.display = "none";
-        mainContent.style.display = "block";
-      } else if(userPassword === "lista123!") {
-        isAdmin = false; // zwykły użytkownik
-        loginScreen.style.display = "none";
-        mainContent.style.display = "block";
-      } else {
-        loginError.textContent = "Nieprawidłowe hasło!";
-        passwordInput.value = "";
-      }
-    });
+  if(userPassword === "admin123!" || userPassword === "lista123!") {
+    isAdmin = (userPassword === "admin123!");
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+
+    // Teraz wczytujemy tabelę – po zalogowaniu
+    loadTable();
+  } else {
+    loginError.textContent = "Nieprawidłowe hasło!";
+    passwordInput.value = "";
+  }
+});
+
 
     // Formularz i tabela
     const form = document.getElementById("taskForm");
@@ -155,39 +155,43 @@
     });
 
     // Wyświetlanie tabeli
-    tasksRef.on("value", (snapshot) => {
-      tableBody.innerHTML = "";
+   function loadTable() {
+  tasksRef.on("value", (snapshot) => {
+    tableBody.innerHTML = "";
 
-      // Nagłówek "Akcje" dla admina
-      const thead = document.querySelector("#taskTable thead tr");
-      if(isAdmin && !thead.querySelector(".actionsHeader")){
-        const th = document.createElement("th");
-        th.textContent = "Akcje";
-        th.classList.add("actionsHeader");
-        thead.appendChild(th);
+    // Nagłówek "Akcje" dla admina
+    const thead = document.querySelector("#taskTable thead tr");
+    if(isAdmin && !thead.querySelector(".actionsHeader")){
+      const th = document.createElement("th");
+      th.textContent = "Akcje";
+      th.classList.add("actionsHeader");
+      thead.appendChild(th);
+    }
+
+    snapshot.forEach((child) => {
+      const data = child.val();
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.task}</td>
+        <td>${data.name}</td>
+        ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+      `;
+      tableBody.appendChild(row);
+
+      // Usuń tylko dla admina
+      if(isAdmin){
+        const deleteBtn = row.querySelector(".deleteBtn");
+        deleteBtn.addEventListener("click", () => {
+          tasksRef.child(child.key).remove();
+        });
       }
-
-      snapshot.forEach((child) => {
-        const data = child.val();
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-          <td>${data.date}</td>
-          <td>${data.task}</td>
-          <td>${data.name}</td>
-          ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
-        `;
-        tableBody.appendChild(row);
-
-        // Usuń tylko dla admina
-        if(isAdmin){
-          const deleteBtn = row.querySelector(".deleteBtn");
-          deleteBtn.addEventListener("click", () => {
-            tasksRef.child(child.key).remove();
-          });
-        }
-      });
     });
+  });
+}
+
   </script>
 </body>
 </html>
+
