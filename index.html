@@ -140,4 +140,164 @@ listSelect.addEventListener("change", ()=>{
   setupForm();
   loadTasks();
 });
-if(isAdmin) newListBtn.style.display="bl
+if(isAdmin) newListBtn.style.display="block";
+newListBtn.addEventListener("click", ()=>{
+  const newListName = prompt("Podaj nazwę nowej listy");
+  if(newListName){
+    db.ref("lists/"+newListName).set({}); // pusta lista
+    loadLists();
+  }
+});
+
+// ====== Formularz ======
+const form = document.getElementById("taskForm");
+const formFields = document.getElementById("formFields");
+const tableHead = document.getElementById("tableHead");
+
+function setupForm(){
+  formFields.innerHTML = "";
+  tableHead.innerHTML = "";
+  if(currentList.startsWith("ListaStara")){ // stare listy
+    formFields.innerHTML = `
+      <input type="date" id="dateInput" required>
+      <input type="text" id="taskInput" placeholder="Obowiązek" required>
+      <input type="text" id="nameInput" placeholder="Imię" required>
+    `;
+    tableHead.innerHTML = `<tr>
+      <th>Data</th><th>Obowiązek</th><th>Imię</th><th>Zrobione</th>
+      ${isAdmin?'<th>Akcje</th>':''}
+    </tr>`;
+  } else { // nowe listy
+    formFields.innerHTML = `
+      <input type="text" id="taskInput" placeholder="Zakupy" required>
+      <input type="text" id="amountInput" placeholder="Ile" required>
+      <input type="text" id="nameInput" placeholder="Imię" required>
+    `;
+    tableHead.innerHTML = `<tr>
+      <th>Zakupy</th><th>Ile</th><th>Zrobione</th>
+      ${isAdmin?'<th>Akcje</th>':''}
+    </tr>`;
+  }
+}
+
+// ====== Dodawanie wpisów ======
+form.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  if(currentList.startsWith("ListaStara")){
+    const date = document.getElementById("dateInput").value;
+    const task = document.getElementById("taskInput").value.trim();
+    const name = document.getElementById("nameInput").value.trim();
+    if(!date || !task || !name) return;
+    db.ref("lists/"+currentList).push({date,task,name,done:false});
+  } else {
+    const task = document.getElementById("taskInput").value.trim();
+    const amount = document.getElementById("amountInput").value.trim();
+    const name = document.getElementById("nameInput").value.trim();
+    if(!task || !amount || !name) return;
+    db.ref("lists/"+currentList).push({task,amount,name,done:false});
+  }
+  form.reset();
+});
+
+// ====== Wczytywanie wpisów ======
+const tableBody = document.querySelector("#taskTable tbody");
+function loadTasks(){
+  tableBody.innerHTML="";
+  db.ref("lists/"+currentList).on("value", snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const data = child.val();
+      const row = document.createElement("tr");
+      if(currentList.startsWith("ListaStara")){
+        row.innerHTML=`
+          <td>${data.date}</td>
+          <td>${data.task}</td>
+          <td>${data.name}</td>
+          <td><input type="checkbox" class="doneCheckbox" ${data.done?'checked':''}></td>
+          ${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}
+        `;
+      } else {
+        row.innerHTML=`
+          <td>${data.task}</td>
+          <td>${data.amount}</td>
+          <td><input type="checkbox" class="doneCheckbox" ${data.done?'checked':''}></td>
+          ${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}
+        `;
+      }
+      tableBody.appendChild(row);
+
+      // checkbox done
+      const cb = row.querySelector(".doneCheckbox");
+      cb.addEventListener("change", ()=>{
+        child.ref.update({done: cb.checked});
+      });
+      // delete
+      if(isAdmin){
+        const delBtn = row.querySelector(".deleteBtn");
+        delBtn.addEventListener("click", ()=>{ child.ref.remove(); });
+      }
+    });
+  });
+}
+
+// ====== Filtry (przykład prosty) ======
+const filterFields = document.getElementById("filterFields");
+filterFields.innerHTML = `
+  <input type="text" id="filterName" placeholder="Filtr po imieniu">
+  <input type="text" id="filterTask" placeholder="Filtr obowiązku / zakupy">
+`;
+document.getElementById("applyFilter").addEventListener("click", ()=>{
+  const nameF = document.getElementById("filterName").value.toLowerCase();
+  const taskF = document.getElementById("filterTask").value.toLowerCase();
+  db.ref("lists/"+currentList).get().then(snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const data = child.val();
+      let show = true;
+      if(currentList.startsWith("ListaStara")){
+        if(nameF && !data.name.toLowerCase().includes(nameF)) show=false;
+        if(taskF && !data.task.toLowerCase().includes(taskF)) show=false;
+      } else {
+        if(nameF && !data.name.toLowerCase().includes(nameF)) show=false;
+        if(taskF && !data.task.toLowerCase().includes(taskF) && !data.amount.toLowerCase().includes(taskF)) show=false;
+      }
+      if(show){
+        const row = document.createElement("tr");
+        if(currentList.startsWith("ListaStara")){
+          row.innerHTML=`
+            <td>${data.date}</td>
+            <td>${data.task}</td>
+            <td>${data.name}</td>
+            <td><input type="checkbox" class="doneCheckbox" ${data.done?'checked':''}></td>
+            ${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}
+          `;
+        } else {
+          row.innerHTML=`
+            <td>${data.task}</td>
+            <td>${data.amount}</td>
+            <td><input type="checkbox" class="doneCheckbox" ${data.done?'checked':''}></td>
+            ${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}
+          `;
+        }
+        tableBody.appendChild(row);
+        const cb = row.querySelector(".doneCheckbox");
+        cb.addEventListener("change", ()=>{ child.ref.update({done: cb.checked}); });
+        if(isAdmin){
+          const delBtn = row.querySelector(".deleteBtn");
+          delBtn.addEventListener("click", ()=>{ child.ref.remove(); });
+        }
+      }
+    });
+  });
+});
+document.getElementById("resetFilter").addEventListener("click", ()=>{
+  document.getElementById("filterName").value="";
+  document.getElementById("filterTask").value="";
+  loadTasks();
+});
+
+// ====== Start ======
+loadLists();
+</script>
+</body>
+</html>
