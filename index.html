@@ -10,33 +10,82 @@
     background: #f3f3f3;
     margin: 0;
     padding: 0;
+    text-align: center;
   }
   header {
     background: #4caf50;
     color: white;
     padding: 20px;
-    text-align: center;
   }
   main, #mainContent { padding: 20px; }
   form { margin-bottom: 20px; }
-  form input, form button, form select { padding: 10px; margin: 5px; font-size: 14px; }
-  table { width: 90%; margin: 20px auto; border-collapse: collapse; background: white; }
-  th, td { padding: 10px; border: 1px solid #ddd; }
-  th { background: #4caf50; color: white; }
+  form input, form button, form select {
+    padding: 10px;
+    margin: 5px;
+    font-size: 14px;
+  }
+  form select { width: 200px; }
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover { background: #45a049; }
+  table {
+    width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  th {
+    background: #4caf50;
+    color: white;
+    cursor: pointer;
+  }
   tr:nth-child(even) { background: #f9f9f9; }
   tr:hover { background: #e0f7e9; }
 
-  /* Panele boczne */
-  #leftPanel, #rightPanel {
-    width: 200px; height: 100%; position: fixed; top:0;
-    background: #ddd; transition: 0.3s; padding:10px; overflow:auto;
+  /* --- Panele boczne --- */
+  .sidepanel {
+    position: fixed;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #333;
+    color: white;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    z-index: 1000;
   }
-  #leftPanel { left: -200px; }
-  #leftPanel.show { left:0; }
-  #rightPanel { right: -200px; }
-  #rightPanel.show { right:0; }
+  .sidepanel h3 { margin-top: 0; }
 
-  #adminPanel { margin-bottom: 20px; }
+  /* Lewy */
+  .sidepanel.left { left: 0; transform: translateX(-100%); }
+  .sidepanel.active.left { transform: translateX(0); }
+
+  /* Prawy */
+  .sidepanel.right { right: 0; transform: translateX(100%); }
+  .sidepanel.active.right { transform: translateX(0); }
+
+  /* Guzik przy panelu */
+  .toggle-btn {
+    position: absolute;
+    top: 50px;
+    width: 30px;
+    height: 30px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .sidepanel.left .toggle-btn { right: -30px; }
+  .sidepanel.right .toggle-btn { left: -30px; }
 </style>
 </head>
 <body>
@@ -44,41 +93,49 @@
   <h1>Obowiązki domowe 🏡</h1>
 </header>
 
-<!-- Logowanie -->
-<div id="loginScreen" style="text-align:center;">
+<div id="loginScreen">
   <h2>Wprowadź hasło, aby wejść</h2>
   <input type="password" id="passwordInput" placeholder="Hasło">
   <button id="loginBtn">Zaloguj</button>
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Lewy panel -->
-<div id="leftPanel">
-  <h3>Menu</h3>
-  <button id="openLeft">☰ Zamknij/otwórz</button>
-  <p>Tu można dodać linki lub menu.</p>
-</div>
-
-<!-- Prawy panel -->
-<div id="rightPanel">
-  <h3>Filtry</h3>
-  <button id="openRight">⚙ Zamknij/otwórz</button>
-  <input type="date" id="filterDate">
-  <input type="text" id="filterName" placeholder="Filtruj po imieniu">
-  <select id="filterTask">
-    <option value="">Wszystkie obowiązki</option>
-    <option value="odkurzanie">odkurzanie</option>
-    <option value="zmywarka">zmywarka</option>
-    <option value="zwierzaki">zwierzaki</option>
-  </select>
-  <button id="applyFilter">Filtruj</button>
-  <button id="resetFilter">Resetuj filtr</button>
-</div>
-
-<!-- Główna zawartość -->
 <div id="mainContent" style="display:none;">
 
-  <!-- Formularz dodawania wpisów -->
+  <!-- Lewy panel -->
+  <div class="sidepanel left" id="leftPanel">
+    <button class="toggle-btn" onclick="togglePanel('left')">☰</button>
+    <h3>Menu</h3>
+    <p>Tu mogą być linki lub informacje.</p>
+  </div>
+
+  <!-- Prawy panel -->
+  <div class="sidepanel right" id="rightPanel">
+    <button class="toggle-btn" onclick="togglePanel('right')">⚙</button>
+    <h3>Filtry</h3>
+    <div id="filters">
+      <input type="date" id="filterDate">
+      <input type="text" id="filterName" placeholder="Filtruj po imieniu">
+      <select id="filterTask">
+        <option value="">Wszystkie obowiązki</option>
+        <option value="odkurzanie">odkurzanie</option>
+        <option value="zmywarka">zmywarka</option>
+        <option value="zwierzaki">zwierzaki</option>
+      </select>
+      <button id="applyFilter">Filtruj</button>
+      <button id="resetFilter">Resetuj</button>
+    </div>
+
+    <div id="adminPanel" style="display:none; margin-top:20px;">
+      <h3>Admin</h3>
+      <button id="clearAllBtn">Usuń wszystkie</button>
+      <button id="exportCSVBtn">Eksportuj CSV</button>
+      <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+      <button id="addTaskBtn">Dodaj obowiązek</button>
+    </div>
+  </div>
+
+  <!-- Formularz dodawania -->
   <form id="taskForm">
     <input type="date" id="date" required>
     <select id="taskType" required>
@@ -91,20 +148,12 @@
     <button type="submit">Dodaj</button>
   </form>
 
-  <!-- Panel admina -->
-  <div id="adminPanel" style="display:none;">
-    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
-    <button id="exportCSVBtn">Eksportuj CSV</button>
-    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-    <button id="addTaskBtn">Dodaj obowiązek</button>
-  </div>
-
   <!-- Tabela -->
   <table id="taskTable">
     <thead>
       <tr>
         <th>Data</th>
-        <th>Co zrobił</th>
+        <th>Obowiązek</th>
         <th>Imię</th>
       </tr>
     </thead>
@@ -130,53 +179,63 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const tasksRef = db.ref("tasks");
 
+// Panele
+function togglePanel(side){
+  const panel = document.getElementById(side + "Panel");
+  panel.classList.toggle("active");
+}
+
+// Logowanie
 const loginScreen = document.getElementById("loginScreen");
 const mainContent = document.getElementById("mainContent");
 const loginBtn = document.getElementById("loginBtn");
 const passwordInput = document.getElementById("passwordInput");
 const loginError = document.getElementById("loginError");
 const adminPanel = document.getElementById("adminPanel");
-const form = document.getElementById("taskForm");
-const tableBody = document.querySelector("#taskTable tbody");
 
 let isAdmin = false;
 
-// Logowanie
 loginBtn.addEventListener("click", () => {
-  const pass = passwordInput.value;
-  if(pass==="admin123!" || pass==="lista123!"){
-    loginScreen.style.display="none";
-    mainContent.style.display="block";
-    form.style.display="block"; // wszyscy mogą dodawać wpisy
-    if(pass==="admin123!"){
-      isAdmin = true;
-      adminPanel.style.display="block";
-    } else {
-      isAdmin = false;
-      adminPanel.style.display="none";
-    }
+  const userPassword = passwordInput.value;
+
+  if(userPassword === "admin123!") {
+    isAdmin = true;
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+    adminPanel.style.display = "block";
     loadTable();
-  } else{
-    loginError.textContent="Nieprawidłowe hasło!";
-    passwordInput.value="";
+  } else if(userPassword === "lista123!") {
+    isAdmin = false;
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+    loadTable();
+  } else {
+    loginError.textContent = "Nieprawidłowe hasło!";
+    passwordInput.value = "";
   }
 });
 
-// Dodawanie wpisu
-form.addEventListener("submit", e=>{
+// Formularz dodawania wpisów
+const form = document.getElementById("taskForm");
+const tableBody = document.querySelector("#taskTable tbody");
+
+form.addEventListener("submit", (e) => {
   e.preventDefault();
   const date = document.getElementById("date").value;
   const task = document.getElementById("taskType").value;
   const name = document.getElementById("name").value.trim();
-  if(!date || !task || !name){ alert("Wypełnij wszystkie pola"); return; }
-  tasksRef.push({date,task,name});
+  if(!date || !task || !name){
+    alert("Wypełnij wszystkie pola");
+    return;
+  }
+  tasksRef.push({ date, task, name });
   form.reset();
 });
 
-// Wczytywanie tabeli
+// Wczytanie tabeli
 function loadTable(){
-  tasksRef.on("value", snapshot=>{
-    tableBody.innerHTML="";
+  tasksRef.on("value", snapshot => {
+    tableBody.innerHTML = "";
     const thead = document.querySelector("#taskTable thead tr");
     if(isAdmin && !thead.querySelector(".actionsHeader")){
       const th = document.createElement("th");
@@ -184,91 +243,121 @@ function loadTable(){
       th.classList.add("actionsHeader");
       thead.appendChild(th);
     }
-    snapshot.forEach(child=>{
+
+    snapshot.forEach(child => {
       const data = child.val();
       const row = document.createElement("tr");
-      row.innerHTML=`
+
+      row.innerHTML = `
         <td>${data.date}</td>
         <td>${data.task}</td>
         <td>${data.name}</td>
-        ${isAdmin? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+        ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
       `;
       tableBody.appendChild(row);
+
       if(isAdmin){
-        row.querySelector(".deleteBtn").addEventListener("click", ()=>{ tasksRef.child(child.key).remove(); });
+        row.querySelector(".deleteBtn").addEventListener("click", () => {
+          tasksRef.child(child.key).remove();
+        });
       }
     });
   });
 }
 
-// Admin
-document.getElementById("clearAllBtn").addEventListener("click", ()=>{
-  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
+// Admin - usuń wszystkie
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")){
+    tasksRef.remove();
+  }
 });
-document.getElementById("exportCSVBtn").addEventListener("click", ()=>{
-  tasksRef.get().then(snapshot=>{
-    let csv="Data,Obowiązek,Imię\n";
-    snapshot.forEach(child=>{
+
+// Admin - eksport CSV
+document.getElementById("exportCSVBtn").addEventListener("click", () => {
+  tasksRef.get().then(snapshot => {
+    let csv = "Data,Obowiązek,Imię\n";
+    snapshot.forEach(child => {
       const data = child.val();
-      csv+=`${data.date},${data.task},${data.name}\n`;
+      csv += `${data.date},${data.task},${data.name}\n`;
     });
-    const blob = new Blob([csv],{type:'text/csv'});
+    const blob = new Blob([csv], {type: 'text/csv'});
     const url = URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='obowiazki.csv'; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'obowiazki.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   });
 });
-document.getElementById("addTaskBtn").addEventListener("click", ()=>{
-  const newTask = document.getElementById("newTaskInput").value.trim();
+
+// Admin - dodawanie nowego obowiązku
+const addTaskBtn = document.getElementById("addTaskBtn");
+const newTaskInput = document.getElementById("newTaskInput");
+
+addTaskBtn.addEventListener("click", () => {
+  const newTask = newTaskInput.value.trim();
   if(newTask){
     const select = document.getElementById("taskType");
     const filterSelect = document.getElementById("filterTask");
-    const option = document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
-    const filterOption = document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
-    document.getElementById("newTaskInput").value="";
+
+    const option = document.createElement("option");
+    option.value = newTask;
+    option.textContent = newTask;
+    select.appendChild(option);
+
+    const filterOption = document.createElement("option");
+    filterOption.value = newTask;
+    filterOption.textContent = newTask;
+    filterSelect.appendChild(filterOption);
+
+    newTaskInput.value = "";
     alert("Nowy obowiązek dodany!");
-  } else { alert("Wpisz nazwę obowiązku"); }
+  } else {
+    alert("Wpisz nazwę obowiązku");
+  }
 });
 
 // Filtry
-document.getElementById("applyFilter").addEventListener("click", ()=>{
-  const dateF = document.getElementById("filterDate").value;
-  const nameF = document.getElementById("filterName").value.toLowerCase();
-  const taskF = document.getElementById("filterTask").value;
-  tasksRef.get().then(snapshot=>{
-    tableBody.innerHTML="";
-    snapshot.forEach(child=>{
+document.getElementById("applyFilter").addEventListener("click", () => {
+  const dateFilter = document.getElementById("filterDate").value;
+  const nameFilter = document.getElementById("filterName").value.toLowerCase();
+  const taskFilter = document.getElementById("filterTask").value;
+
+  tasksRef.get().then(snapshot => {
+    tableBody.innerHTML = "";
+    snapshot.forEach(child => {
       const data = child.val();
-      let show=true;
-      if(dateF && data.date!==dateF) show=false;
-      if(nameF && !data.name.toLowerCase().includes(nameF)) show=false;
-      if(taskF && data.task!==taskF) show=false;
+      let show = true;
+      if(dateFilter && data.date !== dateFilter) show = false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show = false;
+      if(taskFilter && data.task !== taskFilter) show = false;
+
       if(show){
         const row = document.createElement("tr");
-        row.innerHTML=`
+        row.innerHTML = `
           <td>${data.date}</td>
           <td>${data.task}</td>
           <td>${data.name}</td>
-          ${isAdmin? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+          ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
         `;
         tableBody.appendChild(row);
-        if(isAdmin){ row.querySelector(".deleteBtn").addEventListener("click", ()=>{ tasksRef.child(child.key).remove(); }); }
+
+        if(isAdmin){
+          row.querySelector(".deleteBtn").addEventListener("click", () => {
+            tasksRef.child(child.key).remove();
+          });
+        }
       }
     });
   });
 });
-document.getElementById("resetFilter").addEventListener("click", ()=>{
-  document.getElementById("filterDate").value="";
-  document.getElementById("filterName").value="";
-  document.getElementById("filterTask").value="";
-  loadTable();
-});
 
-// Panele boczne
-document.getElementById("openLeft").addEventListener("click", ()=>{
-  document.getElementById("leftPanel").classList.toggle("show");
-});
-document.getElementById("openRight").addEventListener("click", ()=>{
-  document.getElementById("rightPanel").classList.toggle("show");
+// Reset filtrów
+document.getElementById("resetFilter").addEventListener("click", () => {
+  document.getElementById("filterDate").value = "";
+  document.getElementById("filterName").value = "";
+  document.getElementById("filterTask").value = "";
+  loadTable();
 });
 </script>
 </body>
