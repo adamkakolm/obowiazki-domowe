@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obowiązki domowe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #4caf50;
+      color: white;
+      padding: 20px;
+    }
+    main { padding: 20px; }
+    form { margin-bottom: 20px; }
+    form input, form button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background: #4caf50;
+      color: white;
+    }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tr:hover { background: #e0f7e9; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Obowiązki domowe 🏡</h1>
+  </header>
+
+  <main>
+    <form id="taskForm">
+      <input type="date" id="date" required>
+      <input type="text" id="task" placeholder="Co zrobił" required>
+      <input type="text" id="name" placeholder="Imię" required>
+      <button type="submit">Dodaj</button>
+    </form>
+
+    <table id="taskTable">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Co zrobił</th>
+          <th>Imię</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+   const firebaseConfig = {
+  apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
+  authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
+  databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "obowiazki-domowe-b2312",
+  storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
+  messagingSenderId: "348397631566",
+  appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
+    };
+
+    // Inicjalizacja
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const tasksRef = db.ref("tasks");
+
+    const form = document.getElementById("taskForm");
+    const tableBody = document.querySelector("#taskTable tbody");
+
+    // Dodawanie do bazy
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const date = document.getElementById("date").value;
+      const task = document.getElementById("task").value;
+      const name = document.getElementById("name").value;
+
+      tasksRef.push({ date, task, name });
+      form.reset();
+    });
+
+    // Odczyt danych z bazy i wyświetlanie w tabeli
+    tasksRef.on("value", (snapshot) => {
+      tableBody.innerHTML = "";
+      snapshot.forEach((child) => {
+        const data = child.val();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.date}</td>
+          <td>${data.task}</td>
+          <td>${data.name}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    });
+  </script>
+</body>
+</html>
