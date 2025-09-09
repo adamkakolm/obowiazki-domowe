@@ -58,7 +58,12 @@
   <main>
     <form id="taskForm">
       <input type="date" id="date" required>
-      <input type="text" id="task" placeholder="Co zrobił" required>
+      <select id="taskType" required>
+  <option value="" disabled selected>Wybierz obowiązek</option>
+  <option value="odkurzanie">odkurzanie</option>
+  <option value="zmywarka">zmywarka</option>
+  <option value="zwierzaki">zwierzaki</option>
+</select>
       <input type="text" id="name" placeholder="Imię" required>
       <button type="submit">Dodaj</button>
     </form>
@@ -102,7 +107,7 @@
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const date = document.getElementById("date").value;
-      const task = document.getElementById("task").value;
+      const task = document.getElementById("taskType").value;
       const name = document.getElementById("name").value;
 
       tasksRef.push({ date, task, name });
