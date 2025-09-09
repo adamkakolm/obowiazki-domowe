@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Obowiązki domowe</title>
+  <title>Obowiązki domowe - Admin</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@
       margin: 5px;
       font-size: 14px;
     }
-    form select { width: 200px; } /* poprawka szerokości listy */
+    form select { width: 200px; }
     button {
       background: #4caf50;
       color: white;
@@ -95,7 +95,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
-    // Konfiguracja Firebase (Twoje dane)
+    // Konfiguracja Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
       authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
@@ -105,22 +105,28 @@
       messagingSenderId: "348397631566",
       appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
     };
-
-    // Inicjalizacja Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const tasksRef = db.ref("tasks");
 
-    // Logowanie hasłem
-    const correctPassword = "lista123!";
+    // Logowanie
     const loginScreen = document.getElementById("loginScreen");
     const mainContent = document.getElementById("mainContent");
     const loginBtn = document.getElementById("loginBtn");
     const passwordInput = document.getElementById("passwordInput");
     const loginError = document.getElementById("loginError");
 
+    let isAdmin = false;
+
     loginBtn.addEventListener("click", () => {
-      if(passwordInput.value === correctPassword){
+      const userPassword = passwordInput.value;
+
+      if(userPassword === "admin123!") {
+        isAdmin = true; // admin
+        loginScreen.style.display = "none";
+        mainContent.style.display = "block";
+      } else if(userPassword === "lista123!") {
+        isAdmin = false; // zwykły użytkownik
         loginScreen.style.display = "none";
         mainContent.style.display = "block";
       } else {
@@ -129,7 +135,7 @@
       }
     });
 
-    // Formularz
+    // Formularz i tabela
     const form = document.getElementById("taskForm");
     const tableBody = document.querySelector("#taskTable tbody");
 
@@ -151,15 +157,35 @@
     // Wyświetlanie tabeli
     tasksRef.on("value", (snapshot) => {
       tableBody.innerHTML = "";
+
+      // Nagłówek "Akcje" dla admina
+      const thead = document.querySelector("#taskTable thead tr");
+      if(isAdmin && !thead.querySelector(".actionsHeader")){
+        const th = document.createElement("th");
+        th.textContent = "Akcje";
+        th.classList.add("actionsHeader");
+        thead.appendChild(th);
+      }
+
       snapshot.forEach((child) => {
         const data = child.val();
         const row = document.createElement("tr");
+
         row.innerHTML = `
           <td>${data.date}</td>
           <td>${data.task}</td>
           <td>${data.name}</td>
+          ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
         `;
         tableBody.appendChild(row);
+
+        // Usuń tylko dla admina
+        if(isAdmin){
+          const deleteBtn = row.querySelector(".deleteBtn");
+          deleteBtn.addEventListener("click", () => {
+            tasksRef.child(child.key).remove();
+          });
+        }
       });
     });
   </script>
