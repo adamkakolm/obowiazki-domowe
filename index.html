@@ -1,132 +1,160 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Obowiązki domowe - Admin</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #4caf50;
-      color: white;
-      padding: 20px;
-    }
-    main, #mainContent { padding: 20px; }
-    form { margin-bottom: 20px; }
-    form input, form button, form select {
-      padding: 10px;
-      margin: 5px;
-      font-size: 14px;
-    }
-    form select { width: 200px; }
-    button {
-      background: #4caf50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover { background: #45a049; }
-    table {
-      width: 90%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-    }
-    th {
-      background: #4caf50;
-      color: white;
-    }
-    tr:nth-child(even) { background: #f9f9f9; }
-    tr:hover { background: #e0f7e9; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obowiązki domowe - Admin</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f3f3;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  header {
+    background: #4caf50;
+    color: white;
+    padding: 20px;
+  }
+  main, #mainContent { padding: 20px; }
+  form { margin-bottom: 20px; }
+  form input, form button, form select {
+    padding: 10px;
+    margin: 5px;
+    font-size: 14px;
+  }
+  form select { width: 200px; }
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover { background: #45a049; }
+  table {
+    width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  th {
+    background: #4caf50;
+    color: white;
+    cursor: pointer;
+  }
+  tr:nth-child(even) { background: #f9f9f9; }
+  tr:hover { background: #e0f7e9; }
+  #adminPanel { margin-bottom: 20px; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Obowiązki domowe 🏡</h1>
-  </header>
+<header>
+  <h1>Obowiązki domowe 🏡</h1>
+</header>
 
-  <!-- Ekran logowania -->
-  <div id="loginScreen">
-    <h2>Wprowadź hasło, aby wejść</h2>
-    <input type="password" id="passwordInput" placeholder="Hasło">
-    <button id="loginBtn">Zaloguj</button>
-    <p id="loginError" style="color:red;"></p>
+<div id="loginScreen">
+  <h2>Wprowadź hasło, aby wejść</h2>
+  <input type="password" id="passwordInput" placeholder="Hasło">
+  <button id="loginBtn">Zaloguj</button>
+  <p id="loginError" style="color:red;"></p>
+</div>
+
+<div id="mainContent" style="display:none;">
+  <!-- Formularz dodawania wpisów -->
+  <form id="taskForm">
+    <input type="date" id="date" required>
+    <select id="taskType" required>
+      <option value="" disabled selected>Wybierz obowiązek</option>
+      <option value="odkurzanie">odkurzanie</option>
+      <option value="zmywarka">zmywarka</option>
+      <option value="zwierzaki">zwierzaki</option>
+    </select>
+    <input type="text" id="name" placeholder="Imię" required>
+    <button type="submit">Dodaj</button>
+  </form>
+
+  <!-- Filtry dostępne dla wszystkich -->
+  <div id="filters">
+    <input type="date" id="filterDate">
+    <input type="text" id="filterName" placeholder="Filtruj po imieniu">
+    <select id="filterTask">
+      <option value="">Wszystkie obowiązki</option>
+      <option value="odkurzanie">odkurzanie</option>
+      <option value="zmywarka">zmywarka</option>
+      <option value="zwierzaki">zwierzaki</option>
+    </select>
+    <button id="applyFilter">Filtruj</button>
+    <button id="resetFilter">Resetuj filtr</button>
   </div>
 
-  <!-- Główna zawartość (formularz i tabela) -->
-  <div id="mainContent" style="display:none;">
-    <form id="taskForm">
-      <input type="date" id="date" required>
-      <select id="taskType" required>
-        <option value="" disabled selected>Wybierz obowiązek</option>
-        <option value="odkurzanie">odkurzanie</option>
-        <option value="zmywarka">zmywarka</option>
-        <option value="zwierzaki">zwierzaki</option>
-      </select>
-      <input type="text" id="name" placeholder="Imię" required>
-      <button type="submit">Dodaj</button>
-    </form>
-
-    <table id="taskTable">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Co zrobił</th>
-          <th>Imię</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <!-- Panel admina -->
+  <div id="adminPanel" style="display:none;">
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+    <button id="exportCSVBtn">Eksportuj CSV</button>
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <!-- Tabela -->
+  <table id="taskTable">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Co zrobił</th>
+        <th>Imię</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
-  <script>
-    // Konfiguracja Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
-      authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
-      databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "obowiazki-domowe-b2312",
-      storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
-      messagingSenderId: "348397631566",
-      appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const tasksRef = db.ref("tasks");
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-    // Logowanie
-    const loginScreen = document.getElementById("loginScreen");
-    const mainContent = document.getElementById("mainContent");
-    const loginBtn = document.getElementById("loginBtn");
-    const passwordInput = document.getElementById("passwordInput");
-    const loginError = document.getElementById("loginError");
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
+  authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
+  databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "obowiazki-domowe-b2312",
+  storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
+  messagingSenderId: "348397631566",
+  appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const tasksRef = db.ref("tasks");
 
-    let isAdmin = false;
+// Logowanie
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("passwordInput");
+const loginError = document.getElementById("loginError");
+const adminPanel = document.getElementById("adminPanel");
 
-   loginBtn.addEventListener("click", () => {
+let isAdmin = false;
+
+loginBtn.addEventListener("click", () => {
   const userPassword = passwordInput.value;
 
-  if(userPassword === "admin123!" || userPassword === "lista123!") {
-    isAdmin = (userPassword === "admin123!");
+  if(userPassword === "admin123!") {
+    isAdmin = true;
     loginScreen.style.display = "none";
     mainContent.style.display = "block";
-
-    // Teraz wczytujemy tabelę – po zalogowaniu
+    adminPanel.style.display = "block";
+    loadTable();
+  } else if(userPassword === "lista123!") {
+    isAdmin = false;
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
     loadTable();
   } else {
     loginError.textContent = "Nieprawidłowe hasło!";
@@ -134,32 +162,27 @@
   }
 });
 
+// Formularz dodawania wpisów
+const form = document.getElementById("taskForm");
+const tableBody = document.querySelector("#taskTable tbody");
 
-    // Formularz i tabela
-    const form = document.getElementById("taskForm");
-    const tableBody = document.querySelector("#taskTable tbody");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const date = document.getElementById("date").value;
+  const task = document.getElementById("taskType").value;
+  const name = document.getElementById("name").value.trim();
+  if(!date || !task || !name){
+    alert("Wypełnij wszystkie pola");
+    return;
+  }
+  tasksRef.push({ date, task, name });
+  form.reset();
+});
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const date = document.getElementById("date").value;
-      const task = document.getElementById("taskType").value;
-      const name = document.getElementById("name").value.trim();
-
-      if(!date || !task || !name){
-        alert("Wypełnij wszystkie pola");
-        return;
-      }
-
-      tasksRef.push({ date, task, name });
-      form.reset();
-    });
-
-    // Wyświetlanie tabeli
-   function loadTable() {
-  tasksRef.on("value", (snapshot) => {
+// Funkcja do wczytania tabeli
+function loadTable(){
+  tasksRef.on("value", snapshot => {
     tableBody.innerHTML = "";
-
-    // Nagłówek "Akcje" dla admina
     const thead = document.querySelector("#taskTable thead tr");
     if(isAdmin && !thead.querySelector(".actionsHeader")){
       const th = document.createElement("th");
@@ -168,7 +191,7 @@
       thead.appendChild(th);
     }
 
-    snapshot.forEach((child) => {
+    snapshot.forEach(child => {
       const data = child.val();
       const row = document.createElement("tr");
 
@@ -180,10 +203,8 @@
       `;
       tableBody.appendChild(row);
 
-      // Usuń tylko dla admina
       if(isAdmin){
-        const deleteBtn = row.querySelector(".deleteBtn");
-        deleteBtn.addEventListener("click", () => {
+        row.querySelector(".deleteBtn").addEventListener("click", () => {
           tasksRef.child(child.key).remove();
         });
       }
@@ -191,7 +212,100 @@
   });
 }
 
-  </script>
+// Admin - usuń wszystkie
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")){
+    tasksRef.remove();
+  }
+});
+
+// Admin - eksport CSV
+document.getElementById("exportCSVBtn").addEventListener("click", () => {
+  tasksRef.get().then(snapshot => {
+    let csv = "Data,Obowiązek,Imię\n";
+    snapshot.forEach(child => {
+      const data = child.val();
+      csv += `${data.date},${data.task},${data.name}\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'obowiazki.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+});
+
+// Admin - dodawanie nowego obowiązku
+const addTaskBtn = document.getElementById("addTaskBtn");
+const newTaskInput = document.getElementById("newTaskInput");
+
+addTaskBtn.addEventListener("click", () => {
+  const newTask = newTaskInput.value.trim();
+  if(newTask){
+    const select = document.getElementById("taskType");
+    const filterSelect = document.getElementById("filterTask");
+
+    const option = document.createElement("option");
+    option.value = newTask;
+    option.textContent = newTask;
+    select.appendChild(option);
+
+    const filterOption = document.createElement("option");
+    filterOption.value = newTask;
+    filterOption.textContent = newTask;
+    filterSelect.appendChild(filterOption);
+
+    newTaskInput.value = "";
+    alert("Nowy obowiązek dodany!");
+  } else {
+    alert("Wpisz nazwę obowiązku");
+  }
+});
+
+// Filtry dla wszystkich
+document.getElementById("applyFilter").addEventListener("click", () => {
+  const dateFilter = document.getElementById("filterDate").value;
+  const nameFilter = document.getElementById("filterName").value.toLowerCase();
+  const taskFilter = document.getElementById("filterTask").value;
+
+  tasksRef.get().then(snapshot => {
+    tableBody.innerHTML = "";
+    snapshot.forEach(child => {
+      const data = child.val();
+      let show = true;
+      if(dateFilter && data.date !== dateFilter) show = false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show = false;
+      if(taskFilter && data.task !== taskFilter) show = false;
+
+      if(show){
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.date}</td>
+          <td>${data.task}</td>
+          <td>${data.name}</td>
+          ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+        `;
+        tableBody.appendChild(row);
+
+        if(isAdmin){
+          row.querySelector(".deleteBtn").addEventListener("click", () => {
+            tasksRef.child(child.key).remove();
+          });
+        }
+      }
+    });
+  });
+});
+
+// Reset filtrów
+document.getElementById("resetFilter").addEventListener("click", () => {
+  document.getElementById("filterDate").value = "";
+  document.getElementById("filterName").value = "";
+  document.getElementById("filterTask").value = "";
+  loadTable();
+});
+</script>
 </body>
 </html>
-
