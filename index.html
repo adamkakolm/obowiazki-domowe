@@ -19,35 +19,35 @@ header {
   text-align: center;
 }
 
-/* Panele boczne */
-.side-panel {
+/* Panel boczny (lewo/prawo razem) */
+#sidePanel {
   position: fixed;
   top: 0;
-  width: 250px;
+  left: 0;
+  width: 280px;
   height: 100%;
   background: #fff;
   box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  transform: translateX(-100%);
   transition: transform 0.3s ease;
   z-index: 1000;
   overflow-y: auto;
   padding: 20px;
 }
-#leftPanel { left: 0; transform: translateX(-100%); }
-#rightPanel { right: 0; transform: translateX(100%); }
 
 /* Przycisk wysuwający panel */
-.panel-toggle {
+#sideToggle {
   position: fixed;
   top: 50px;
+  left: 0;
   background: #4caf50;
   color: white;
   padding: 10px;
   cursor: pointer;
   z-index: 1100;
   font-weight: bold;
+  border-radius: 0 5px 5px 0;
 }
-#leftToggle { left: 0; border-radius: 0 5px 5px 0; }
-#rightToggle { right: 0; border-radius: 5px 0 0 5px; }
 
 /* Formularze i tabela */
 main {
@@ -112,8 +112,8 @@ tr:hover { background: #e0f7e9; }
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Lewy panel filtrów -->
-<div id="leftPanel" class="side-panel">
+<!-- Panel boczny (filtry + admin) -->
+<div id="sidePanel">
   <h3>Filtry</h3>
   <input type="date" id="filterDate"><br>
   <input type="text" id="filterName" placeholder="Filtruj po imieniu"><br>
@@ -125,18 +125,16 @@ tr:hover { background: #e0f7e9; }
   </select><br>
   <button id="applyFilter">Filtruj</button>
   <button id="resetFilter">Resetuj</button>
-</div>
-<div id="leftToggle" class="panel-toggle">⚙</div>
 
-<!-- Prawy panel admina -->
-<div id="rightPanel" class="side-panel">
-  <h3>Panel admina</h3>
-  <button id="clearAllBtn">Usuń wszystkie wpisy</button><br>
-  <button id="exportCSVBtn">Eksportuj CSV</button><br><br>
-  <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-  <button id="addTaskBtn">Dodaj obowiązek</button>
+  <div id="adminControls" style="display:none; margin-top:20px;">
+    <h3>Panel admina</h3>
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button><br>
+    <button id="exportCSVBtn">Eksportuj CSV</button><br><br>
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
+  </div>
 </div>
-<div id="rightToggle" class="panel-toggle">☰</div>
+<div id="sideToggle">☰</div>
 
 <main id="mainContent" style="display:none;">
   <form id="taskForm">
@@ -167,6 +165,7 @@ tr:hover { background: #e0f7e9; }
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
@@ -187,6 +186,8 @@ const mainContent = document.getElementById("mainContent");
 const loginBtn = document.getElementById("loginBtn");
 const passwordInput = document.getElementById("passwordInput");
 const loginError = document.getElementById("loginError");
+const adminControls = document.getElementById("adminControls");
+const actionHeader = document.getElementById("actionHeader");
 
 let isAdmin = false;
 
@@ -196,13 +197,14 @@ loginBtn.addEventListener("click", () => {
     isAdmin = true;
     loginScreen.style.display = "none";
     mainContent.style.display = "block";
-    document.getElementById("rightPanel").style.display = "block";
-    document.getElementById("actionHeader").style.display = "table-cell";
+    adminControls.style.display = "block";
+    actionHeader.style.display = "table-cell";
   } else if(pass === "lista123!") {
     isAdmin = false;
     loginScreen.style.display = "none";
     mainContent.style.display = "block";
-    document.getElementById("rightPanel").style.display = "none";
+    adminControls.style.display = "none";
+    actionHeader.style.display = "none";
   } else {
     loginError.textContent = "Nieprawidłowe hasło!";
     passwordInput.value = "";
@@ -210,48 +212,41 @@ loginBtn.addEventListener("click", () => {
   loadTable();
 });
 
-// Panele boczne
-const leftPanel = document.getElementById("leftPanel");
-const leftToggle = document.getElementById("leftToggle");
-leftToggle.addEventListener("click", () => {
-  if(leftPanel.style.transform === "translateX(0px)") leftPanel.style.transform = "translateX(-100%)";
-  else leftPanel.style.transform = "translateX(0)";
-});
-
-const rightPanel = document.getElementById("rightPanel");
-const rightToggle = document.getElementById("rightToggle");
-rightToggle.addEventListener("click", () => {
-  if(rightPanel.style.transform === "translateX(0px)") rightPanel.style.transform = "translateX(100%)";
-  else rightPanel.style.transform = "translateX(0)";
+// Panel boczny toggle
+const sidePanel = document.getElementById("sidePanel");
+const sideToggle = document.getElementById("sideToggle");
+sideToggle.addEventListener("click", () => {
+  if(sidePanel.style.transform === "translateX(0px)") sidePanel.style.transform = "translateX(-100%)";
+  else sidePanel.style.transform = "translateX(0)";
 });
 
 // Formularz dodawania
 const form = document.getElementById("taskForm");
 const tableBody = document.querySelector("#taskTable tbody");
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", (e)=>{
   e.preventDefault();
   const date = document.getElementById("date").value;
   const task = document.getElementById("taskType").value;
   const name = document.getElementById("name").value.trim();
   if(!date || !task || !name) return alert("Wypełnij wszystkie pola");
-  tasksRef.push({date, task, name});
+  tasksRef.push({date,task,name});
   form.reset();
 });
 
-// Funkcja do wczytania tabeli
+// Wczytywanie tabeli
 function loadTable(){
-  tasksRef.on("value", snapshot => {
-    tableBody.innerHTML = "";
-    snapshot.forEach(child => {
-      const data = child.val();
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
+  tasksRef.on("value", snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const data=child.val();
+      const row=document.createElement("tr");
+      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
       if(isAdmin){
-        const td = document.createElement("td");
-        const btn = document.createElement("button");
-        btn.textContent = "Usuń";
-        btn.onclick = () => tasksRef.child(child.key).remove();
+        const td=document.createElement("td");
+        const btn=document.createElement("button");
+        btn.textContent="Usuń";
+        btn.onclick=()=>tasksRef.child(child.key).remove();
         td.appendChild(btn);
         row.appendChild(td);
       }
@@ -261,26 +256,26 @@ function loadTable(){
 }
 
 // Filtry
-document.getElementById("applyFilter").addEventListener("click", () => {
-  const dateFilter = document.getElementById("filterDate").value;
-  const nameFilter = document.getElementById("filterName").value.toLowerCase();
-  const taskFilter = document.getElementById("filterTask").value;
-  tasksRef.get().then(snapshot => {
-    tableBody.innerHTML = "";
-    snapshot.forEach(child => {
-      const data = child.val();
-      let show = true;
-      if(dateFilter && data.date !== dateFilter) show = false;
-      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show = false;
-      if(taskFilter && data.task !== taskFilter) show = false;
+document.getElementById("applyFilter").addEventListener("click",()=>{
+  const dateFilter=document.getElementById("filterDate").value;
+  const nameFilter=document.getElementById("filterName").value.toLowerCase();
+  const taskFilter=document.getElementById("filterTask").value;
+  tasksRef.get().then(snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const data=child.val();
+      let show=true;
+      if(dateFilter && data.date!==dateFilter) show=false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show=false;
+      if(taskFilter && data.task!==taskFilter) show=false;
       if(show){
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
+        const row=document.createElement("tr");
+        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
         if(isAdmin){
-          const td = document.createElement("td");
-          const btn = document.createElement("button");
-          btn.textContent = "Usuń";
-          btn.onclick = () => tasksRef.child(child.key).remove();
+          const td=document.createElement("td");
+          const btn=document.createElement("button");
+          btn.textContent="Usuń";
+          btn.onclick=()=>tasksRef.child(child.key).remove();
           td.appendChild(btn);
           row.appendChild(td);
         }
@@ -290,7 +285,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
   });
 });
 
-document.getElementById("resetFilter").addEventListener("click", () => {
+document.getElementById("resetFilter").addEventListener("click",()=>{
   document.getElementById("filterDate").value="";
   document.getElementById("filterName").value="";
   document.getElementById("filterTask").value="";
@@ -298,32 +293,30 @@ document.getElementById("resetFilter").addEventListener("click", () => {
 });
 
 // Admin funkcje
-document.getElementById("clearAllBtn").addEventListener("click", () => {
-  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
-});
-document.getElementById("exportCSVBtn").addEventListener("click", () => {
-  tasksRef.get().then(snapshot => {
+document.getElementById("clearAllBtn").addEventListener("click",()=>{if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();});
+document.getElementById("exportCSVBtn").addEventListener("click",()=>{
+  tasksRef.get().then(snapshot=>{
     let csv="Data,Obowiązek,Imię\n";
-    snapshot.forEach(child => {
-      const data = child.val();
-      csv += `${data.date},${data.task},${data.name}\n`;
+    snapshot.forEach(child=>{
+      const data=child.val();
+      csv+=`${data.date},${data.task},${data.name}\n`;
     });
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
     a.href=url;
     a.download="obowiazki.csv";
     a.click();
     URL.revokeObjectURL(url);
   });
 });
-document.getElementById("addTaskBtn").addEventListener("click", () => {
-  const newTask = document.getElementById("newTaskInput").value.trim();
+document.getElementById("addTaskBtn").addEventListener("click",()=>{
+  const newTask=document.getElementById("newTaskInput").value.trim();
   if(!newTask) return alert("Wpisz nazwę obowiązku");
-  const select = document.getElementById("taskType");
-  const filterSelect = document.getElementById("filterTask");
-  const option = document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
-  const filterOption = document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
+  const select=document.getElementById("taskType");
+  const filterSelect=document.getElementById("filterTask");
+  const option=document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
+  const filterOption=document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
   document.getElementById("newTaskInput").value="";
   alert("Nowy obowiązek dodany!");
 });
