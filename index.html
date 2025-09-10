@@ -7,21 +7,35 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    margin: 0;
     background: #f3f3f3;
-    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    text-align: center;
   }
   header {
     background: #4caf50;
     color: white;
-    padding: 15px;
-    text-align: center;
+    padding: 20px;
     position: relative;
   }
   main, #mainContent { padding: 20px; }
+  form { margin-bottom: 20px; }
+  form input, form button, form select {
+    padding: 10px;
+    margin: 5px;
+    font-size: 14px;
+  }
+  form select { width: 200px; }
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover { background: #45a049; }
   table {
     width: 90%;
-    margin: 20px auto;
+    margin: 0 auto;
     border-collapse: collapse;
     background: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -35,99 +49,129 @@
     color: white;
   }
   tr:nth-child(even) { background: #f9f9f9; }
-
-  /* Panele boczne */
-  .side-panel {
-    position: fixed;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background: #333;
-    color: white;
-    padding: 20px;
-    transition: transform 0.3s ease;
-    z-index: 1001;
-  }
-  .side-panel h2 { margin-top: 0; }
-  .side-panel button { margin-top: 10px; }
+  tr:hover { background: #e0f7e9; }
+  #adminPanel { margin-bottom: 20px; }
 
   /* Lewy panel */
   #leftPanel {
-    left: 0;
-    transform: translateX(-100%);
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -250px;
+    background-color: #333;
+    padding-top: 60px;
+    transition: 0.3s;
+    color: white;
+    overflow-x: hidden;
+    z-index: 1000;
   }
-  #leftPanel.open { transform: translateX(0); }
+  #leftPanel button {
+    display: block;
+    margin: 10px auto;
+    background: #4caf50;
+  }
+  #leftPanelToggle {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    background: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.3s;
+    z-index: 1100;
+  }
+  #leftPanel.open { left: 0; }
+  #leftPanel.open + #leftPanelToggle { left: 250px; }
 
   /* Prawy panel */
   #rightPanel {
-    right: 0;
-    transform: translateX(100%);
-  }
-  #rightPanel.open { transform: translateX(0); }
-
-  /* Uchwyty (kwadraciki) */
-  .handle {
+    height: 100%;
+    width: 250px;
     position: fixed;
-    top: 50%;
-    width: 20px;
-    height: 60px;
-    background: #4caf50;
+    top: 0;
+    right: -250px;
+    background-color: #444;
+    padding-top: 60px;
+    transition: 0.3s;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1002;
-    border-radius: 0 5px 5px 0;
-  }
-  #leftHandle {
-    left: 0;
-    transform: translate(-80%, -50%);
-  }
-  #rightHandle {
-    right: 0;
-    transform: translate(80%, -50%);
-    border-radius: 5px 0 0 5px;
-  }
-
-  /* Overlay */
-  #overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    display: none;
+    overflow-x: hidden;
     z-index: 1000;
   }
+  #rightPanelToggle {
+    position: fixed;
+    top: 20px;
+    right: 0;
+    background: #444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.3s;
+    z-index: 1100;
+  }
+  #rightPanel.open { right: 0; }
+  #rightPanel.open + #rightPanelToggle { right: 250px; }
 </style>
 </head>
 <body>
-
 <header>
   <h1>Obowiązki domowe 🏡</h1>
 </header>
 
-<!-- Uchwyty -->
-<div id="leftHandle" class="handle">≡</div>
-<div id="rightHandle" class="handle">⚙</div>
-
-<!-- Panele boczne -->
-<div id="leftPanel" class="side-panel">
+<!-- Lewy panel -->
+<div id="leftPanel">
   <h2>Menu</h2>
-  <p>Tu będą opcje menu (np. listy)</p>
+  <button onclick="alert('Tu możemy dodać opcje np. nowe listy')">Opcja 1</button>
 </div>
+<button id="leftPanelToggle">☰</button>
 
-<div id="rightPanel" class="side-panel">
+<!-- Prawy panel -->
+<div id="rightPanel">
   <h2>Filtry</h2>
-  <p>Tu będą filtry (np. po dacie, imieniu)</p>
+  <input type="date" id="filterDate">
+  <input type="text" id="filterName" placeholder="Filtruj po imieniu">
+  <select id="filterTask">
+    <option value="">Wszystkie obowiązki</option>
+    <option value="odkurzanie">odkurzanie</option>
+    <option value="zmywarka">zmywarka</option>
+    <option value="zwierzaki">zwierzaki</option>
+  </select>
+  <button id="applyFilter">Filtruj</button>
+  <button id="resetFilter">Resetuj</button>
+</div>
+<button id="rightPanelToggle">⚙️</button>
+
+<div id="loginScreen">
+  <h2>Wprowadź hasło, aby wejść</h2>
+  <input type="password" id="passwordInput" placeholder="Hasło">
+  <button id="loginBtn">Zaloguj</button>
+  <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Overlay -->
-<div id="overlay"></div>
+<div id="mainContent" style="display:none;">
+  <form id="taskForm">
+    <input type="date" id="date" required>
+    <select id="taskType" required>
+      <option value="" disabled selected>Wybierz obowiązek</option>
+      <option value="odkurzanie">odkurzanie</option>
+      <option value="zmywarka">zmywarka</option>
+      <option value="zwierzaki">zwierzaki</option>
+    </select>
+    <input type="text" id="name" placeholder="Imię" required>
+    <button type="submit">Dodaj</button>
+  </form>
 
-<!-- Główna treść -->
-<main>
-  <table>
+  <div id="adminPanel" style="display:none;">
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+    <button id="exportCSVBtn">Eksportuj CSV</button>
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
+  </div>
+
+  <table id="taskTable">
     <thead>
       <tr>
         <th>Data</th>
@@ -135,40 +179,109 @@
         <th>Imię</th>
       </tr>
     </thead>
-    <tbody>
-      <tr><td>2025-09-10</td><td>Odkurzanie</td><td>Kuba</td></tr>
-      <tr><td>2025-09-11</td><td>Zmywarka</td><td>Ola</td></tr>
-    </tbody>
+    <tbody></tbody>
   </table>
-</main>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-  const leftPanel = document.getElementById("leftPanel");
-  const rightPanel = document.getElementById("rightPanel");
-  const overlay = document.getElementById("overlay");
-  const leftHandle = document.getElementById("leftHandle");
-  const rightHandle = document.getElementById("rightHandle");
+const firebaseConfig = {
+  apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
+  authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
+  databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "obowiazki-domowe-b2312",
+  storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
+  messagingSenderId: "348397631566",
+  appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const tasksRef = db.ref("tasks");
 
-  function closePanels(){
-    leftPanel.classList.remove("open");
-    rightPanel.classList.remove("open");
-    overlay.style.display = "none";
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+const adminPanel = document.getElementById("adminPanel");
+const passwordInput = document.getElementById("passwordInput");
+const loginError = document.getElementById("loginError");
+let isAdmin = false;
+
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const pass = passwordInput.value;
+  if(pass === "admin123!") {
+    isAdmin = true;
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+    adminPanel.style.display = "block";
+    loadTable();
+  } else if(pass === "lista123!") {
+    isAdmin = false;
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+    loadTable();
+  } else {
+    loginError.textContent = "Nieprawidłowe hasło!";
   }
+});
 
-  leftHandle.addEventListener("click", () => {
-    leftPanel.classList.toggle("open");
-    rightPanel.classList.remove("open");
-    overlay.style.display = leftPanel.classList.contains("open") ? "block" : "none";
+// Formularz
+const form = document.getElementById("taskForm");
+const tableBody = document.querySelector("#taskTable tbody");
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const date = document.getElementById("date").value;
+  const task = document.getElementById("taskType").value;
+  const name = document.getElementById("name").value.trim();
+  if(!date || !task || !name) return alert("Wypełnij wszystkie pola");
+  tasksRef.push({ date, task, name });
+  form.reset();
+});
+
+// Tabela
+function loadTable(){
+  tasksRef.on("value", snap => {
+    tableBody.innerHTML = "";
+    const thead = document.querySelector("#taskTable thead tr");
+    if(isAdmin && !thead.querySelector(".actionsHeader")){
+      const th = document.createElement("th");
+      th.textContent = "Akcje";
+      th.classList.add("actionsHeader");
+      thead.appendChild(th);
+    }
+    snap.forEach(child => {
+      const d = child.val();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${d.date}</td>
+        <td>${d.task}</td>
+        <td>${d.name}</td>
+        ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+      `;
+      tableBody.appendChild(row);
+      if(isAdmin){
+        row.querySelector(".deleteBtn").addEventListener("click", () => {
+          tasksRef.child(child.key).remove();
+        });
+      }
+    });
   });
+}
 
-  rightHandle.addEventListener("click", () => {
-    rightPanel.classList.toggle("open");
-    leftPanel.classList.remove("open");
-    overlay.style.display = rightPanel.classList.contains("open") ? "block" : "none";
-  });
+// Panele boczne
+const leftPanel = document.getElementById("leftPanel");
+const leftToggle = document.getElementById("leftPanelToggle");
+leftToggle.addEventListener("click", () => {
+  leftPanel.classList.toggle("open");
+});
 
-  overlay.addEventListener("click", closePanels);
+const rightPanel = document.getElementById("rightPanel");
+const rightToggle = document.getElementById("rightPanelToggle");
+rightToggle.addEventListener("click", () => {
+  rightPanel.classList.toggle("open");
+});
 </script>
-
 </body>
 </html>
