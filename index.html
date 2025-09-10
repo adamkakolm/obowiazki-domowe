@@ -7,49 +7,51 @@
 <style>
   body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
   header { background:#4caf50; color:white; padding:20px; text-align:center; }
-  main { padding:20px; margin-left:0; margin-right:0; transition: margin 0.3s; }
-  table { width: 90%; margin: 20px auto; border-collapse: collapse; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-  th, td { padding:10px; border:1px solid #ddd;}
+  #loginScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+  #loginScreen input, #loginScreen button { padding:10px; margin:5px; font-size:16px; }
+  #mainContent { display:none; padding:20px; transition: margin 0.3s; margin-left:0; margin-right:0; }
+  table { width:90%; margin:0 auto; border-collapse: collapse; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+  th, td { padding:10px; border:1px solid #ddd; }
   th { background:#4caf50; color:white; }
   tr:nth-child(even){background:#f9f9f9;}
   tr:hover{background:#e0f7e9;}
-  button{background:#4caf50; color:white; border:none; padding:8px 12px; cursor:pointer;}
-  button:hover{background:#45a049;}
   /* Panele boczne */
-  .sidepanel{position:fixed; top:0; width:250px; height:100%; background:#333; color:white; padding:20px; transition: transform 0.3s;}
-  #leftPanel{left:0; transform:translateX(-100%);}
-  #rightPanel{right:0; transform:translateX(100%);}
-  .panelBtn{position:fixed; top:20px; background:#4caf50; color:white; padding:8px; cursor:pointer; z-index:1000;}
-  #leftBtn{left:0;}
-  #rightBtn{right:0;}
-  input, select{padding:6px; margin:4px;}
-  #loginScreen{text-align:center; padding-top:50px;}
+  .sidePanel { position:fixed; top:0; height:100%; width:250px; background:#fff; box-shadow:2px 0 5px rgba(0,0,0,0.2); overflow:auto; transition: transform 0.3s ease; z-index:1000; }
+  #leftPanel { left:0; transform:translateX(-100%); }
+  #rightPanel { right:0; transform:translateX(100%); }
+  .panelButton { position:fixed; top:20px; width:40px; height:40px; background:#4caf50; color:white; border:none; cursor:pointer; z-index:1001; font-size:20px; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+  #leftButton { left:0; transform:translateX(0); }
+  #rightButton { right:0; transform:translateX(0); }
+  /* Formularze w panelach */
+  .panelContent { padding:10px; }
+  .panelContent input, .panelContent select, .panelContent button { width:90%; margin:5px 0; padding:8px; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Obowiązki domowe 🏡</h1>
-</header>
+
+<header><h1>Obowiązki domowe 🏡</h1></header>
 
 <div id="loginScreen">
-  <h2>Wprowadź hasło, aby wejść</h2>
+  <h2>Wprowadź hasło</h2>
   <input type="password" id="passwordInput" placeholder="Hasło">
   <button id="loginBtn">Zaloguj</button>
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Przyciski paneli -->
-<div id="leftBtn" class="panelBtn">&#9776;</div>
-<div id="rightBtn" class="panelBtn">&#9881;</div>
-
 <!-- Panele boczne -->
-<div id="leftPanel" class="sidepanel">
-  <h3>Panel boczny</h3>
-  <p>Tutaj można w przyszłości dodać dodatkowe listy</p>
+<div id="leftPanel" class="sidePanel">
+  <div class="panelContent">
+    <h3>Panel Admina</h3>
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+    <button id="exportCSVBtn">Eksportuj CSV</button>
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
+  </div>
 </div>
-<div id="rightPanel" class="sidepanel">
-  <h3>Filtry i admin</h3>
-  <div id="filters">
+
+<div id="rightPanel" class="sidePanel">
+  <div class="panelContent">
+    <h3>Filtry</h3>
     <input type="date" id="filterDate">
     <input type="text" id="filterName" placeholder="Filtruj po imieniu">
     <select id="filterTask">
@@ -61,16 +63,14 @@
     <button id="applyFilter">Filtruj</button>
     <button id="resetFilter">Resetuj filtr</button>
   </div>
-  <div id="adminPanel" style="display:none; margin-top:20px;">
-    <h4>Panel admina</h4>
-    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
-    <button id="exportCSVBtn">Eksportuj CSV</button>
-    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-    <button id="addTaskBtn">Dodaj obowiązek</button>
-  </div>
 </div>
 
-<main id="mainContent" style="display:none;">
+<!-- Przyciski wysuwania paneli -->
+<button id="leftButton" class="panelButton">&#9776;</button>
+<button id="rightButton" class="panelButton">&#9881;</button>
+
+<!-- Główna zawartość -->
+<div id="mainContent">
   <form id="taskForm">
     <input type="date" id="date" required>
     <select id="taskType" required>
@@ -93,9 +93,9 @@
     </thead>
     <tbody></tbody>
   </table>
-</main>
+</div>
 
-<!-- Firebase SDK -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
@@ -119,133 +119,145 @@ const mainContent = document.getElementById("mainContent");
 const loginBtn = document.getElementById("loginBtn");
 const passwordInput = document.getElementById("passwordInput");
 const loginError = document.getElementById("loginError");
-const adminPanel = document.getElementById("adminPanel");
+const leftPanel = document.getElementById("leftPanel");
+const rightPanel = document.getElementById("rightPanel");
+const leftButton = document.getElementById("leftButton");
+const rightButton = document.getElementById("rightButton");
+const adminPanelButtons = [document.getElementById("clearAllBtn"), document.getElementById("exportCSVBtn"), document.getElementById("addTaskBtn")];
 
 let isAdmin = false;
 
 loginBtn.addEventListener("click", () => {
-  const pwd = passwordInput.value.trim();
-  if(pwd === "admin123!"){
+  const userPassword = passwordInput.value;
+  if(userPassword === "admin123!"){
     isAdmin = true;
-    adminPanel.style.display = "block";
-    loginScreen.style.display = "none";
-    mainContent.style.display = "block";
-    loadTable();
-  } else if(pwd === "lista123!"){
+    leftPanel.style.display = "block";
+  } else if(userPassword === "lista123!"){
     isAdmin = false;
-    adminPanel.style.display = "none";
-    loginScreen.style.display = "none";
-    mainContent.style.display = "block";
-    loadTable();
+    leftPanel.style.display = "none";
   } else {
     loginError.textContent = "Nieprawidłowe hasło!";
     passwordInput.value = "";
+    return;
   }
+  loginScreen.style.display = "none";
+  mainContent.style.display = "block";
+  loadTable();
 });
 
-// Tabela i dodawanie
+// Panel boczny wysuwanie
+let leftOpen = false, rightOpen = false;
+leftButton.addEventListener("click", () => {
+  leftOpen = !leftOpen;
+  leftPanel.style.transform = leftOpen ? "translateX(0)" : "translateX(-100%)";
+  leftButton.style.left = leftOpen ? "250px" : "0";
+});
+rightButton.addEventListener("click", () => {
+  rightOpen = !rightOpen;
+  rightPanel.style.transform = rightOpen ? "translateX(0)" : "translateX(100%)";
+  rightButton.style.right = rightOpen ? "250px" : "0";
+});
+
+// Formularz dodawania wpisów
 const form = document.getElementById("taskForm");
 const tableBody = document.querySelector("#taskTable tbody");
-
 form.addEventListener("submit", e=>{
   e.preventDefault();
-  const date=document.getElementById("date").value;
-  const task=document.getElementById("taskType").value;
-  const name=document.getElementById("name").value.trim();
-  if(!date||!task||!name){alert("Wypełnij wszystkie pola");return;}
+  const date = document.getElementById("date").value;
+  const task = document.getElementById("taskType").value;
+  const name = document.getElementById("name").value.trim();
+  if(!date || !task || !name){ alert("Wypełnij wszystkie pola"); return; }
   tasksRef.push({date,task,name});
   form.reset();
 });
 
-// Funkcja wczytywania tabeli
+// Funkcja wczytania tabeli
 function loadTable(){
   tasksRef.on("value", snapshot=>{
-    tableBody.innerHTML="";
+    tableBody.innerHTML = "";
     const thead = document.querySelector("#taskTable thead tr");
     if(isAdmin && !thead.querySelector(".actionsHeader")){
       const th = document.createElement("th");
-      th.textContent="Akcje";
+      th.textContent = "Akcje";
       th.classList.add("actionsHeader");
       thead.appendChild(th);
     }
     snapshot.forEach(child=>{
       const data = child.val();
       const row = document.createElement("tr");
-      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+      row.innerHTML = `<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}`;
       tableBody.appendChild(row);
       if(isAdmin){
-        row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+        row.querySelector(".deleteBtn").addEventListener("click", ()=>{tasksRef.child(child.key).remove();});
       }
     });
   });
 }
 
-// Admin funkcje
-document.getElementById("clearAllBtn").addEventListener("click",()=>{if(confirm("Na pewno chcesz usunąć wszystkie wpisy?"))tasksRef.remove();});
-document.getElementById("exportCSVBtn").addEventListener("click",()=>{
+// Admin - usuń wszystkie
+document.getElementById("clearAllBtn").addEventListener("click", ()=>{
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
+});
+
+// Admin - eksport CSV
+document.getElementById("exportCSVBtn").addEventListener("click", ()=>{
   tasksRef.get().then(snapshot=>{
     let csv="Data,Obowiązek,Imię\n";
-    snapshot.forEach(child=>{const data=child.val();csv+=`${data.date},${data.task},${data.name}\n`;});
-    const blob=new Blob([csv],{type:'text/csv'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='obowiazki.csv';a.click();
+    snapshot.forEach(child=>{
+      const data=child.val();
+      csv+=`${data.date},${data.task},${data.name}\n`;
+    });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='obowiazki.csv'; a.click();
     URL.revokeObjectURL(url);
   });
 });
 
-const addTaskBtn=document.getElementById("addTaskBtn");
-const newTaskInput=document.getElementById("newTaskInput");
-addTaskBtn.addEventListener("click",()=>{
+// Admin - dodawanie nowego obowiązku
+const addTaskBtn = document.getElementById("addTaskBtn");
+const newTaskInput = document.getElementById("newTaskInput");
+addTaskBtn.addEventListener("click", ()=>{
   const newTask=newTaskInput.value.trim();
   if(newTask){
     const select=document.getElementById("taskType");
     const filterSelect=document.getElementById("filterTask");
-    const option=document.createElement("option");
-    option.value=newTask;option.textContent=newTask;select.appendChild(option);
-    const filterOption=document.createElement("option");
-    filterOption.value=newTask;filterOption.textContent=newTask;filterSelect.appendChild(filterOption);
-    newTaskInput.value="";alert("Nowy obowiązek dodany!");
-  } else {alert("Wpisz nazwę obowiązku");}
+    const option=document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
+    const filterOption=document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
+    newTaskInput.value=""; alert("Nowy obowiązek dodany!");
+  } else alert("Wpisz nazwę obowiązku");
 });
 
 // Filtry
-document.getElementById("applyFilter").addEventListener("click",()=>{
-  const dateF=document.getElementById("filterDate").value;
-  const nameF=document.getElementById("filterName").value.toLowerCase();
-  const taskF=document.getElementById("filterTask").value;
+document.getElementById("applyFilter").addEventListener("click", ()=>{
+  const dateFilter=document.getElementById("filterDate").value;
+  const nameFilter=document.getElementById("filterName").value.toLowerCase();
+  const taskFilter=document.getElementById("filterTask").value;
   tasksRef.get().then(snapshot=>{
     tableBody.innerHTML="";
     snapshot.forEach(child=>{
-      const data=child.val();
-      let show=true;
-      if(dateF&&data.date!==dateF)show=false;
-      if(nameF&&!data.name.toLowerCase().includes(nameF))show=false;
-      if(taskF&&data.task!==taskF)show=false;
+      const data=child.val(); let show=true;
+      if(dateFilter && data.date!==dateFilter) show=false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show=false;
+      if(taskFilter && data.task!==taskFilter) show=false;
       if(show){
         const row=document.createElement("tr");
-        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}`;
         tableBody.appendChild(row);
-        if(isAdmin)row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+        if(isAdmin) row.querySelector(".deleteBtn").addEventListener("click", ()=>{tasksRef.child(child.key).remove();});
       }
     });
   });
 });
-document.getElementById("resetFilter").addEventListener("click",()=>{
+
+// Reset filtrów
+document.getElementById("resetFilter").addEventListener("click", ()=>{
   document.getElementById("filterDate").value="";
   document.getElementById("filterName").value="";
   document.getElementById("filterTask").value="";
   loadTable();
 });
-
-// Panel boczny toggle
-const leftPanel=document.getElementById("leftPanel");
-const rightPanel=document.getElementById("rightPanel");
-const leftBtn=document.getElementById("leftBtn");
-const rightBtn=document.getElementById("rightBtn");
-
-leftBtn.addEventListener("click",()=>{leftPanel.style.transform=(leftPanel.style.transform==="translateX(0%)"?"translateX(-100%)":"translateX(0%)");});
-rightBtn.addEventListener("click",()=>{rightPanel.style.transform=(rightPanel.style.transform==="translateX(0%)"?"translateX(100%)":"translateX(0%)");});
 </script>
 </body>
 </html>
