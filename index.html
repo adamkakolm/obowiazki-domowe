@@ -3,118 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Obowiązki domowe - Panele boczne</title>
+<title>Obowiązki domowe</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f3f3f3;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-header {
-  background: #4caf50;
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-#loginScreen {
-  position: fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%,-50%);
-  background:white;
-  padding:30px;
-  box-shadow:0 0 10px rgba(0,0,0,0.3);
-  text-align:center;
-  z-index: 1000;
-}
-#mainContent {
-  display:none;
-  padding:20px;
-  transition: margin 0.3s;
-}
-table {
-  width:90%;
-  margin:0 auto;
-  border-collapse: collapse;
-  background:white;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-th, td {
-  padding:10px;
-  border:1px solid #ddd;
-}
-th { background:#4caf50; color:white; }
-tr:nth-child(even){ background:#f9f9f9; }
-tr:hover{ background:#e0f7e9; }
-
-/* Panele boczne */
-.sidePanel {
-  position: fixed;
-  top:0;
-  bottom:0;
-  width:250px;
-  background:#fff;
-  box-shadow:2px 0 5px rgba(0,0,0,0.2);
-  transition: transform 0.3s;
-  z-index: 500;
-  padding:20px;
-}
-#leftPanel { left:0; transform: translateX(-100%); }
-#rightPanel { right:0; transform: translateX(100%); }
-.panelBtn {
-  position: fixed;
-  top:50%;
-  background:#4caf50;
-  color:white;
-  padding:10px;
-  cursor:pointer;
-  z-index: 600;
-  border:none;
-  border-radius:4px;
-}
-#leftBtn { left:0; transform: translate(-50%,-50%); }
-#rightBtn { right:0; transform: translate(50%,-50%); }
-
-form input, form select, form button {
-  padding:10px;
-  margin:5px;
-  font-size:14px;
-  width:90%;
-}
-form button { background:#4caf50; color:white; border:none; cursor:pointer; }
-form button:hover { background:#45a049; }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    width: 100%;
+    background: #4caf50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  #loginScreen {
+    margin-top: 50px;
+    text-align: center;
+  }
+  input, button, select {
+    padding: 10px;
+    margin: 5px;
+    font-size: 14px;
+  }
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover { background: #45a049; }
+  /* Panele boczne */
+  #leftPanel, #rightPanel {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 250px;
+    background: #fff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  #leftPanel { left: 0; transform: translateX(-230px); }
+  #rightPanel { right: 0; transform: translateX(230px); }
+  .panelToggle {
+    position: fixed;
+    top: 20px;
+    width: 30px;
+    height: 30px;
+    background: #4caf50;
+    color: white;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    z-index: 1100;
+    border-radius: 4px;
+  }
+  #leftToggle { left: 0; transform: translateX(-20px); }
+  #rightToggle { right: 0; transform: translateX(20px); }
+  main {
+    margin-top: 20px;
+    width: 90%;
+    max-width: 800px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+  th { background: #4caf50; color: white; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  tr:hover { background: #e0f7e9; }
 </style>
 </head>
 <body>
 
-<header><h1>Obowiązki domowe 🏡</h1></header>
+<header>
+  <h1>Obowiązki domowe 🏡</h1>
+</header>
 
 <div id="loginScreen">
-  <h2>Wprowadź hasło</h2>
-  <input type="password" id="passwordInput" placeholder="Hasło"><br>
+  <h2>Wprowadź hasło, aby wejść</h2>
+  <input type="password" id="passwordInput" placeholder="Hasło">
   <button id="loginBtn">Zaloguj</button>
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<div id="leftPanel" class="sidePanel">
-  <h3>Lewy panel</h3>
-  <p>Tu będą dodatkowe listy</p>
+<!-- Panele boczne -->
+<div id="leftPanel">
+  <h3>Panel boczny</h3>
+  <p>Tu będą dodatkowe listy (dla admina później)</p>
 </div>
-<button id="leftBtn" class="panelBtn">☰</button>
-
-<div id="rightPanel" class="sidePanel">
-  <h3>Filtry i panel admina</h3>
-  <h4>Filtry:</h4>
-  <input type="date" id="filterDate"><br>
-  <input type="text" id="filterName" placeholder="Filtruj po imieniu"><br>
+<div id="rightPanel">
+  <h3>Filtry i Panel Admina</h3>
+  <h4>Filtry</h4>
+  <input type="date" id="filterDate">
+  <input type="text" id="filterName" placeholder="Filtruj po imieniu">
   <select id="filterTask">
     <option value="">Wszystkie obowiązki</option>
     <option value="odkurzanie">odkurzanie</option>
     <option value="zmywarka">zmywarka</option>
     <option value="zwierzaki">zwierzaki</option>
-  </select><br>
+  </select>
   <button id="applyFilter">Filtruj</button>
   <button id="resetFilter">Resetuj filtr</button>
 
@@ -126,9 +124,12 @@ form button:hover { background:#45a049; }
     <button id="addTaskBtn">Dodaj obowiązek</button>
   </div>
 </div>
-<button id="rightBtn" class="panelBtn">⚙</button>
 
-<div id="mainContent">
+<!-- Przyciski do wysuwania paneli -->
+<div id="leftToggle" class="panelToggle">&#9776;</div>
+<div id="rightToggle" class="panelToggle">&#9881;</div>
+
+<main id="mainContent" style="display:none;">
   <form id="taskForm">
     <input type="date" id="date" required>
     <select id="taskType" required>
@@ -151,13 +152,14 @@ form button:hover { background:#45a049; }
     </thead>
     <tbody></tbody>
   </table>
-</div>
+</main>
 
-<!-- Firebase -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
   authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
@@ -171,6 +173,23 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const tasksRef = db.ref("tasks");
 
+// Panely boczne
+const leftPanel = document.getElementById("leftPanel");
+const rightPanel = document.getElementById("rightPanel");
+const leftToggle = document.getElementById("leftToggle");
+const rightToggle = document.getElementById("rightToggle");
+
+let leftOpen = false, rightOpen = false;
+leftToggle.addEventListener("click", () => {
+  leftOpen = !leftOpen;
+  leftPanel.style.transform = leftOpen ? "translateX(0)" : "translateX(-230px)";
+});
+rightToggle.addEventListener("click", () => {
+  rightOpen = !rightOpen;
+  rightPanel.style.transform = rightOpen ? "translateX(0)" : "translateX(230px)";
+});
+
+// Logowanie
 const loginScreen = document.getElementById("loginScreen");
 const mainContent = document.getElementById("mainContent");
 const loginBtn = document.getElementById("loginBtn");
@@ -180,134 +199,157 @@ const adminPanel = document.getElementById("adminPanel");
 
 let isAdmin = false;
 
-loginBtn.addEventListener("click", ()=>{
-  const pw = passwordInput.value;
-  if(pw==="admin123!"){
-    isAdmin=true;
-    loginScreen.style.display="none";
-    mainContent.style.display="block";
-    adminPanel.style.display="block";
+loginBtn.addEventListener("click", () => {
+  const userPassword = passwordInput.value;
+  if(userPassword === "admin123!") {
+    isAdmin = true;
+    adminPanel.style.display = "block";
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
     loadTable();
-  } else if(pw==="lista123!"){
-    isAdmin=false;
-    loginScreen.style.display="none";
-    mainContent.style.display="block";
+  } else if(userPassword === "lista123!") {
+    isAdmin = false;
+    adminPanel.style.display = "none";
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
     loadTable();
   } else {
-    loginError.textContent="Nieprawidłowe hasło!";
-    passwordInput.value="";
+    loginError.textContent = "Nieprawidłowe hasło!";
+    passwordInput.value = "";
   }
 });
 
-// Formularz
+// Formularz dodawania wpisów
 const form = document.getElementById("taskForm");
 const tableBody = document.querySelector("#taskTable tbody");
 
-form.addEventListener("submit", e=>{
+form.addEventListener("submit", (e) => {
   e.preventDefault();
-  const date=document.getElementById("date").value;
-  const task=document.getElementById("taskType").value;
-  const name=document.getElementById("name").value.trim();
-  if(!date||!task||!name){ alert("Wypełnij wszystkie pola"); return; }
-  tasksRef.push({date,task,name});
+  const date = document.getElementById("date").value;
+  const task = document.getElementById("taskType").value;
+  const name = document.getElementById("name").value.trim();
+  if(!date || !task || !name){ alert("Wypełnij wszystkie pola"); return; }
+  tasksRef.push({ date, task, name });
   form.reset();
 });
 
 // Wczytywanie tabeli
 function loadTable(){
-  tasksRef.on("value", snapshot=>{
-    tableBody.innerHTML="";
-    const thead=document.querySelector("#taskTable thead tr");
-    if(isAdmin&&!thead.querySelector(".actionsHeader")){
-      const th=document.createElement("th");
-      th.textContent="Akcje";
+  tasksRef.on("value", snapshot => {
+    tableBody.innerHTML = "";
+    const thead = document.querySelector("#taskTable thead tr");
+    if(isAdmin && !thead.querySelector(".actionsHeader")){
+      const th = document.createElement("th");
+      th.textContent = "Akcje";
       th.classList.add("actionsHeader");
       thead.appendChild(th);
     }
-    snapshot.forEach(child=>{
-      const data=child.val();
-      const row=document.createElement("tr");
-      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+    snapshot.forEach(child => {
+      const data = child.val();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.task}</td>
+        <td>${data.name}</td>
+        ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+      `;
       tableBody.appendChild(row);
       if(isAdmin){
-        row.querySelector(".deleteBtn").addEventListener("click", ()=>{tasksRef.child(child.key).remove();});
+        row.querySelector(".deleteBtn").addEventListener("click", () => {
+          tasksRef.child(child.key).remove();
+        });
       }
     });
   });
 }
 
-// Admin
-document.getElementById("clearAllBtn").addEventListener("click", ()=>{
-  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
+// Admin - usuń wszystkie
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")){
+    tasksRef.remove();
+  }
 });
 
-document.getElementById("exportCSVBtn").addEventListener("click", ()=>{
-  tasksRef.get().then(snapshot=>{
-    let csv="Data,Obowiązek,Imię\n";
-    snapshot.forEach(child=>{
-      const data=child.val();
-      csv+=`${data.date},${data.task},${data.name}\n`;
+// Admin - eksport CSV
+document.getElementById("exportCSVBtn").addEventListener("click", () => {
+  tasksRef.get().then(snapshot => {
+    let csv = "Data,Obowiązek,Imię\n";
+    snapshot.forEach(child => {
+      const data = child.val();
+      csv += `${data.date},${data.task},${data.name}\n`;
     });
-    const blob=new Blob([csv],{type:'text/csv'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download='obowiazki.csv'; a.click();
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'obowiazki.csv';
+    a.click();
     URL.revokeObjectURL(url);
   });
 });
 
-document.getElementById("addTaskBtn").addEventListener("click", ()=>{
-  const newTask=document.getElementById("newTaskInput").value.trim();
+// Admin - dodawanie obowiązku
+document.getElementById("addTaskBtn").addEventListener("click", () => {
+  const newTask = document.getElementById("newTaskInput").value.trim();
   if(newTask){
-    const select=document.getElementById("taskType");
-    const filterSelect=document.getElementById("filterTask");
-    const option=document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
-    const filterOption=document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
-    document.getElementById("newTaskInput").value="";
+    const select = document.getElementById("taskType");
+    const filterSelect = document.getElementById("filterTask");
+
+    const option = document.createElement("option");
+    option.value = newTask;
+    option.textContent = newTask;
+    select.appendChild(option);
+
+    const filterOption = document.createElement("option");
+    filterOption.value = newTask;
+    filterOption.textContent = newTask;
+    filterSelect.appendChild(filterOption);
+
+    document.getElementById("newTaskInput").value = "";
     alert("Nowy obowiązek dodany!");
-  } else alert("Wpisz nazwę obowiązku");
+  } else {
+    alert("Wpisz nazwę obowiązku");
+  }
 });
 
 // Filtry
-document.getElementById("applyFilter").addEventListener("click", ()=>{
-  const dateF=document.getElementById("filterDate").value;
-  const nameF=document.getElementById("filterName").value.toLowerCase();
-  const taskF=document.getElementById("filterTask").value;
-  tasksRef.get().then(snapshot=>{
-    tableBody.innerHTML="";
-    snapshot.forEach(child=>{
-      const data=child.val();
-      let show=true;
-      if(dateF&&data.date!==dateF) show=false;
-      if(nameF&&!data.name.toLowerCase().includes(nameF)) show=false;
-      if(taskF&&data.task!==taskF) show=false;
+document.getElementById("applyFilter").addEventListener("click", () => {
+  const dateFilter = document.getElementById("filterDate").value;
+  const nameFilter = document.getElementById("filterName").value.toLowerCase();
+  const taskFilter = document.getElementById("filterTask").value;
+  tasksRef.get().then(snapshot => {
+    tableBody.innerHTML = "";
+    snapshot.forEach(child => {
+      const data = child.val();
+      let show = true;
+      if(dateFilter && data.date !== dateFilter) show = false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show = false;
+      if(taskFilter && data.task !== taskFilter) show = false;
       if(show){
-        const row=document.createElement("tr");
-        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.date}</td>
+          <td>${data.task}</td>
+          <td>${data.name}</td>
+          ${isAdmin ? `<td><button class="deleteBtn">Usuń</button></td>` : ""}
+        `;
         tableBody.appendChild(row);
-        if(isAdmin){ row.querySelector(".deleteBtn").addEventListener("click", ()=>{tasksRef.child(child.key).remove();}); }
+        if(isAdmin){
+          row.querySelector(".deleteBtn").addEventListener("click", () => {
+            tasksRef.child(child.key).remove();
+          });
+        }
       }
     });
   });
 });
 
-document.getElementById("resetFilter").addEventListener("click", ()=>{
-  document.getElementById("filterDate").value="";
-  document.getElementById("filterName").value="";
-  document.getElementById("filterTask").value="";
+// Reset filtrów
+document.getElementById("resetFilter").addEventListener("click", () => {
+  document.getElementById("filterDate").value = "";
+  document.getElementById("filterName").value = "";
+  document.getElementById("filterTask").value = "";
   loadTable();
-});
-
-// Panel boczny przyciski
-const leftPanel=document.getElementById("leftPanel");
-const rightPanel=document.getElementById("rightPanel");
-document.getElementById("leftBtn").addEventListener("click", ()=>{
-  if(leftPanel.style.transform==="translateX(0px)"){ leftPanel.style.transform="translateX(-100%)"; } 
-  else { leftPanel.style.transform="translateX(0px)"; }
-});
-document.getElementById("rightBtn").addEventListener("click", ()=>{
-  if(rightPanel.style.transform==="translateX(0px)"){ rightPanel.style.transform="translateX(100%)"; } 
-  else { rightPanel.style.transform="translateX(0px)"; }
 });
 </script>
 
