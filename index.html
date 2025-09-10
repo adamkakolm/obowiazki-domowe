@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Obowiązki Domowe</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     :root {
       --primary: #4CAF50;
       --secondary: #2e7d32;
-      --background: #f9f9f9;
+      --background: #f4f6f9;
       --surface: #fff;
       --text: #333;
       --shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -66,7 +67,7 @@
     .side-panel {
       position: fixed;
       top: 0; bottom: 0;
-      width: 260px;
+      width: 280px;
       background: var(--surface);
       box-shadow: var(--shadow);
       overflow-y: auto;
@@ -168,7 +169,7 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 18px;
     }
     button.action:hover { color: red; }
 
@@ -209,7 +210,7 @@
   <div id="app" style="display:none;">
     <!-- Lewy panel -->
     <div id="left-panel" class="side-panel">
-      <button class="panel-toggle" onclick="togglePanel('left-panel')">☰</button>
+      <button class="panel-toggle" onclick="togglePanel('left-panel')"><span class="material-icons">menu</span></button>
       <div class="panel-content">
         <h3>🔍 Filtry</h3>
         <input type="text" id="filterTask" placeholder="Obowiązek">
@@ -237,7 +238,7 @@
 
     <!-- Prawy panel -->
     <div id="right-panel" class="side-panel right">
-      <button class="panel-toggle" onclick="togglePanel('right-panel')">≡</button>
+      <button class="panel-toggle" onclick="togglePanel('right-panel')"><span class="material-icons">list</span></button>
       <div class="panel-content">
         <h3>📋 Listy</h3>
         <ul id="listMenu"></ul>
@@ -364,6 +365,7 @@
       data.columns.forEach(c => { const th=document.createElement("th"); th.textContent=c; head.appendChild(th); });
       if (data.withDate) { const th=document.createElement("th"); th.textContent="Data"; head.appendChild(th); }
       if (data.withCheck) { const th=document.createElement("th"); th.textContent="Zrobione"; head.appendChild(th); }
+      if (currentUser.role==="admin") { const th=document.createElement("th"); th.textContent="Akcje"; head.appendChild(th); }
       loadEntries();
     }
 
