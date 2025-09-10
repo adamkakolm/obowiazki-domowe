@@ -5,100 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obowiązki domowe</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f3f3f3;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
-  header {
-    background: #4caf50;
-    color: white;
-    padding: 20px;
-    text-align: center;
-  }
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f3f3;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+header {
+  background: #4caf50;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
 
-  /* Panele boczne */
-  .side-panel {
-    position: fixed;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background: #fff;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-    overflow-y: auto;
-    padding: 20px;
-  }
-  #leftPanel { left: 0; transform: translateX(-100%); }
-  #rightPanel { right: 0; transform: translateX(100%); }
+/* Panele boczne */
+.side-panel {
+  position: fixed;
+  top: 0;
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+}
+#leftPanel { left: 0; transform: translateX(-100%); }
+#rightPanel { right: 0; transform: translateX(100%); }
 
-  /* Przycisk wysuwający panel */
-  .panel-toggle {
-    position: fixed;
-    top: 50px;
-    background: #4caf50;
-    color: white;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 1100;
-    border-radius: 0 5px 5px 0;
-    font-weight: bold;
-  }
-  #leftToggle { left: 0; border-radius: 0 5px 5px 0; }
-  #rightToggle { right: 0; border-radius: 5px 0 0 5px; }
+/* Przycisk wysuwający panel */
+.panel-toggle {
+  position: fixed;
+  top: 50px;
+  background: #4caf50;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1100;
+  font-weight: bold;
+}
+#leftToggle { left: 0; border-radius: 0 5px 5px 0; }
+#rightToggle { right: 0; border-radius: 5px 0 0 5px; }
 
-  /* Formularze i tabela */
-  main {
-    padding: 20px;
-    margin-top: 20px;
-  }
-  form input, form button, form select {
-    padding: 10px;
-    margin: 5px;
-    font-size: 14px;
-  }
-  form select { width: 200px; }
-  button {
-    background: #4caf50;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  button:hover { background: #45a049; }
-  table {
-    width: 90%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-  }
-  th {
-    background: #4caf50;
-    color: white;
-  }
-  tr:nth-child(even) { background: #f9f9f9; }
-  tr:hover { background: #e0f7e9; }
+/* Formularze i tabela */
+main {
+  padding: 20px;
+  margin-top: 20px;
+}
+form input, form button, form select {
+  padding: 10px;
+  margin: 5px;
+  font-size: 14px;
+}
+form select { width: 200px; }
+button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover { background: #45a049; }
+table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background: #4caf50;
+  color: white;
+}
+tr:nth-child(even) { background: #f9f9f9; }
+tr:hover { background: #e0f7e9; }
 
-  /* Logowanie */
-  #loginScreen {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 30px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    text-align: center;
-    z-index: 1200;
-  }
+/* Logowanie */
+#loginScreen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  text-align: center;
+  z-index: 1200;
+}
 </style>
 </head>
 <body>
@@ -113,18 +112,8 @@
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Lewy panel admina -->
+<!-- Lewy panel filtrów -->
 <div id="leftPanel" class="side-panel">
-  <h3>Panel admina</h3>
-  <button id="clearAllBtn">Usuń wszystkie wpisy</button><br>
-  <button id="exportCSVBtn">Eksportuj CSV</button><br><br>
-  <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-  <button id="addTaskBtn">Dodaj obowiązek</button>
-</div>
-<div id="leftToggle" class="panel-toggle">☰</div>
-
-<!-- Prawy panel filtrów -->
-<div id="rightPanel" class="side-panel">
   <h3>Filtry</h3>
   <input type="date" id="filterDate"><br>
   <input type="text" id="filterName" placeholder="Filtruj po imieniu"><br>
@@ -137,7 +126,17 @@
   <button id="applyFilter">Filtruj</button>
   <button id="resetFilter">Resetuj</button>
 </div>
-<div id="rightToggle" class="panel-toggle">⚙</div>
+<div id="leftToggle" class="panel-toggle">⚙</div>
+
+<!-- Prawy panel admina -->
+<div id="rightPanel" class="side-panel">
+  <h3>Panel admina</h3>
+  <button id="clearAllBtn">Usuń wszystkie wpisy</button><br>
+  <button id="exportCSVBtn">Eksportuj CSV</button><br><br>
+  <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+  <button id="addTaskBtn">Dodaj obowiązek</button>
+</div>
+<div id="rightToggle" class="panel-toggle">☰</div>
 
 <main id="mainContent" style="display:none;">
   <form id="taskForm">
@@ -158,6 +157,7 @@
         <th>Data</th>
         <th>Co zrobił</th>
         <th>Imię</th>
+        <th id="actionHeader" style="display:none;">Akcje</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -167,7 +167,6 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
@@ -197,39 +196,36 @@ loginBtn.addEventListener("click", () => {
     isAdmin = true;
     loginScreen.style.display = "none";
     mainContent.style.display = "block";
+    document.getElementById("rightPanel").style.display = "block";
+    document.getElementById("actionHeader").style.display = "table-cell";
   } else if(pass === "lista123!") {
     isAdmin = false;
     loginScreen.style.display = "none";
     mainContent.style.display = "block";
+    document.getElementById("rightPanel").style.display = "none";
   } else {
     loginError.textContent = "Nieprawidłowe hasło!";
     passwordInput.value = "";
   }
+  loadTable();
 });
 
-// Lewy panel
+// Panele boczne
 const leftPanel = document.getElementById("leftPanel");
 const leftToggle = document.getElementById("leftToggle");
 leftToggle.addEventListener("click", () => {
-  if(leftPanel.style.transform === "translateX(0px)") {
-    leftPanel.style.transform = "translateX(-100%)";
-  } else {
-    leftPanel.style.transform = "translateX(0)";
-  }
+  if(leftPanel.style.transform === "translateX(0px)") leftPanel.style.transform = "translateX(-100%)";
+  else leftPanel.style.transform = "translateX(0)";
 });
 
-// Prawy panel
 const rightPanel = document.getElementById("rightPanel");
 const rightToggle = document.getElementById("rightToggle");
 rightToggle.addEventListener("click", () => {
-  if(rightPanel.style.transform === "translateX(0px)") {
-    rightPanel.style.transform = "translateX(100%)";
-  } else {
-    rightPanel.style.transform = "translateX(0)";
-  }
+  if(rightPanel.style.transform === "translateX(0px)") rightPanel.style.transform = "translateX(100%)";
+  else rightPanel.style.transform = "translateX(0)";
 });
 
-// Formularz dodawania wpisów
+// Formularz dodawania
 const form = document.getElementById("taskForm");
 const tableBody = document.querySelector("#taskTable tbody");
 
@@ -238,31 +234,99 @@ form.addEventListener("submit", (e) => {
   const date = document.getElementById("date").value;
   const task = document.getElementById("taskType").value;
   const name = document.getElementById("name").value.trim();
-  if(!date || !task || !name){
-    alert("Wypełnij wszystkie pola");
-    return;
-  }
-  tasksRef.push({ date, task, name });
+  if(!date || !task || !name) return alert("Wypełnij wszystkie pola");
+  tasksRef.push({date, task, name});
   form.reset();
 });
 
-// Wczytywanie tabeli
-function loadTable() {
+// Funkcja do wczytania tabeli
+function loadTable(){
   tasksRef.on("value", snapshot => {
     tableBody.innerHTML = "";
     snapshot.forEach(child => {
       const data = child.val();
       const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${data.date}</td>
-        <td>${data.task}</td>
-        <td>${data.name}</td>
-      `;
+      row.innerHTML = `<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
+      if(isAdmin){
+        const td = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "Usuń";
+        btn.onclick = () => tasksRef.child(child.key).remove();
+        td.appendChild(btn);
+        row.appendChild(td);
+      }
       tableBody.appendChild(row);
     });
   });
 }
-loadTable();
+
+// Filtry
+document.getElementById("applyFilter").addEventListener("click", () => {
+  const dateFilter = document.getElementById("filterDate").value;
+  const nameFilter = document.getElementById("filterName").value.toLowerCase();
+  const taskFilter = document.getElementById("filterTask").value;
+  tasksRef.get().then(snapshot => {
+    tableBody.innerHTML = "";
+    snapshot.forEach(child => {
+      const data = child.val();
+      let show = true;
+      if(dateFilter && data.date !== dateFilter) show = false;
+      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show = false;
+      if(taskFilter && data.task !== taskFilter) show = false;
+      if(show){
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
+        if(isAdmin){
+          const td = document.createElement("td");
+          const btn = document.createElement("button");
+          btn.textContent = "Usuń";
+          btn.onclick = () => tasksRef.child(child.key).remove();
+          td.appendChild(btn);
+          row.appendChild(td);
+        }
+        tableBody.appendChild(row);
+      }
+    });
+  });
+});
+
+document.getElementById("resetFilter").addEventListener("click", () => {
+  document.getElementById("filterDate").value="";
+  document.getElementById("filterName").value="";
+  document.getElementById("filterTask").value="";
+  loadTable();
+});
+
+// Admin funkcje
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
+});
+document.getElementById("exportCSVBtn").addEventListener("click", () => {
+  tasksRef.get().then(snapshot => {
+    let csv="Data,Obowiązek,Imię\n";
+    snapshot.forEach(child => {
+      const data = child.val();
+      csv += `${data.date},${data.task},${data.name}\n`;
+    });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url;
+    a.download="obowiazki.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+});
+document.getElementById("addTaskBtn").addEventListener("click", () => {
+  const newTask = document.getElementById("newTaskInput").value.trim();
+  if(!newTask) return alert("Wpisz nazwę obowiązku");
+  const select = document.getElementById("taskType");
+  const filterSelect = document.getElementById("filterTask");
+  const option = document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
+  const filterOption = document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
+  document.getElementById("newTaskInput").value="";
+  alert("Nowy obowiązek dodany!");
+});
 </script>
 </body>
 </html>
