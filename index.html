@@ -5,25 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamiczne listy - Admin</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
-  header { background:#4caf50; color:white; padding:20px; text-align:center; }
-  #loginScreen { text-align:center; margin-top:50px; }
-  #loginScreen input, #loginScreen button { padding:10px; margin:5px; font-size:14px; }
-  #mainContent { display:none; padding:20px; position:relative; }
-  .panel { position:fixed; top:0; bottom:0; width:250px; background:#333; color:white; overflow:auto; transition:0.3s; padding:10px; }
-  #leftPanel { left:-230px; }
-  #rightPanel { right:-230px; }
-  .panel button { margin-top:10px; padding:10px; width:90%; }
-  .panel h3 { margin-top:0; }
-  .toggle-btn { position:fixed; top:20px; width:30px; height:30px; background:#4caf50; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:1000; }
-  #leftToggle { left:0; }
-  #rightToggle { right:0; }
-  table { width:90%; margin:20px auto; border-collapse:collapse; background:white; }
-  th, td { border:1px solid #ddd; padding:10px; text-align:center; }
-  th { background:#4caf50; color:white; }
-  tr:nth-child(even) { background:#f9f9f9; }
-  tr:hover { background:#e0f7e9; }
-  form input, form select, form button { margin:5px; padding:5px; }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
+header { background:#4caf50; color:white; padding:20px; text-align:center; }
+#loginScreen { text-align:center; margin-top:50px; }
+#loginScreen input, #loginScreen button { padding:10px; margin:5px; font-size:14px; }
+#mainContent { display:none; padding:20px; position:relative; }
+
+/* Panele boczne */
+.panel { position:fixed; top:0; bottom:0; width:250px; background:#333; color:white; overflow:auto; transition:0.3s; padding:10px; z-index:999; }
+#leftPanel { left:-250px; }
+#rightPanel { right:-250px; }
+.panel button { margin-top:10px; padding:10px; width:90%; cursor:pointer; }
+.panel h3 { margin-top:0; }
+
+/* Przyciski wysuwające */
+.toggle-btn { position:fixed; top:20px; width:30px; height:30px; background:#4caf50; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:1000; border-radius:5px; }
+#leftToggle { left:0; }
+#rightToggle { right:0; }
+
+/* Tabele */
+table { width:90%; margin:20px auto; border-collapse:collapse; background:white; }
+th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+th { background:#4caf50; color:white; }
+tr:nth-child(even) { background:#f9f9f9; }
+tr:hover { background:#e0f7e9; }
+
+form input, form select, form button { margin:5px; padding:5px; }
 </style>
 </head>
 <body>
@@ -39,11 +46,9 @@
 </div>
 
 <div id="mainContent">
-  <!-- Toggle Buttons -->
   <div class="toggle-btn" id="leftToggle">&#9776;</div>
   <div class="toggle-btn" id="rightToggle">&#9881;</div>
 
-  <!-- Panels -->
   <div class="panel" id="leftPanel">
     <h3>Nowe listy (Admin)</h3>
     <input type="text" id="newListName" placeholder="Nazwa listy"><br>
@@ -58,16 +63,13 @@
     <div id="filterArea"></div>
   </div>
 
-  <!-- Listy dynamiczne -->
   <div id="listsContainer"></div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
   authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
@@ -91,8 +93,8 @@ let isAdmin = false;
 
 loginBtn.addEventListener("click", () => {
   const pw = passwordInput.value;
-  if(pw === "admin123!"){ isAdmin=true; } 
-  else if(pw === "lista123!"){ isAdmin=false; }
+  if(pw === "admin123!") isAdmin=true;
+  else if(pw === "lista123!") isAdmin=false;
   else { loginError.textContent="Nieprawidłowe hasło"; passwordInput.value=""; return; }
 
   loginScreen.style.display="none";
@@ -106,8 +108,8 @@ const rightPanel = document.getElementById("rightPanel");
 const leftToggle = document.getElementById("leftToggle");
 const rightToggle = document.getElementById("rightToggle");
 
-leftToggle.addEventListener("click",()=>{ leftPanel.style.left = (leftPanel.style.left=="0px")?"-230px":"0px"; });
-rightToggle.addEventListener("click",()=>{ rightPanel.style.right = (rightPanel.style.right=="0px")?"-230px":"0px"; });
+leftToggle.addEventListener("click",()=>{ leftPanel.style.left = (leftPanel.style.left=="0px")?"-250px":"0px"; });
+rightToggle.addEventListener("click",()=>{ rightPanel.style.right = (rightPanel.style.right=="0px")?"-250px":"0px"; });
 
 // Create new list
 document.getElementById("createListBtn").addEventListener("click",()=>{
@@ -116,15 +118,14 @@ document.getElementById("createListBtn").addEventListener("click",()=>{
   const addDate = document.getElementById("newListDate").checked;
   const addCheckbox = document.getElementById("newListCheckbox").checked;
   if(!name || cols.length==0){ alert("Wpisz nazwę i kolumny"); return; }
-  const newListRef = listsRef.push();
-  newListRef.set({name:name,columns:cols,date:addDate,checkbox:addCheckbox,entries:{}});
+  listsRef.push({name:name,columns:cols,date:addDate,checkbox:addCheckbox,entries:{}});
   document.getElementById("newListName").value="";
   document.getElementById("newListColumns").value="";
   document.getElementById("newListDate").checked=false;
   document.getElementById("newListCheckbox").checked=false;
 });
 
-// Load and render lists
+// Load lists
 function loadLists(){
   listsRef.on("value", snapshot=>{
     const container = document.getElementById("listsContainer");
@@ -143,7 +144,6 @@ function loadLists(){
       form.style.marginBottom="10px";
       const entriesRef = listsRef.child(listId).child("entries");
 
-      // Add inputs
       if(list.date){
         const dateInput = document.createElement("input");
         dateInput.type="date";
@@ -173,10 +173,10 @@ function loadLists(){
       // Table
       const table = document.createElement("table");
       const thead = document.createElement("tr");
-      if(list.date) { const thDate=document.createElement("th"); thDate.textContent="Data"; thead.appendChild(thDate); }
+      if(list.date){ const thDate=document.createElement("th"); thDate.textContent="Data"; thead.appendChild(thDate); }
       list.columns.forEach(c=>{ const th=document.createElement("th"); th.textContent=c; thead.appendChild(th); });
       if(list.checkbox){ const thChk=document.createElement("th"); thChk.textContent="Zrobione"; thead.appendChild(thChk); }
-      if(isAdmin){ const thDel=document.createElement("th"); thDel.textContent="Akcje"; thead.appendChild(thDel);}
+      if(isAdmin){ const thDel=document.createElement("th"); thDel.textContent="Akcje"; thead.appendChild(thDel); }
       table.appendChild(thead);
       const tbody = document.createElement("tbody");
       table.appendChild(tbody);
@@ -200,9 +200,9 @@ function loadLists(){
         snap.forEach(entrySnap=>{
           const entry = entrySnap.val();
           const tr = document.createElement("tr");
-          if(list.date) { const td=document.createElement("td"); td.textContent=entry.date; tr.appendChild(td);}
-          list.columns.forEach(c=>{ const td=document.createElement("td"); td.textContent=entry[c]; tr.appendChild(td);});
-          if(list.checkbox){ const td=document.createElement("td"); const cb=document.createElement("input"); cb.type="checkbox"; cb.disabled=true; cb.checked=entry.checkbox; td.appendChild(cb); tr.appendChild(td);}
+          if(list.date){ const td=document.createElement("td"); td.textContent=entry.date; tr.appendChild(td);}
+          list.columns.forEach(c=>{ const td=document.createElement("td"); td.textContent=entry[c]; tr.appendChild(td); });
+          if(list.checkbox){ const td=document.createElement("td"); td.textContent=entry.checkbox ? "✔" : ""; tr.appendChild(td);}
           if(isAdmin){
             const td=document.createElement("td");
             const btn=document.createElement("button");
@@ -214,6 +214,7 @@ function loadLists(){
           tbody.appendChild(tr);
         });
       });
+
     });
   });
 }
