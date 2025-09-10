@@ -1,651 +1,206 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Obowiązki domowe — dynamiczne listy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obowiązki domowe - System</title>
 <style>
-  :root{
-    --panel-w: 300px;
-    --tab-size: 26px;
-    --accent: #4caf50;
-    --dark: #2f3b45;
-  }
-  *{box-sizing:border-box}
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f3f6f8; color:#222;}
-  header{background:var(--accent);color:#fff;padding:18px 12px;text-align:center}
-  h1{margin:0;font-size:20px}
-  /* Login modal (center) */
-  #loginScreen{
-    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-    background:#fff;padding:24px;border-radius:8px;box-shadow:0 6px 30px rgba(0,0,0,.15);width:320px;z-index:2000;
-    text-align:center;
-  }
-  #loginScreen input{width:100%;padding:10px;margin:10px 0;border:1px solid #ddd;border-radius:6px}
-  #loginScreen button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:6px;cursor:pointer}
-  #loginError{color:#b00020;margin:6px 0;font-size:14px;min-height:18px}
-
-  /* Panels (hidden off-screen) */
-  .side-panel{
-    position:fixed;top:0;height:100vh;width:var(--panel-w);background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.12);
-    transition:transform .32s ease;overflow:auto;padding:16px;z-index:1500;
-  }
-  /* left */
-  #leftPanel{left:0;transform:translateX(calc(-1 * var(--panel-w)));border-right:1px solid #eee}
-  #leftTab{
-    position:fixed;left:0;top:64px;width:var(--tab-size);height:var(--tab-size);background:var(--accent);color:#fff;
-    display:flex;align-items:center;justify-content:center;border-radius:0 6px 6px 0;cursor:pointer;z-index:1600;
-    transition:left .32s;
-  }
-  /* right */
-  #rightPanel{right:0;transform:translateX(calc(var(--panel-w)));border-left:1px solid #eee}
-  #rightTab{
-    position:fixed;right:0;top:64px;width:var(--tab-size);height:var(--tab-size);background:var(--accent);color:#fff;
-    display:flex;align-items:center;justify-content:center;border-radius:6px 0 0 6px;cursor:pointer;z-index:1600;
-    transition:right .32s;
-  }
-
-  /* Main content */
-  #app{padding:18px 20px;max-width:1100px;margin:0 auto;display:none}
-  .topbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-  .card{background:#fff;padding:12px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
-  form.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  form.inline input, form.inline select, form.inline button{padding:8px;border:1px solid #ddd;border-radius:6px}
-  table{width:100%;border-collapse:collapse;margin-top:14px}
-  th,td{padding:10px;border:1px solid #e6e6e6;text-align:left}
-  th{background:var(--accent);color:#fff}
-  tr:nth-child(even){background:#fafafa}
-  .right{margin-left:auto}
-  .small{font-size:13px;padding:6px 8px}
-  .btn{background:var(--accent);color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
-  .btn.grey{background:#6c7a87}
-  .danger{background:#d9534f}
-  .muted{color:#666;font-size:13px}
-
-  /* Responsive */
-  @media (max-width:900px){
-    :root{--panel-w:260px}
-    #loginScreen{width:92%}
-  }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
+  header { background:#4caf50; color:white; padding:20px; text-align:center; }
+  main { padding:20px; transition: margin 0.3s; }
+  #loginScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:80vh; }
+  #loginScreen input, #loginScreen button { padding:10px; margin:5px; font-size:16px; }
+  button { cursor:pointer; border:none; color:white; background:#4caf50; padding:10px 15px; border-radius:5px; }
+  button:hover { background:#45a049; }
+  table { width:90%; margin:20px auto; border-collapse: collapse; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+  th, td { padding:10px; border:1px solid #ddd; text-align:center; }
+  th { background:#4caf50; color:white; }
+  tr:nth-child(even){ background:#f9f9f9;}
+  tr:hover{ background:#e0f7e9;}
+  /* Panele boczne */
+  .sidePanel { position:fixed; top:0; height:100%; width:250px; background:#333; color:white; overflow:auto; transition: transform 0.3s; padding:20px; z-index:100; }
+  #leftPanel { left:0; transform:translateX(-230px); }
+  #rightPanel { right:0; transform:translateX(230px); }
+  .panelBtn { position:fixed; top:50px; width:30px; height:30px; background:#4caf50; color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:101; }
+  #leftPanelBtn { left:0; }
+  #rightPanelBtn { right:0; }
+  .hidden { display:none; }
+  input, select { padding:5px; margin:5px; }
 </style>
 </head>
 <body>
-
 <header>
-  <h1>Obowiązki domowe — wiele list</h1>
+  <h1>Obowiązki domowe 🏡</h1>
 </header>
 
-<!-- LOGIN -->
+<!-- Ekran logowania -->
 <div id="loginScreen">
-  <h2>Logowanie</h2>
-  <input id="passwordInput" type="password" placeholder="Wpisz hasło ">
-  <div style="display:flex;gap:8px;justify-content:center">
-    <button id="loginBtn" class="btn">Zaloguj</button>
-    <button id="demoFill" class="btn grey" title="Wypełnij admin">demo admin</button>
-  </div>
-  <div id="loginError"></div>
-  <p class="muted" style="margin-top:8px" </p>
+  <h2>Logowanie / Rejestracja</h2>
+  <input type="text" id="usernameInput" placeholder="Login">
+  <input type="password" id="passwordInput" placeholder="Hasło">
+  <button id="loginBtn">Zaloguj</button>
+  <button id="registerBtn">Zarejestruj</button>
+  <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- LEFT panel (filters + admin controls) -->
-<div id="leftPanel" class="side-panel" aria-hidden="true">
-  <div>
-    <h3>Filtry</h3>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <label>Data (dokładna): <input id="filterDate" type="date"></label>
-      <label>Imię (zawiera): <input id="filterName" type="text" placeholder="np. Ania"></label>
-      <label>Obowiązek (zawiera): <input id="filterTask" type="text" placeholder="np. odkurzanie"></label>
-      <div style="display:flex;gap:8px">
-        <button id="applyFilter" class="btn small">Filtruj</button>
-        <button id="resetFilter" class="btn grey small">Resetuj</button>
-      </div>
-    </div>
-
-    <hr style="margin:14px 0">
-
-    <div id="adminBlock">
-      <h3>Admin — kontrola (tylko dla admina)</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="exportCSV" class="btn small">Eksportuj CSV (lista)</button>
-        <button id="deleteAll" class="btn danger small">Usuń wszystkie (lista)</button>
-      </div>
-      <hr>
-      <h4>Dodaj obowiązek do wyboru (select)</h4>
-      <div style="display:flex;gap:8px">
-        <input id="adminNewDuty" placeholder="np. wynieść śmieci" />
-        <button id="adminAddDuty" class="btn small">Dodaj</button>
-      </div>
-    </div>
+<!-- Lewy panel -->
+<div id="leftPanel" class="sidePanel">
+  <h3>Filtry</h3>
+  <input type="date" id="filterDate">
+  <input type="text" id="filterName" placeholder="Filtruj po użytkowniku">
+  <select id="filterTask"><option value="">Wszystkie obowiązki</option></select>
+  <button id="applyFilter">Filtruj</button>
+  <button id="resetFilter">Resetuj</button>
+  
+  <div id="adminSection" class="hidden">
+    <h3>Panel Admina</h3>
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+    <button id="exportCSVBtn">Eksportuj CSV</button>
+    <h4>Nowe obowiązki</h4>
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
+    <h4>Konfiguracja wyglądu</h4>
+    <label>Tło: <input type="color" id="bgColorPicker" value="#f3f3f3"></label><br>
+    <label>Nagłówek: <input type="color" id="headerColorPicker" value="#4caf50"></label><br>
+    <label>Przyciski: <input type="color" id="buttonColorPicker" value="#4caf50"></label><br>
+    <button id="applyStyleBtn">Zastosuj</button>
   </div>
 </div>
-<!-- left tab (small square) -->
-<div id="leftTab" title="Filtry / Admin">≡</div>
+<div id="leftPanelBtn" class="panelBtn">&#9776;</div>
 
-<!-- RIGHT panel (lists and create/edit lists) -->
-<div id="rightPanel" class="side-panel" aria-hidden="true">
-  <div>
-    <h3>Listy</h3>
-    <div style="display:flex;gap:8px;align-items:center">
-      <select id="listsSelect" style="flex:1;padding:8px"></select>
-      <button id="refreshLists" class="btn small" title="Odśwież">⟳</button>
-    </div>
-
-    <hr style="margin:12px 0">
-
-    <div id="createListBlock">
-      <h4>Stwórz nową listę (admin)</h4>
-      <input id="newListName" placeholder="Nazwa listy (np. Zakupy)" style="width:100%;padding:8px"/>
-      <input id="newListCols" placeholder="Nagłówki (oddziel | ) np: Zakupy|Ile|Zrobione" style="width:100%;padding:8px;margin-top:8px"/>
-      <label style="display:flex;gap:8px;align-items:center;margin-top:6px">
-        <input id="newListHasDate" type="checkbox" checked> zawiera datę
-      </label>
-      <label style="display:flex;gap:8px;align-items:center">
-        <input id="newListHasCheckbox" type="checkbox"> zawiera checkbox (kolumna 'zrobione')
-      </label>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="createListBtn" class="btn">Utwórz listę</button>
-        <button id="editListBtn" class="btn grey">Zapisz nagłówki</button>
-      </div>
-      <p class="muted" id="listNotice" style="margin-top:8px"></p>
-    </div>
-    <hr style="margin:12px 0">
-    <div>
-      <h4>Opcje aktualnej listy</h4>
-      <div style="display:flex;gap:8px">
-        <button id="deleteListBtn" class="btn danger small">Usuń listę</button>
-        <button id="clearListTasksBtn" class="btn small">Wyczyść wpisy</button>
-      </div>
-    </div>
+<!-- Prawy panel -->
+<div id="rightPanel" class="sidePanel">
+  <h3>Zarządzanie listami</h3>
+  <div id="listSection" class="hidden">
+    <input type="text" id="newListName" placeholder="Nazwa nowej listy">
+    <label><input type="checkbox" id="useDateCheckbox"> Data?</label>
+    <label><input type="checkbox" id="useCheckCheckbox"> Checkbox?</label>
+    <button id="createListBtn">Stwórz listę</button>
+    <div id="existingLists"></div>
   </div>
 </div>
-<!-- right tab (small square) -->
-<div id="rightTab" title="Listy">▦</div>
+<div id="rightPanelBtn" class="panelBtn">&#9881;</div>
 
-<!-- APP -->
-<div id="app">
-  <div class="topbar">
-    <div class="card" style="padding:10px">
-      <strong>Aktywna lista:</strong> <span id="activeListName" class="muted">brak</span>
-    </div>
+<!-- Główna zawartość -->
+<main id="mainContent" class="hidden">
+  <form id="taskForm">
+    <input type="date" id="dateInput">
+    <select id="taskSelect"><option value="" disabled selected>Wybierz obowiązek</option></select>
+    <input type="text" id="taskNameInput" placeholder="Użytkownik" disabled>
+    <button type="submit">Dodaj wpis</button>
+  </form>
+  <table id="taskTable">
+    <thead><tr><th>Data</th><th>Obowiązek</th><th>Użytkownik</th><th>Akcje</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</main>
 
-    <div class="card right" style="display:flex;align-items:center;gap:8px">
-      <div class="muted">Zalogowany jako: <strong id="whoAmI">—</strong></div>
-      <button id="logoutBtn" class="btn small">Wyloguj</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Dodaj wpis</h3>
-    <form id="addTaskForm" class="inline">
-      <!-- dynamic inputs will be rendered here -->
-      <div id="dynamicFields" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
-      <button type="submit" class="btn">Dodaj</button>
-    </form>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <h3>Wpisy</h3>
-    <div id="tableWrapper">
-      <table id="tasksTable">
-        <thead><tr id="theadRow"></tr></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-/* =========================
-   Konfiguracja Firebase
-   (używam Twojego istniejącego projektu podany wcześniej)
-   Jeśli chcesz, zamień wartości na swoje.
-   ========================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
-  authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
-  databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "obowiazki-domowe-b2312",
-  storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
-  messagingSenderId: "348397631566",
-  appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
+  apiKey: "TWOJE_API_KEY",
+  authDomain: "TWOJE_AUTH_DOMAIN",
+  databaseURL: "TWOJE_DB_URL",
+  projectId: "TWOJE_PROJECT_ID",
+  storageBucket: "TWOJE_STORAGE",
+  messagingSenderId: "TWOJE_SENDER",
+  appId: "TWOJE_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const tasksRef = db.ref("tasks");
+const usersRef = db.ref("users");
+const listsRef = db.ref("lists");
 
-/* ========== STAN APLIKACJI ========== */
+let currentUser = null;
 let isAdmin = false;
-let currentListId = null;      // id listy w Firebase (np. "main" lub "Zakupy")
-let currentMeta = null;        // meta: { name, cols:[], hasDate, hasCheckbox }
 
-/* ========== ELEMENTY DOM ========== */
-const loginScreen = document.getElementById('loginScreen');
-const app = document.getElementById('app');
-const passwordInput = document.getElementById('passwordInput');
-const loginBtn = document.getElementById('loginBtn');
-const demoFill = document.getElementById('demoFill');
-const loginError = document.getElementById('loginError');
-const whoAmI = document.getElementById('whoAmI');
-const logoutBtn = document.getElementById('logoutBtn');
+// Panele boczne
+const leftPanel = document.getElementById("leftPanel");
+const rightPanel = document.getElementById("rightPanel");
+document.getElementById("leftPanelBtn").onclick=()=>{ leftPanel.style.transform = leftPanel.style.transform==='translateX(0px)' ? 'translateX(-230px)' : 'translateX(0)'; };
+document.getElementById("rightPanelBtn").onclick=()=>{ rightPanel.style.transform = rightPanel.style.transform==='translateX(0px)' ? 'translateX(230px)' : 'translateX(0)'; };
 
-const leftPanel = document.getElementById('leftPanel');
-const rightPanel = document.getElementById('rightPanel');
-const leftTab = document.getElementById('leftTab');
-const rightTab = document.getElementById('rightTab');
-
-const adminBlock = document.getElementById('adminBlock');
-const adminNewDuty = document.getElementById('adminNewDuty');
-const adminAddDutyBtn = document.getElementById('adminAddDuty');
-const exportCSVBtn = document.getElementById('exportCSV');
-const deleteAllBtn = document.getElementById('deleteAll');
-
-const listsSelect = document.getElementById('listsSelect');
-const createListBtn = document.getElementById('createListBtn');
-const newListName = document.getElementById('newListName');
-const newListCols = document.getElementById('newListCols');
-const newListHasDate = document.getElementById('newListHasDate');
-const newListHasCheckbox = document.getElementById('newListHasCheckbox');
-const editListBtn = document.getElementById('editListBtn');
-const deleteListBtn = document.getElementById('deleteListBtn');
-const clearListTasksBtn = document.getElementById('clearListTasksBtn');
-const listNotice = document.getElementById('listNotice');
-const refreshLists = document.getElementById('refreshLists');
-
-const filterDate = document.getElementById('filterDate');
-const filterName = document.getElementById('filterName');
-const filterTask = document.getElementById('filterTask');
-const applyFilter = document.getElementById('applyFilter');
-const resetFilter = document.getElementById('resetFilter');
-
-const activeListName = document.getElementById('activeListName');
-
-const theadRow = document.getElementById('theadRow');
-const tbody = document.getElementById('tbody');
-
-const addTaskForm = document.getElementById('addTaskForm');
-const dynamicFields = document.getElementById('dynamicFields');
-
-/* ========== UTILS ========== */
-function uid(){ return 'id'+Math.random().toString(36).slice(2,10); }
-function showLoginError(t){ loginError.textContent=t; setTimeout(()=>loginError.textContent='',3500); }
-
-/* ========== LOGIN / LOGOUT ========== */
-loginBtn.addEventListener('click', ()=> {
-  const pw = passwordInput.value.trim();
-  if(pw === 'admin123!'){ isAdmin = true; startApp(); }
-  else if(pw === 'lista123!'){ isAdmin = false; startApp(); }
-  else showLoginError('Nieprawidłowe hasło');
-});
-demoFill.addEventListener('click', ()=> { passwordInput.value='admin123!'; });
-
-logoutBtn.addEventListener('click', ()=> {
-  isAdmin = false;
-  currentListId = null;
-  currentMeta = null;
-  // hide app, show login
-  app.style.display = 'none';
-  loginScreen.style.display = 'block';
-  passwordInput.value = '';
-  whoAmI.textContent = '-';
-});
-
-/* ========== PANELS: kwadraciki wysuwają panel razem z tabem ========== */
-let leftOpen=false, rightOpen=false;
-leftTab.addEventListener('click', ()=> {
-  leftOpen = !leftOpen;
-  if(leftOpen){
-    leftPanel.style.transform = 'translateX(0)';
-    leftTab.style.left = `calc(var(--panel-w))`; // tab "moves" - visual
-  } else {
-    leftPanel.style.transform = 'translateX(-100%)';
-    leftTab.style.left = '0';
-  }
-});
-rightTab.addEventListener('click', ()=> {
-  rightOpen = !rightOpen;
-  if(rightOpen){
-    rightPanel.style.transform = 'translateX(0)';
-    rightTab.style.right = `calc(var(--panel-w))`;
-  } else {
-    rightPanel.style.transform = 'translateX(100%)';
-    rightTab.style.right = '0';
-  }
-});
-
-/* ========== APP START ========== */
-function startApp(){
-  loginScreen.style.display = 'none';
-  app.style.display = 'block';
-  whoAmI.textContent = isAdmin ? 'Admin' : 'Użytkownik';
-  // show/hide admin controls in left panel and create-list in right panel
-  adminBlock.style.display = isAdmin ? 'block' : 'none';
-  document.getElementById('createListBlock').style.display = isAdmin ? 'block' : 'none';
-  // load lists and select default
-  loadLists();
-}
-
-/* ========== LISTS (meta + tasks) ========== */
-/*
- Structure in Firebase:
- lists/
-   <listId>/
-     meta: { name: string, cols: [col1,col2,...], hasDate: bool, hasCheckbox: bool }
-     tasks/
-       <taskId>: { <colName>: value, ... , date: 'YYYY-MM-DD', checkbox: true/false }
-*/
-function loadLists(){
-  // ensure at least "main" exists
-  db.ref('lists').get().then(snap=>{
-    if(!snap.exists()){
-      const mainMeta = { name: 'Obowiązki domowe', cols: ['Co zrobił','Imię'], hasDate:true, hasCheckbox:false };
-      db.ref('lists/main/meta').set(mainMeta).then(()=> populateLists());
-    } else populateLists();
-  }).catch(err=>{
-    console.error(err); populateLists();
+// Logowanie
+document.getElementById("loginBtn").onclick=()=>{
+  const u=document.getElementById("usernameInput").value.trim();
+  const p=document.getElementById("passwordInput").value;
+  usersRef.child(u).get().then(s=>{
+    if(s.exists() && s.val().password===p){
+      currentUser=u; isAdmin=(s.val().role==='admin');
+      initUI();
+    } else { document.getElementById("loginError").textContent="Błędne dane"; }
   });
-}
-
-function populateLists(){
-  listsSelect.innerHTML = '';
-  db.ref('lists').get().then(snap=>{
-    snap.forEach(child=>{
-      const id = child.key;
-      const meta = child.val().meta || {name:id, cols:[], hasDate:false, hasCheckbox:false};
-      const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = meta.name || id;
-      listsSelect.appendChild(opt);
+};
+document.getElementById("registerBtn").onclick=()=>{
+  const u=document.getElementById("usernameInput").value.trim();
+  const p=document.getElementById("passwordInput").value;
+  if(u&&p){
+    usersRef.child(u).get().then(s=>{
+      if(s.exists()) document.getElementById("loginError").textContent="Login zajęty";
+      else { usersRef.child(u).set({password:p, role:"user"}); currentUser=u; initUI(); }
     });
-    // choose previously selected or first
-    if(currentListId && Array.from(listsSelect.options).some(o=>o.value===currentListId)){
-      listsSelect.value = currentListId;
-    } else {
-      currentListId = listsSelect.options[0]?.value;
-      listsSelect.selectedIndex = 0;
-    }
-    onSelectList();
-  });
+  }
+};
+
+function initUI(){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainContent").classList.remove("hidden");
+  document.getElementById("taskNameInput").value=currentUser;
+  document.getElementById("adminSection").classList.toggle("hidden",!isAdmin);
+  document.getElementById("listSection").classList.toggle("hidden",!isAdmin);
+  loadTasks();
 }
 
-listsSelect.addEventListener('change', onSelectList);
-refreshLists.addEventListener('click', loadLists);
-
-function onSelectList(){
-  const id = listsSelect.value;
-  if(!id) return;
-  currentListId = id;
-  db.ref('lists/'+id+'/meta').get().then(snap=>{
-    currentMeta = snap.val() || { name: id, cols: [], hasDate:false, hasCheckbox:false };
-    activeListName.textContent = currentMeta.name || id;
-    renderDynamicForm();
-    renderTableHeader();
-    listenTasks();
-    // fill filterTask select options with columns/possible duties if first column is duty
-    rebuildFilterTaskOptions();
-    listNotice.textContent = isAdmin ? 'Jesteś adminem tej listy — możesz edytować nagłówki.' : 'Użytkownik: brak uprawnień do edycji nagłówków.';
-  });
-}
-
-/* ========== Create / Edit list (admin only) ========== */
-createListBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin może tworzyć listy.');
-  const name = newListName.value.trim();
-  const colsRaw = newListCols.value.trim();
-  if(!name) return alert('Wpisz nazwę listy.');
-  // default columns: if provided parse, else single "Opis"
-  const cols = colsRaw ? colsRaw.split('|').map(s=>s.trim()).filter(Boolean) : ['Opis'];
-  const meta = { name, cols, hasDate: !!newListHasDate.checked, hasCheckbox: !!newListHasCheckbox.checked };
-  // create an id-safe key
-  const id = name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_\-]/g,'').toLowerCase() || ('list_'+uid());
-  db.ref('lists/'+id+'/meta').set(meta).then(()=>{
-    newListName.value=''; newListCols.value=''; newListHasDate.checked=true; newListHasCheckbox.checked=false;
-    loadLists();
-    alert('Stworzono listę: '+name);
-  }).catch(err=>{ console.error(err); alert('Błąd tworzenia listy'); });
+// Dodawanie wpisów
+document.getElementById("taskForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const date=document.getElementById("dateInput").value;
+  const task=document.getElementById("taskSelect").value;
+  if(!task) return;
+  tasksRef.push({date:date, task:task, user:currentUser});
 });
 
-// Edit headers (save meta) - only admin
-editListBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin może edytować listę.');
-  if(!currentListId) return;
-  const newColsRaw = prompt('Wprowadź nowe nagłówki oddzielone znakiem |', currentMeta.cols ? currentMeta.cols.join(' | ') : '');
-  if(newColsRaw === null) return;
-  const newCols = newColsRaw.split('|').map(s=>s.trim()).filter(Boolean);
-  const hasDate = confirm('Czy lista ma kolumnę daty? (OK = tak, Anuluj = nie)');
-  const hasCheckbox = confirm('Czy lista ma checkbox (np. zrobione)? (OK = tak)');
-  const meta = { name: currentMeta.name, cols: newCols, hasDate, hasCheckbox };
-  db.ref('lists/'+currentListId+'/meta').set(meta).then(()=>{ alert('Zapisano nagłówki'); onSelectList(); });
-});
-
-/* ========== Render dynamic form & header based on currentMeta ========== */
-function renderDynamicForm(){
-  dynamicFields.innerHTML = '';
-  // if meta.hasDate show date input first
-  if(currentMeta.hasDate){
-    const inp = document.createElement('input'); inp.type='date'; inp.id='field_date';
-    inp.placeholder='Data';
-    dynamicFields.appendChild(inp);
-  }
-  // then for each col in cols create text input (unless it's e.g. 'Zrobione' and hasCheckbox true)
-  currentMeta.cols.forEach(col=>{
-    if(currentMeta.hasCheckbox && col.toLowerCase().includes('zrobione')) {
-      const cb = document.createElement('label'); cb.style.display='flex'; cb.style.alignItems='center';
-      cb.innerHTML = `<input type="checkbox" id="field_checkbox"> ${col}`;
-      dynamicFields.appendChild(cb);
-    } else {
-      const inp = document.createElement('input'); inp.type='text'; inp.placeholder=col; inp.dataset.col=col;
-      dynamicFields.appendChild(inp);
-    }
-  });
-  // if hasCheckbox but no dedicated col, add hidden checkbox field
-  if(currentMeta.hasCheckbox && !currentMeta.cols.some(c=>c.toLowerCase().includes('zrobione'))){
-    const cb = document.createElement('label'); cb.style.display='flex'; cb.style.alignItems='center';
-    cb.innerHTML = `<input type="checkbox" id="field_checkbox"> Zrobione`;
-    dynamicFields.appendChild(cb);
-  }
-}
-
-/* Header */
-function renderTableHeader(){
-  theadRow.innerHTML = '';
-  if(currentMeta.hasDate) theadRow.appendChild(th('Data'));
-  currentMeta.cols.forEach(c=>theadRow.appendChild(th(c)));
-  if(currentMeta.hasCheckbox) theadRow.appendChild(th('Zrobione'));
-  if(isAdmin) theadRow.appendChild(th('Akcje'));
-}
-function th(text){ const e = document.createElement('th'); e.textContent = text; return e; }
-
-/* ========== Tasks CRUD ========== */
-let tasksListener = null;
-function listenTasks(){
-  if(tasksListener) db.ref('lists/'+currentListId+'/tasks').off('value', tasksListener);
-  tasksListener = db.ref('lists/'+currentListId+'/tasks').on('value', snap=>{
-    tbody.innerHTML=''; 
-    snap.forEach(child=>{
-      const id = child.key;
-      const data = child.val();
-      const tr = document.createElement('tr');
-      if(currentMeta.hasDate) tr.appendChild(td(data.date||''));
-      currentMeta.cols.forEach(col=>{
-        tr.appendChild(td(data[col] || ''));
-      });
-      if(currentMeta.hasCheckbox){
-        const cb = document.createElement('input'); cb.type='checkbox'; cb.disabled=true; cb.checked = !!data.checkbox;
-        const tdcb = document.createElement('td'); tdcb.appendChild(cb); tr.appendChild(tdcb);
-      }
-      // actions
-      if(isAdmin){
-        const actionTd = document.createElement('td');
-        const delBtn = document.createElement('button'); delBtn.className='small btn danger'; delBtn.textContent='Usuń';
-        delBtn.addEventListener('click', ()=> {
-          if(confirm('Usuń wpis?')) db.ref('lists/'+currentListId+'/tasks/'+id).remove();
-        });
-        actionTd.appendChild(delBtn);
-        tr.appendChild(actionTd);
-      }
+// Ładowanie wpisów
+function loadTasks(){
+  tasksRef.on("value", snap=>{
+    const tbody=document.querySelector("#taskTable tbody"); tbody.innerHTML="";
+    snap.forEach(ch=>{
+      const d=ch.val();
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${d.date||""}</td><td>${d.task}</td><td>${d.user}</td><td>${isAdmin?'<button onclick="deleteTask(\\''+ch.key+'\\')">Usuń</button>':""}</td>`;
       tbody.appendChild(tr);
     });
   });
 }
+function deleteTask(id){ tasksRef.child(id).remove(); }
 
-/* add task - form submit */
-addTaskForm.addEventListener('submit', e=>{
-  e.preventDefault();
-  if(!currentListId) return alert('Wybierz listę po prawej.');
-  const payload = {};
-  if(currentMeta.hasDate){
-    const d = document.getElementById('field_date')?.value || '';
-    payload.date = d;
-  }
-  // for each col value
-  const inputs = dynamicFields.querySelectorAll('input[data-col]');
-  inputs.forEach(inp=>{
-    const key = inp.dataset.col;
-    payload[key] = inp.value || '';
+// Dodawanie obowiązków
+document.getElementById("addTaskBtn").onclick=()=>{
+  const t=document.getElementById("newTaskInput").value.trim();
+  if(t){ const opt=document.createElement("option"); opt.value=opt.textContent=t; document.getElementById("taskSelect").appendChild(opt); document.getElementById("newTaskInput").value=""; }
+};
+
+// Eksport CSV
+document.getElementById("exportCSVBtn").onclick=()=>{
+  tasksRef.once("value").then(snap=>{
+    let csv="Data;Obowiązek;Użytkownik\\n";
+    snap.forEach(ch=>{const d=ch.val(); csv+=`${d.date||""};${d.task};${d.user}\\n`;});
+    const blob=new Blob([csv],{type:"text/csv"}); const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="lista.csv"; a.click();
   });
-  // checkbox
-  if(currentMeta.hasCheckbox){
-    const cb = document.getElementById('field_checkbox');
-    payload.checkbox = !!(cb && cb.checked);
-  }
-  // If no cols (rare), fallback to single text field "Opis"
-  if(currentMeta.cols.length === 0){
-    const fallback = dynamicFields.querySelector('input:not([data-col])');
-    payload['Opis'] = fallback ? fallback.value : '';
-  }
-  db.ref('lists/'+currentListId+'/tasks').push(payload).then(()=> {
-    // clear inputs
-    dynamicFields.querySelectorAll('input[type=text]').forEach(i=>i.value='');
-    dynamicFields.querySelectorAll('input[type=date]').forEach(i=>i.value='');
-    dynamicFields.querySelectorAll('input[type=checkbox]').forEach(i=>i.checked=false);
-  });
-});
+};
 
-/* ========== Filters (left panel) ========== */
-applyFilter.addEventListener('click', ()=>{
-  if(!currentListId) return alert('Wybierz listę');
-  const dateF = filterDate.value;
-  const nameF = filterName.value.trim().toLowerCase();
-  const taskF = filterTask.value.trim().toLowerCase();
+// Czyszczenie
+document.getElementById("clearAllBtn").onclick=()=>{ tasksRef.remove(); };
 
-  db.ref('lists/'+currentListId+'/tasks').get().then(snap=>{
-    tbody.innerHTML='';
-    snap.forEach(child=>{
-      const d = child.val();
-      let ok = true;
-      if(dateF && d.date !== dateF) ok = false;
-      if(nameF){
-        // check all textual fields for name
-        const nameMatch = Object.values(d).some(v=> (''+v).toLowerCase().includes(nameF) );
-        if(!nameMatch) ok = false;
-      }
-      if(taskF){
-        const taskMatch = Object.values(d).some(v=> (''+v).toLowerCase().includes(taskF) );
-        if(!taskMatch) ok = false;
-      }
-      if(ok){
-        const tr = document.createElement('tr');
-        if(currentMeta.hasDate) tr.appendChild(td(d.date||''));
-        currentMeta.cols.forEach(col=>tr.appendChild(td(d[col]||'')));
-        if(currentMeta.hasCheckbox){ const cb=document.createElement('input'); cb.type='checkbox'; cb.disabled=true; cb.checked=!!d.checkbox; const tdcb=document.createElement('td'); tdcb.appendChild(cb); tr.appendChild(tdcb); }
-        if(isAdmin){ const actions=document.createElement('td'); const del=document.createElement('button'); del.className='small btn danger'; del.textContent='Usuń'; del.addEventListener('click',()=>db.ref('lists/'+currentListId+'/tasks/'+child.key).remove()); actions.appendChild(del); tr.appendChild(actions); }
-        tbody.appendChild(tr);
-      }
-    });
-  });
-});
-resetFilter.addEventListener('click', ()=>{ filterDate.value=''; filterName.value=''; filterTask.value=''; listenTasks(); });
-
-/* ========== Admin utilities ========== */
-adminAddDutyBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin');
-  const duty = adminNewDuty.value.trim();
-  if(!duty) return;
-  // add to current meta columns if appropriate (just add a column name to meta for convenience)
-  const metaRef = db.ref('lists/'+currentListId+'/meta');
-  metaRef.get().then(snap=>{
-    if(!snap.exists()) return alert('Brak meta');
-    const meta = snap.val();
-    if(!meta.cols) meta.cols = [];
-    if(!meta.cols.includes(duty)) meta.cols.push(duty);
-    metaRef.set(meta).then(()=>{ adminNewDuty.value=''; onSelectList(); alert('Dodano obowiązek do nagłówków listy'); });
-  });
-});
-
-// delete all tasks in current list
-deleteAllBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin');
-  if(!currentListId) return;
-  if(confirm('Na pewno usunąć wszystkie wpisy tej listy?')) db.ref('lists/'+currentListId+'/tasks').remove();
-});
-
-// export CSV current list
-exportCSVBtn.addEventListener('click', ()=>{
-  if(!currentListId) return alert('Wybierz listę');
-  db.ref('lists/'+currentListId+'/tasks').get().then(snap=>{
-    let header = [];
-    if(currentMeta.hasDate) header.push('Date');
-    header = header.concat(currentMeta.cols);
-    if(currentMeta.hasCheckbox) header.push('checkbox');
-    const lines = [ header.join(',') ];
-    snap.forEach(child=>{
-      const d = child.val();
-      const row = [];
-      if(currentMeta.hasDate) row.push('"' + (d.date||'') + '"');
-      currentMeta.cols.forEach(c => row.push('"' + (d[c]||'') + '"'));
-      if(currentMeta.hasCheckbox) row.push(d.checkbox ? 'TRUE' : 'FALSE');
-      lines.push(row.join(','));
-    });
-    const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = (currentMeta.name||currentListId)+'.csv'; a.click();
-    URL.revokeObjectURL(url);
-  });
-});
-
-/* Delete or clear list (admin) */
-deleteListBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin');
-  if(!currentListId) return;
-  if(currentListId === 'main') return alert('Nie można usuwać listy głównej');
-  if(confirm('Usuń całą listę (meta + zadania)?')) {
-    db.ref('lists/'+currentListId).remove().then(()=>{ currentListId=null; loadLists(); });
-  }
-});
-clearListTasksBtn.addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Tylko admin');
-  if(!currentListId) return;
-  if(confirm('Wyczyścić wszystkie wpisy z tej listy?')) db.ref('lists/'+currentListId+'/tasks').remove();
-});
-
-/* helper td */
-function td(text){ const e=document.createElement('td'); e.textContent=text; return e; }
-
-/* rebuild filterTask options (simple: populate with first text column values up to some unique set) */
-function rebuildFilterTaskOptions(){
-  filterTask.innerHTML = '<option value="">Wszystkie obowiązki</option>';
-  if(currentMeta && currentMeta.cols && currentMeta.cols.length>0){
-    // try to use first column as duty column
-    const dutyCol = currentMeta.cols[0];
-    db.ref('lists/'+currentListId+'/tasks').get().then(snap=>{
-      const set = new Set();
-      snap.forEach(c=>{ if(c.val()[dutyCol]) set.add(c.val()[dutyCol]); });
-      set.forEach(v=>{
-        const opt = document.createElement('option'); opt.value = v; opt.textContent = v; filterTask.appendChild(opt);
-      });
-    });
-  }
-}
-
-/* initial boot (hide admin blocks until login) */
-document.getElementById('adminControls').style.display = 'none';
-document.getElementById('createListBlock').style.display = 'none';
-document.getElementById('listNotice').textContent = '';
-
-/* ensure default main list exists on load */
-loadLists();
+// Konfiguracja wyglądu
+document.getElementById("applyStyleBtn").onclick=()=>{
+  document.body.style.background=document.getElementById("bgColorPicker").value;
+  document.querySelector("header").style.background=document.getElementById("headerColorPicker").value;
+  document.querySelectorAll("button").forEach(b=>b.style.background=document.getElementById("buttonColorPicker").value);
+};
 </script>
 </body>
 </html>
