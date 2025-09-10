@@ -3,189 +3,211 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Obowiązki domowe — Multi-listy (Admin + Users)</title>
+<title>Obowiązki domowe — Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --panel-w:320px;
-  --tab-w:36px;
-  --accent:#2e8b57;
-  --card:#fff;
+  --tab-w:42px;
+  --accent:#1f8f62;
+  --accent-contrast:#fff;
   --bg:#f3f6f8;
+  --card:#ffffff;
   --muted:#6b7280;
-  --danger:#e53935;
+  --danger:#d93b3b;
+  --glass: rgba(255,255,255,0.7);
+  --radius:12px;
+  --shadow: 0 12px 30px rgba(2,6,23,0.07);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#111}
-header{background:var(--accent);color:#fff;padding:14px 16px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#0f1720; -webkit-font-smoothing:antialiased}
+header{background:var(--accent);color:var(--accent-contrast);padding:16px 18px;text-align:center;box-shadow:var(--shadow)}
 h1{margin:0;font-size:18px}
-main.app{max-width:1100px;margin:20px auto;padding:12px}
-.card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.06);margin-bottom:14px}
-.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-input,select,button,textarea{font-size:14px;padding:8px;border:1px solid #e6e9ee;border-radius:8px}
-button.btn{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-button.ghost{background:transparent;border:1px solid #ddd}
-.muted{color:var(--muted);font-size:13px}
+.container{max-width:1100px;margin:20px auto;padding:12px}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
 
-/* login modal center */
-#loginBox{
+/* LOGIN modal */
+#loginModal{
   position:fixed;left:50%;top:48%;transform:translate(-50%,-50%);
-  width:420px;background:var(--card);padding:20px;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.12);z-index:3000;
+  width:480px;max-width:96%;background:var(--card);padding:20px;border-radius:14px;box-shadow:0 30px 80px rgba(2,6,23,0.18);z-index:4000;
 }
-#loginBox h2{margin:0 0 10px}
+#loginModal h2{margin:0 0 8px}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid #e6e9ee;margin:6px 0}
+.btn{background:var(--accent);color:var(--accent-contrast);border:none;padding:9px 12px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid #e6e9ee;color:var(--muted)}
+.small{padding:6px 8px;font-size:13px;border-radius:8px}
 
-/* hidden side panels - fully hidden except small tab */
+/* Panels */
 .sidePanel{
-  position:fixed;top:0;height:100vh;width:var(--panel-w);background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.12);
-  transition:transform .36s cubic-bezier(.2,.8,.2,1);z-index:2000;overflow:auto;padding:16px;
+  position:fixed;top:0;height:100vh;width:var(--panel-w);background:linear-gradient(180deg,#ffffff,#fbfdfe);box-shadow:0 30px 60px rgba(2,6,23,0.08);
+  transition:transform .34s cubic-bezier(.2,.8,.2,1);padding:16px;z-index:2000;overflow:auto;border-left:1px solid rgba(0,0,0,0.03)
 }
-#leftPanel{left:0;transform:translateX(calc(-100% + var(--tab-w)));border-right:1px solid #eee}
-#rightPanel{right:0;transform:translateX(calc(100% - var(--tab-w)));border-left:1px solid #eee}
-.panelTab{position:fixed;top:84px;width:var(--tab-w);height:var(--tab-w);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;z-index:2100}
-#leftTab{left:0;border-radius:0 6px 6px 0}
-#rightTab{right:0;border-radius:6px 0 0 6px}
+#leftPanel{left:0;transform:translateX(calc(-100% + var(--tab-w)));border-right:1px solid rgba(0,0,0,0.04)}
+#rightPanel{right:0;transform:translateX(calc(100% - var(--tab-w)));border-left:1px solid rgba(0,0,0,0.04)}
+.panelTab{
+  position:fixed;top:84px;width:var(--tab-w);height:var(--tab-w);display:flex;align-items:center;justify-content:center;background:var(--accent);color:white;border-radius:10px;cursor:pointer;z-index:2100;box-shadow:0 10px 26px rgba(2,6,23,0.12)
+}
+#leftTab{left:8px;border-radius:0 10px 10px 0}
+#rightTab{right:8px;border-radius:10px 0 0 10px}
 .sidePanel.open-left{transform:translateX(0) !important}
 .sidePanel.open-right{transform:translateX(0) !important}
-/* move tab visually with panel (we'll modify transform inline) */
 
-/* layout */
+/* top toolbar */
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
 .userInfo{display:flex;gap:10px;align-items:center}
-.badge{background:#eef8f0;color:var(--accent);padding:6px 8px;border-radius:8px;font-weight:600}
+.badge{background:#eef9f0;color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600}
 
-/* table */
-.table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;background:var(--card)}
-th,td{padding:10px;border:1px solid #eee;text-align:left}
-th{background:var(--accent);color:#fff}
-tr:nth-child(even){background:#fafafa}
+/* forms and table */
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.formRow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.tableWrap{overflow:auto}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid rgba(0,0,0,0.06);text-align:left}
+th{background:var(--accent);color:#fff;position:sticky;top:0}
+tr:nth-child(even){background:#fbfdfb}
+tr:hover{background:#f0fff4}
 
-/* small layout helpers */
-.row{display:flex;gap:12px;align-items:center}
-.col{flex:1}
-
-/* admin-only */
-.admin-only{display:none}
+/* small helpers */
+.muted{color:var(--muted)}
+.hint{font-size:13px;color:var(--muted)}
+.center{display:flex;justify-content:center;align-items:center}
+.sep{height:1px;background:rgba(0,0,0,0.04);margin:12px 0;border-radius:2px}
 
 /* responsive */
 @media (max-width:900px){
   :root{--panel-w:260px}
-  #loginBox{width:92%}
+  .toolbar{flex-direction:column;align-items:flex-start}
+  #loginModal{width:92%}
 }
 </style>
 </head>
 <body>
 
-<header><h1>Obowiązki domowe — Multi-listy</h1></header>
+<header><h1>Obowiązki domowe — Multi-list</h1></header>
 
-<!-- LOGIN / REGISTER -->
-<div id="loginBox" aria-live="polite">
-  <h2>Logowanie / Rejestracja</h2>
-  <div style="display:flex;gap:8px">
-    <input id="email" type="email" placeholder="Email (np. jan@domena.pl)">
-    <input id="password" type="password" placeholder="Hasło (min 6)">
+<!-- LOGIN modal -->
+<div id="loginModal" role="dialog" aria-modal="true">
+  <h2>Witaj — zaloguj się lub zarejestruj</h2>
+  <div class="formRow">
+    <input id="nick" class="input" placeholder="Nick (bez spacji)">
+    <input id="password" class="input" type="password" placeholder="Hasło (min 6 znaków)">
   </div>
-  <div style="display:flex;gap:8px;margin-top:8px">
-    <button id="btnLogin" class="btn">Zaloguj</button>
-    <button id="btnRegister" class="btn ghost">Zarejestruj</button>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    <button id="registerBtn" class="btn ghost small">Zarejestruj</button>
+    <button id="loginBtn" class="btn small">Zaloguj</button>
   </div>
-  <div style="margin-top:10px">
-    <small class="muted">Jeśli potrzebujesz konta admin, po pierwszym uruchomieniu skrypt spróbuje utworzyć domyślnego admina (admin@local / admin123) — wymaga włączonego provider Email/Password w Firebase Auth.</small>
+  <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+    <div class="hint">Logowanie po nicku (nie używamy maili). Hasła są hash'owane w przeglądarce.</div>
+    <div id="loginMsg" class="muted"></div>
   </div>
-  <div id="loginMsg" style="color:#b00020;margin-top:8px"></div>
 </div>
 
-<!-- Left panel (filters + admin) -->
+<!-- left panel: filters + admin -->
 <div id="leftPanel" class="sidePanel" aria-hidden="true">
   <div style="display:flex;justify-content:space-between;align-items:center">
-    <h3 style="margin:0">Filtry / Admin</h3>
-    <small id="leftPanelClose" style="cursor:pointer;color:var(--muted)">zamknij ✕</small>
+    <h3 style="margin:0">Filtry & Panel Admina</h3>
+    <button id="leftClose" class="btn small">✕</button>
   </div>
 
-  <div style="margin-top:12px">
-    <h4>Filtry (wszyscy)</h4>
-    <label>Data: <input id="filterDate" type="date"></label>
-    <label>Użytkownik: <input id="filterUser" placeholder="login / email"></label>
-    <label>Obowiązek: <select id="filterDuty"><option value="">Wszystkie</option></select></label>
-    <div style="margin-top:8px">
-      <button id="btnApplyFilter" class="btn small">Filtruj</button>
-      <button id="btnResetFilter" class="btn ghost small">Reset</button>
+  <div class="sep"></div>
+
+  <div>
+    <h4>Filtry</h4>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label>Data: <input id="filterDate" type="date" class="input"></label>
+      <label>Użytkownik (nick): <input id="filterUser" class="input" placeholder="nick"></label>
+      <label>Obowiązek: <select id="filterDuty" class="input"><option value="">Wszystkie</option></select></label>
+      <div style="display:flex;gap:8px">
+        <button id="btnFilter" class="btn small">Filtruj</button>
+        <button id="btnReset" class="btn small ghost">Reset</button>
+      </div>
     </div>
   </div>
 
-  <hr>
+  <div class="sep"></div>
 
   <div id="adminArea" class="admin-only">
-    <h4>Panel admina</h4>
+    <h4>Panel Admina</h4>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="btnExportCSV" class="btn small">Eksport CSV</button>
+      <button id="btnExportCSV" class="btn small">Eksportuj CSV</button>
       <button id="btnClearAll" class="btn small" style="background:var(--danger)">Usuń wszystkie</button>
     </div>
 
-    <h4 style="margin-top:12px">Zarządzanie obowiązkami (globalnie)</h4>
-    <div style="display:flex;gap:8px">
-      <input id="newDuty" placeholder="Nowy obowiązek (np. Odkurzanie)">
-      <button id="addDuty" class="btn small">Dodaj</button>
-    </div>
-    <div id="dutiesList" style="margin-top:8px;font-size:14px"></div>
-
-    <h4 style="margin-top:12px">Zarządzanie użytkownikami</h4>
-    <div id="usersAdminArea" style="font-size:14px"></div>
-
-    <h4 style="margin-top:12px">Konfiguracja wyglądu</h4>
-    <label>Kolor akcentu: <input id="cfgAccent" type="color" value="#2e8b57"></label>
-    <label>Kolor nagłówków: <input id="cfgHeader" type="color" value="#2e8b57"></label>
-    <label>Czcionka: 
-      <select id="cfgFont">
-        <option value="Inter, system-ui, Arial, sans-serif">System (domyślna)</option>
-        <option value="Verdana, Geneva, sans-serif">Verdana</option>
-        <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
-      </select>
-    </label>
-    <div style="margin-top:8px">
-      <button id="applyStyle" class="btn small">Zastosuj</button>
-      <button id="saveStyle" class="btn ghost small">Zapisz (local)</button>
-    </div>
-  </div>
-</div>
-
-<!-- Left panel tab (small square) -->
-<div id="leftTab" class="panelTab" title="Filtry / Admin">≡</div>
-
-<!-- Right panel (lists) -->
-<div id="rightPanel" class="sidePanel" aria-hidden="true">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <h3 style="margin:0">Listy</h3>
-    <small id="rightPanelClose" style="cursor:pointer;color:var(--muted)">zamknij ✕</small>
-  </div>
-
-  <div style="margin-top:12px">
-    <div style="display:flex;gap:8px;align-items:center">
-      <select id="listsSelect" style="flex:1"></select>
-      <button id="btnRefreshLists" class="btn small">Odśwież</button>
+    <div style="margin-top:10px">
+      <h5>Globalne obowiązki (select)</h5>
+      <div style="display:flex;gap:8px">
+        <input id="newDuty" class="input" placeholder="Nowy obowiązek">
+        <button id="addDuty" class="btn small">Dodaj</button>
+      </div>
+      <div id="dutiesList" style="margin-top:8px;font-size:14px"></div>
     </div>
 
     <div style="margin-top:12px">
-      <h4>Utwórz / edytuj listę (admin)</h4>
-      <label>Nazwa: <input id="listName"></label>
-      <label>Nagłówki (oddziel \"|\"): <input id="listCols" placeholder="Zakupy|Ile|Zrobione"></label>
+      <h5>Zarządzanie użytkownikami</h5>
+      <div id="usersAdmin" style="font-size:14px"></div>
+    </div>
+
+    <div style="margin-top:12px">
+      <h5>Wygląd</h5>
+      <label>Motyw:
+        <select id="themeMode" class="input">
+          <option value="light">Jasny</option><option value="dark">Ciemny</option>
+        </select>
+      </label>
+      <label>Kolor akcentu: <input id="cfgAccent" type="color" value="#1f8f62"></label>
+      <label>Czcionka:
+        <select id="cfgFont" class="input">
+          <option value="Inter, system-ui, Arial, sans-serif">System</option>
+          <option value="Verdana, Geneva, sans-serif">Verdana</option>
+          <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+        </select>
+      </label>
+      <div style="margin-top:6px;display:flex;gap:8px">
+        <button id="applyStyle" class="btn small">Zastosuj</button>
+        <button id="saveStyle" class="btn small ghost">Zapisz</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="leftTab" class="panelTab" title="Filtry / Admin">≡</div>
+
+<!-- right panel: lists and list meta -->
+<div id="rightPanel" class="sidePanel" aria-hidden="true">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h3 style="margin:0">Listy</h3>
+    <button id="rightClose" class="btn small">✕</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <div>
+    <label>Wybierz listę:
+      <select id="listsSelect" class="input"></select>
+    </label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="refreshLists" class="btn small">Odśwież</button>
+      <button id="openCreate" class="btn small ghost">Utwórz</button>
+    </div>
+
+    <div id="createArea" style="margin-top:12px;display:none">
+      <h4>Utwórz / Edytuj listę</h4>
+      <label>Nazwa: <input id="listName" class="input"></label>
+      <label>Nagłówki (oddziel '|' ) : <input id="listCols" class="input" placeholder="Zakupy|Ile|Zrobione"></label>
       <label><input id="listHasDate" type="checkbox"> Ma datę</label>
-      <label><input id="listHasCheckbox" type="checkbox"> Ma checkbox (np. zrobione)</label>
+      <label><input id="listHasCheckbox" type="checkbox"> Ma checkbox (np. Zrobione)</label>
       <div style="margin-top:8px;display:flex;gap:8px">
-        <button id="createList" class="btn">Utwórz listę</button>
-        <button id="saveListMeta" class="btn ghost">Zapisz meta</button>
-        <button id="deleteList" class="btn" style="background:#b91c1c">Usuń listę</button>
+        <button id="createListBtn" class="btn">Zapisz</button>
+        <button id="cancelCreate" class="btn ghost">Anuluj</button>
       </div>
     </div>
 
-    <div id="listsAdminInfo" style="margin-top:12px;font-size:14px"></div>
+    <div id="listsInfo" style="margin-top:12px;font-size:14px"></div>
   </div>
 </div>
-
-<!-- Right panel tab -->
 <div id="rightTab" class="panelTab" title="Listy">⚙</div>
 
-<!-- App main -->
-<main class="app" id="app" style="display:none">
+<!-- MAIN APP -->
+<main class="container" id="app" style="display:none">
   <div class="card toolbar">
     <div style="display:flex;gap:12px;align-items:center">
       <div><strong>Aktywna lista:</strong> <span id="activeListName" class="muted">—</span></div>
@@ -193,22 +215,24 @@ tr:nth-child(even){background:#fafafa}
     </div>
     <div class="userInfo">
       <div class="muted">Zalogowany: <strong id="whoami">—</strong></div>
-      <button id="btnLogout" class="btn small">Wyloguj</button>
+      <div style="display:flex;gap:8px">
+        <button id="logout" class="btn small">Wyloguj</button>
+      </div>
     </div>
   </div>
 
   <div class="card">
     <h3>Dodaj wpis</h3>
-    <form id="addTaskForm" class="inline">
-      <div id="dynamicFields" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
-      <button type="submit" class="btn">Dodaj</button>
+    <form id="addForm" class="inline">
+      <div id="dynamicFields" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+      <button type="submit" class="btn">Dodaj wpis</button>
     </form>
-    <div id="addMsg" style="margin-top:8px"></div>
+    <div id="formMsg" class="muted" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
     <h3>Wpisy</h3>
-    <div class="table-wrap">
+    <div class="tableWrap">
       <table id="tasksTable">
         <thead><tr id="theadRow"></tr></thead>
         <tbody id="tbody"></tbody>
@@ -217,15 +241,12 @@ tr:nth-child(even){background:#fafafa}
   </div>
 </main>
 
-<!-- Firebase SDK (compat - easier for single-file) -->
+<!-- Firebase (compat, single-file friendly) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-/* =========================
-   CONFIG: Twoje firebaseConfig (użytkownik podał wcześniej)
-   ========================= */
+/* ================= CONFIG: Firebase (user-provided values) ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
   authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
@@ -236,425 +257,294 @@ const firebaseConfig = {
   appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
+const usersRef = db.ref('users');     // users/{username} => { passwordHash, displayName, role, disabled }
+const listsRef = db.ref('lists');     // lists/{listId}/meta and /tasks
+const dutiesRef = db.ref('duties');   // duties/global and duties/{listId}
 
-/* References */
-const usersRef = db.ref('users');
-const listsRef = db.ref('lists'); // lists/{listId}/meta, lists/{listId}/tasks
-const dutiesRef = db.ref('duties'); // duties/{listId}/{dutyId}  or duties/global
-
-/* ======== default admin creation (attempt) ========
-   NOTE: creating an auth user programmatically from client requires Auth provider email/password enabled.
-   We'll try to create default admin user admin@local / admin123 if missing.
-*/
-const adminEmail = 'admin@local';
-const adminPassword = 'admin123';
-
-async function ensureDefaultAdmin(){
-  try{
-    const methods = await auth.fetchSignInMethodsForEmail(adminEmail);
-    if(methods.length === 0){
-      // create user
-      await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-      const u = auth.currentUser;
-      // set metadata in DB
-      await usersRef.child(u.uid).set({ displayName: 'admin', role: 'admin', disabled: false });
-      console.log('Default admin created:', adminEmail);
-      // sign out (we will wait for actual login)
-      await auth.signOut();
-    } else {
-      // ensure user metadata present
-      // find uid by querying usersRef for displayName admin or by listing auth users is not possible client-side
-      console.log('Admin email exists, skipping auto-create');
-    }
-  }catch(err){
-    console.log('ensureDefaultAdmin: error (maybe provider not enabled) —', err.message);
-  }
+/* ================ Utilities ================ */
+// SHA-256 hash (hex)
+async function sha256Hex(str){
+  const enc = new TextEncoder();
+  const data = enc.encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const arr = Array.from(new Uint8Array(hash));
+  return arr.map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+const q = s => document.querySelector(s);
 
-/* call ensureDefaultAdmin (no await to not block UI) */
-ensureDefaultAdmin();
+/* ================ UI refs ================ */
+const loginModal = q('#loginModal'), nickEl = q('#nick'), passEl = q('#password');
+const loginMsg = q('#loginMsg'), btnLogin = q('#loginBtn'), btnRegister = q('#registerBtn');
 
-/* ======== UI refs ======== */
-const loginBox = document.getElementById('loginBox');
-const emailInput = document.getElementById('email');
-const passInput = document.getElementById('password');
-const btnLogin = document.getElementById('btnLogin');
-const btnRegister = document.getElementById('btnRegister');
-const loginMsg = document.getElementById('loginMsg');
+const leftPanel = q('#leftPanel'), rightPanel = q('#rightPanel'), leftTab = q('#leftTab'), rightTab = q('#rightTab');
+const leftClose = q('#leftClose'), rightClose = q('#rightClose');
 
-const leftPanel = document.getElementById('leftPanel');
-const rightPanel = document.getElementById('rightPanel');
-const leftTab = document.getElementById('leftTab');
-const rightTab = document.getElementById('rightTab');
-const leftPanelClose = document.getElementById('leftPanelClose');
-const rightPanelClose = document.getElementById('rightPanelClose');
+const adminArea = q('#adminArea'), usersAdmin = q('#usersAdmin'), dutiesList = q('#dutiesList');
+const newDuty = q('#newDuty'), addDutyBtn = q('#addDuty');
 
-const adminArea = document.getElementById('adminArea');
-const usersAdminArea = document.getElementById('usersAdminArea');
-const dutiesList = document.getElementById('dutiesList');
-const newDutyInput = document.getElementById('newDuty');
-const addDutyBtn = document.getElementById('addDuty');
+const filterDuty = q('#filterDuty'), btnFilter = q('#btnFilter'), btnReset = q('#btnReset'), filterDate = q('#filterDate'), filterUser = q('#filterUser');
 
-const listsSelect = document.getElementById('listsSelect');
-const listName = document.getElementById('listName');
-const listCols = document.getElementById('listCols');
-const listHasDate = document.getElementById('listHasDate');
-const listHasCheckbox = document.getElementById('listHasCheckbox');
-const createListBtn = document.getElementById('createList');
-const saveListMetaBtn = document.getElementById('saveListMeta');
-const deleteListBtn = document.getElementById('deleteList');
-const listsAdminInfo = document.getElementById('listsAdminInfo');
-const btnRefreshLists = document.getElementById('btnRefreshLists');
+const listsSelect = q('#listsSelect'), refreshLists = q('#refreshLists');
+const createArea = q('#createArea'), openCreate = q('#openCreate'), cancelCreate = q('#cancelCreate');
+const listName = q('#listName'), listCols = q('#listCols'), listHasDate = q('#listHasDate'), listHasCheckbox = q('#listHasCheckbox');
+const createListBtn = q('#createListBtn'), listsInfo = q('#listsInfo');
 
-const filterDuty = document.getElementById('filterDuty');
-const btnApplyFilter = document.getElementById('btnApplyFilter');
-const btnResetFilter = document.getElementById('btnResetFilter');
-const filterDate = document.getElementById('filterDate');
-const filterUser = document.getElementById('filterUser');
+const app = q('#app'), whoami = q('#whoami'), roleBadge = q('#roleBadge'), logoutBtn = q('#logout');
+const activeListName = q('#activeListName');
 
-const whoami = document.getElementById('whoami');
-const roleBadge = document.getElementById('roleBadge');
-const appEl = document.getElementById('app');
-const logoutBtn = document.getElementById('btnLogout');
+const dynamicFields = q('#dynamicFields'), addForm = q('#addForm'), formMsg = q('#formMsg');
+const theadRow = q('#theadRow'), tbody = q('#tbody');
 
-const dynamicFields = document.getElementById('dynamicFields');
-const theadRow = document.getElementById('theadRow');
-const tbody = document.getElementById('tbody');
+const btnExportCSV = q('#btnExportCSV'), btnClearAll = q('#btnClearAll');
+const cfgAccent = q('#cfgAccent'), cfgFont = q('#cfgFont'), themeMode = q('#themeMode'), applyStyleBtn = q('#applyStyle'), saveStyleBtn = q('#saveStyle');
 
-const activeListName = document.getElementById('activeListName');
-
-const cfgAccent = document.getElementById('cfgAccent');
-const cfgHeader = document.getElementById('cfgHeader');
-const cfgFont = document.getElementById('cfgFont');
-const applyStyleBtn = document.getElementById('applyStyle');
-const saveStyleBtn = document.getElementById('saveStyle');
-
-const btnExportCSV = document.getElementById('btnExportCSV');
-const btnClearAll = document.getElementById('btnClearAll');
-
-/* ======== state ======== */
-let currentUser = null;
-let currentUserMeta = null; // { displayName, role, disabled }
+/* ================ State ================ */
+let currentUser = null; // { username, displayName, role, disabled }
 let currentListId = null;
 let currentListMeta = null;
 let tasksListener = null;
+let prevListId = null;
 
-/* ======== helpers ======== */
-function showLoginMsg(msg, isError=true){ loginMsg.textContent = msg; loginMsg.style.color = isError ? '#b00020' : 'green' }
-function e(q){ return document.querySelector(q) }
-
-/* ======== panels behavior (tabs move with panel) ======== */
+/* ================ Panel behavior ================ */
 let leftOpen = false, rightOpen = false;
+function toggleLeft(v){
+  leftOpen = (typeof v === 'boolean') ? v : !leftOpen;
+  if(leftOpen){ leftPanel.classList.add('open-left'); leftTab.style.transform = `translateX(var(--panel-w))`; }
+  else { leftPanel.classList.remove('open-left'); leftTab.style.transform = 'translateX(0)'; }
+}
+function toggleRight(v){
+  rightOpen = (typeof v === 'boolean') ? v : !rightOpen;
+  if(rightOpen){ rightPanel.classList.add('open-right'); rightTab.style.transform = `translateX(calc(-1 * var(--panel-w)))`; }
+  else { rightPanel.classList.remove('open-right'); rightTab.style.transform = 'translateX(0)'; }
+}
 leftTab.addEventListener('click', ()=> toggleLeft());
 rightTab.addEventListener('click', ()=> toggleRight());
-leftPanelClose.addEventListener('click', ()=> toggleLeft());
-rightPanelClose.addEventListener('click', ()=> toggleRight());
+leftClose.addEventListener('click', ()=> toggleLeft(false));
+rightClose.addEventListener('click', ()=> toggleRight(false));
 
-function toggleLeft(){
-  leftOpen = !leftOpen;
-  if(leftOpen){
-    leftPanel.classList.add('open-left');
-    leftTab.style.transform = `translateX(var(--panel-w))`;
-  } else {
-    leftPanel.classList.remove('open-left');
-    leftTab.style.transform = 'translateX(0)';
-  }
-}
-function toggleRight(){
-  rightOpen = !rightOpen;
-  if(rightOpen){
-    rightPanel.classList.add('open-right');
-    rightTab.style.transform = `translateX(calc(-1 * var(--panel-w)))`;
-  } else {
-    rightPanel.classList.remove('open-right');
-    rightTab.style.transform = 'translateX(0)';
-  }
-}
-
-/* ======== Authentication UI ======== */
+/* ================ Authentication (username + password hash) ================ */
 btnRegister.addEventListener('click', async ()=>{
-  const email = emailInput.value.trim();
-  const pass = passInput.value;
-  if(!email || !pass || pass.length < 6){ showLoginMsg('Podaj email i hasło (min 6 znaków)'); return; }
-  try{
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    const uid = cred.user.uid;
-    // store user meta
-    await usersRef.child(uid).set({ displayName: email.split('@')[0], role: 'user', disabled: false });
-    showLoginMsg('Zarejestrowano. Jesteś zalogowany.', false);
-    afterLogin(cred.user);
-  }catch(err){ showLoginMsg(err.message); }
+  const username = nickEl.value.trim();
+  const pass = passEl.value;
+  if(!username || username.includes(' ') || !pass || pass.length < 6){ loginMsg.textContent = 'Nick bez spacji i hasło min 6 znaków'; return; }
+  const snap = await usersRef.child(username).get();
+  if(snap.exists()){ loginMsg.textContent = 'Nick zajęty'; return; }
+  const hash = await sha256Hex(pass);
+  await usersRef.child(username).set({ displayName: username, passwordHash: hash, role: 'user', disabled: false, createdAt: Date.now() });
+  loginMsg.style.color='green'; loginMsg.textContent = 'Zarejestrowano. Zaloguj się.';
+  passEl.value='';
 });
 
 btnLogin.addEventListener('click', async ()=>{
-  const email = emailInput.value.trim();
-  const pass = passInput.value;
-  if(!email || !pass){ showLoginMsg('Podaj email i hasło'); return; }
+  const username = nickEl.value.trim();
+  const pass = passEl.value;
+  if(!username || !pass){ loginMsg.textContent = 'Podaj nick i hasło'; return; }
+  const snap = await usersRef.child(username).get();
+  if(!snap.exists()){ loginMsg.textContent = 'Nie ma takiego użytkownika'; return; }
+  const data = snap.val();
+  if(data.disabled){ loginMsg.textContent = 'Konto zablokowane'; return; }
+  const hash = await sha256Hex(pass);
+  if(hash !== data.passwordHash){ loginMsg.textContent = 'Błędne hasło'; return; }
+  currentUser = { username, displayName: data.displayName || username, role: data.role || 'user', disabled: !!data.disabled };
+  onLogin();
+});
+
+/* create default admin in RTDB if missing */
+(async function ensureAdmin(){
   try{
-    const cred = await auth.signInWithEmailAndPassword(email, pass);
-    showLoginMsg('Zalogowano', false);
-    afterLogin(cred.user);
-  }catch(err){ showLoginMsg(err.message); }
-});
-
-logoutBtn.addEventListener('click', async ()=> {
-  await auth.signOut();
-  currentUser = null; currentUserMeta = null;
-  appEl.style.display = 'none'; document.getElementById('loginBox').style.display = 'block';
-});
-
-/* listen auth state */
-auth.onAuthStateChanged(async user => {
-  if(user){
-    // check disabled flag
-    const metaSnap = await usersRef.child(user.uid).get();
-    if(!metaSnap.exists()){
-      // create default meta (first-time raw auth create)
-      await usersRef.child(user.uid).set({ displayName: user.email.split('@')[0], role: 'user', disabled: false });
+    const snap = await usersRef.child('admin').get();
+    if(!snap.exists()){
+      const hash = await sha256Hex('admin123');
+      await usersRef.child('admin').set({ displayName:'admin', passwordHash:hash, role:'admin', disabled:false, createdAt: Date.now() });
+      console.log('Default admin created (admin/admin123)');
     }
-    const meta = (await usersRef.child(user.uid).get()).val();
-    if(meta && meta.disabled){
-      // force sign out
-      await auth.signOut();
-      showLoginMsg('Konto zablokowane. Skontaktuj się z administratorem.');
-      return;
-    }
-    afterLogin(user);
-  } else {
-    // not logged in
-  }
-});
+  }catch(e){ console.warn('ensureAdmin error', e); }
+})();
 
-/* after successful login */
-async function afterLogin(user){
-  currentUser = user;
-  const metaSnap = await usersRef.child(user.uid).get();
-  currentUserMeta = metaSnap.exists() ? metaSnap.val() : { displayName: user.email.split('@')[0], role: 'user', disabled:false };
-  document.getElementById('loginBox').style.display = 'none';
-  appEl.style.display = 'block';
-  document.getElementById('whoami').textContent = currentUserMeta.displayName || currentUser.email;
-  document.getElementById('roleBadge').style.display = 'inline-block';
-  document.getElementById('roleBadge').textContent = currentUserMeta.role || 'user';
-  // show admin UI if role=admin
-  document.querySelectorAll('.admin-only').forEach(el=> el.style.display = (currentUserMeta.role === 'admin') ? '' : 'none');
-  // load lists, duties, users etc.
+/* after login */
+async function onLogin(){
+  document.getElementById('loginModal').style.display='none';
+  app.style.display='block';
+  whoami.textContent = currentUser.displayName || currentUser.username;
+  roleBadge.style.display = 'inline-block'; roleBadge.textContent = currentUser.role;
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = (currentUser.role === 'admin') ? '' : 'none');
   await loadLists();
-  await loadDutiesGlobal();
+  await loadDutiesAll();
+  renderUsersAdmin();
   applySavedStyle();
 }
 
-/* ======== Duties (global and per-list) ======== */
-async function loadDutiesGlobal(){
-  // build duties for filter and default select combined from duties/global and duties/<listId>
-  const dutyGlobalSnap = await dutiesRef.child('global').get();
-  const set = new Set();
-  if(dutyGlobalSnap.exists()){
-    dutyGlobalSnap.forEach(ch => set.add(ch.val()));
-  }
-  // also add duties from current list meta if any
-  if(currentListId){
-    const listD = await dutiesRef.child(currentListId).get();
-    if(listD.exists()) listD.forEach(ch=> set.add(ch.val()));
-  }
-  // fill selects
-  const filterSelect = document.getElementById('filterDuty');
-  filterSelect.innerHTML = '<option value="">Wszystkie</option>';
-  const addSelect = () => {
-    document.querySelectorAll('#filterDuty, select.selectDuty, #taskType').forEach(s=>{
-      // ensure exists in DOM
-    });
-  };
-  set.forEach(d => {
-    const opt = document.createElement('option'); opt.value = d; opt.textContent = d;
-    filterSelect.appendChild(opt);
-  });
-  // also show duties in admin area list
-  renderDutiesList();
-}
-
-/* add new duty to global list */
-addDutyBtn.addEventListener('click', async ()=>{
-  const v = newDutyInput.value.trim();
-  if(!v) return;
-  // push to global duties
-  await dutiesRef.child('global').push(v);
-  newDutyInput.value = '';
-  await loadDutiesGlobal();
+/* logout */
+logoutBtn.addEventListener('click', ()=>{
+  currentUser = null; currentListId = null; currentListMeta = null;
+  app.style.display='none'; document.getElementById('loginModal').style.display='block';
+  nickEl.value=''; passEl.value='';
 });
 
-/* show duties in admin area with delete */
-async function renderDutiesList(){
-  const el = dutiesList;
-  el.innerHTML = '';
-  const snapGlobal = await dutiesRef.child('global').get();
-  if(snapGlobal.exists()){
-    snapGlobal.forEach(ch=>{
-      const d = ch.val();
-      const div = document.createElement('div');
-      div.style.display='flex'; div.style.justifyContent='space-between'; div.style.alignItems='center'; div.style.margin='6px 0';
-      div.innerHTML = `<div>${d}</div>`;
-      if(currentUserMeta && currentUserMeta.role==='admin'){
-        const del = document.createElement('button'); del.className='btn small ghost'; del.textContent='Usuń';
-        del.onclick = async ()=> { if(confirm('Usuń obowiązek?')){ await dutiesRef.child('global/' + ch.key).remove(); renderDutiesList(); loadDutiesGlobal(); } };
-        div.appendChild(del);
-      }
-      el.appendChild(div);
-    });
-  } else { el.textContent = 'Brak globalnych obowiązków'; }
-}
-
-/* ======== Lists management ======== */
+/* ================ Lists & Duties ================ */
 async function loadLists(){
   const snap = await listsRef.get();
   listsSelect.innerHTML = '';
   if(!snap.exists()){
-    // create default main list meta
-    const meta = { name: 'Obowiązki domowe', cols: ['Co zrobił','Imię'], hasDate: true, hasCheckbox: false };
+    const meta = { name:'Obowiązki domowe', cols:['Co zrobił','Imię'], hasDate:true, hasCheckbox:false };
     await listsRef.child('main/meta').set(meta);
     await dutiesRef.child('main').set(['Odkurzanie','Zmywarka','Zwierzaki']);
   }
-  const snapshot = await listsRef.get();
-  snapshot.forEach(ch => {
-    const meta = ch.val().meta || { name: ch.val().name || ch.key, cols: ['Opis'], hasDate:false, hasCheckbox:false };
-    const opt = document.createElement('option'); opt.value = ch.key; opt.textContent = meta.name;
+  const s2 = await listsRef.get();
+  s2.forEach(ch => {
+    const meta = ch.val().meta || ch.val();
+    const opt = document.createElement('option'); opt.value = ch.key; opt.textContent = meta.name || ch.key;
     listsSelect.appendChild(opt);
   });
-  // select first by default if none selected
   if(!currentListId){
     const first = listsSelect.options[0];
-    if(first) { listsSelect.value = first.value; currentListId = first.value; onListChange(); }
+    if(first){ currentListId = first.value; listsSelect.value = first.value; }
   } else {
-    // ensure selected exists
     try{ listsSelect.value = currentListId; }catch(e){}
-    onListChange();
   }
+  await onListChange();
 }
 listsSelect.addEventListener('change', ()=> { currentListId = listsSelect.value; onListChange(); });
+refreshLists.addEventListener('click', ()=> loadLists());
 
-/* create new list (admin) */
+async function createOrUpdateList(metaObj){
+  if(!currentUser || currentUser.role!=='admin') return alert('Tylko admin');
+  if(!currentListId){
+    const ref = await listsRef.push({ meta: metaObj });
+    currentListId = ref.key;
+  } else {
+    await listsRef.child(currentListId + '/meta').set(metaObj);
+  }
+  await loadLists();
+}
+
+openCreate.addEventListener('click', ()=> createArea.style.display = 'block');
+cancelCreate.addEventListener('click', ()=> createArea.style.display = 'none');
 createListBtn.addEventListener('click', async ()=>{
-  if(!currentUserMeta || currentUserMeta.role!=='admin'){ alert('Tylko admin'); return; }
-  const name = listName.value.trim();
-  if(!name){ alert('Wpisz nazwę'); return; }
-  const colsRaw = listCols.value.trim();
-  const cols = colsRaw ? colsRaw.split('|').map(s=>s.trim()).filter(Boolean) : ['Opis'];
+  if(!currentUser || currentUser.role !== 'admin'){ alert('Tylko admin'); return; }
+  const name = listName.value.trim(); if(!name){ alert('Nazwa listy'); return; }
+  const cols = listCols.value ? listCols.value.split('|').map(s=>s.trim()).filter(Boolean) : ['Opis'];
   const meta = { name, cols, hasDate: !!listHasDate.checked, hasCheckbox: !!listHasCheckbox.checked };
   const newRef = await listsRef.push({ meta });
-  // create duties container for list
   await dutiesRef.child(newRef.key).set([]);
   listName.value=''; listCols.value=''; listHasDate.checked=false; listHasCheckbox.checked=false;
+  createArea.style.display='none';
   await loadLists();
-  listsSelect.value = newRef.key; currentListId = newRef.key; onListChange();
 });
 
-/* on list change - load meta + render form + tasks*/
+/* render lists info */
+async function renderListsInfo(){
+  listsInfo.innerHTML = '';
+  const snap = await listsRef.get();
+  snap.forEach(ch=>{
+    const meta = ch.val().meta || ch.val();
+    const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.alignItems='center'; div.style.margin='6px 0';
+    div.innerHTML = `<div><strong>${meta.name || '—'}</strong> <small class="muted">${ch.key}</small></div>`;
+    listsInfo.appendChild(div);
+  });
+}
+
+/* ===== load duties (global + list-specific) ===== */
+async function loadDutiesAll(){
+  const set = new Set();
+  const gSnap = await dutiesRef.child('global').get();
+  if(gSnap.exists()) gSnap.forEach(c=> set.add(c.val()));
+  if(currentListId){
+    const lSnap = await dutiesRef.child(currentListId).get();
+    if(lSnap.exists()) lSnap.forEach(c => set.add(c.val()));
+  }
+  renderDutiesSelect(Array.from(set));
+  renderDutiesAdmin(); // update admin list
+}
+
+/* fill filter and dynamic select */
+function renderDutiesSelect(arr){
+  filterDuty.innerHTML = '<option value="">Wszystkie</option>';
+  arr.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; filterDuty.appendChild(o); });
+}
+
+/* admin duties UI */
+async function renderDutiesAdmin(){
+  dutiesList.innerHTML = '';
+  const snap = await dutiesRef.child('global').get();
+  if(!snap.exists()){ dutiesList.textContent = 'Brak'; return; }
+  snap.forEach(ch=>{
+    const v = ch.val();
+    const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.margin='6px 0';
+    const left = document.createElement('div'); left.textContent = v;
+    const right = document.createElement('div');
+    const del = document.createElement('button'); del.className='btn small ghost'; del.textContent='Usuń';
+    del.onclick = async ()=>{ if(confirm('Usuń obowiązek?')){ await dutiesRef.child('global/' + ch.key).remove(); await loadDutiesAll(); } };
+    right.appendChild(del); row.appendChild(left); row.appendChild(right); dutiesList.appendChild(row);
+  });
+}
+addDutyBtn.addEventListener('click', async ()=>{
+  if(!currentUser || currentUser.role!=='admin') return alert('Tylko admin');
+  const v = newDuty.value.trim(); if(!v) return;
+  await dutiesRef.child('global').push(v);
+  newDuty.value='';
+  await loadDutiesAll();
+});
+
+/* ======== On list change: load meta, dynamic form, table header, tasks listener ======== */
 async function onListChange(){
   if(!currentListId) return;
   const metaSnap = await listsRef.child(currentListId + '/meta').get();
   currentListMeta = metaSnap.exists() ? metaSnap.val() : { name: listsSelect.options[listsSelect.selectedIndex].text, cols:['Opis'], hasDate:false, hasCheckbox:false };
   activeListName.textContent = currentListMeta.name || currentListId;
-  // fill duties select for this list
-  const dutySnap = await dutiesRef.child(currentListId).get();
-  const dutySet = new Set();
-  if(dutySnap.exists()) dutySnap.forEach(ch=> dutySet.add(ch.val()));
-  // include global duties too
-  const globalSnap = await dutiesRef.child('global').get();
-  if(globalSnap.exists()) globalSnap.forEach(ch=> dutySet.add(ch.val()));
-  // render dynamic form fields
-  renderDynamicForm();
-  renderTableHeader();
-  buildSelectTaskOptions(Array.from(dutySet));
+  buildDynamicForm();
+  buildTableHeader();
   attachTasksListener();
-  await renderListsAdminInfo();
+  renderListsInfo();
+  await loadDutiesAll();
 }
 
-/* save list meta (admin) */
-document.getElementById('saveListMeta').addEventListener('click', async ()=>{
-  if(!currentUserMeta || currentUserMeta.role!=='admin') return alert('Tylko admin');
-  if(!currentListId) return;
-  const cols = (listCols.value || currentListMeta.cols.join('|')).split('|').map(s=>s.trim()).filter(Boolean);
-  const meta = { name: listName.value || currentListMeta.name, cols, hasDate: !!listHasDate.checked, hasCheckbox: !!listHasCheckbox.checked };
-  await listsRef.child(currentListId + '/meta').set(meta);
-  alert('Zapisano meta');
-  onListChange();
-});
-
-/* delete list (admin) */
-deleteListBtn.addEventListener('click', async ()=>{
-  if(!currentUserMeta || currentUserMeta.role!=='admin') return alert('Tylko admin');
-  if(!currentListId) return;
-  if(confirm('Usunąć listę i wszystkie jej wpisy?')){
-    await listsRef.child(currentListId).remove();
-    await dutiesRef.child(currentListId).remove();
-    currentListId = null;
-    await loadLists();
-  }
-});
-
-/* render lists admin info */
-async function renderListsAdminInfo(){
-  listsAdminInfo.innerHTML = '';
-  if(currentUserMeta && currentUserMeta.role === 'admin'){
-    const snap = await listsRef.get();
-    snap.forEach(ch=>{
-      const meta = ch.val().meta || ch.val();
-      const div = document.createElement('div');
-      div.style.display='flex';div.style.justifyContent='space-between';div.style.alignItems='center';div.style.margin='6px 0';
-      div.innerHTML = `<div><strong>${meta.name || '—'}</strong> <small class="muted">(${ch.key})</small></div>`;
-      const btn = document.createElement('button'); btn.className='btn small ghost'; btn.textContent='Edytuj';
-      btn.onclick = ()=>{ listsSelect.value = ch.key; currentListId = ch.key; onListChange(); toggleRight(); };
-      div.appendChild(btn);
-      listsAdminInfo.appendChild(div);
-    });
-  }
-}
-
-/* build select options for duties within add form */
-function buildSelectTaskOptions(dutyArray){
-  // remove previous select
-  const exists = dynamicFields.querySelector('#taskType');
-  if(exists) exists.remove();
-  const sel = document.createElement('select'); sel.id='taskType'; sel.className='selectDuty';
-  const empty = document.createElement('option'); empty.value=''; empty.disabled=true; empty.selected=true; empty.textContent='Wybierz obowiązek';
-  sel.appendChild(empty);
-  dutyArray.forEach(d => {
-    const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
-  });
-  dynamicFields.prepend(sel);
-}
-
-/* render dynamic form fields based on currentListMeta */
-function renderDynamicForm(){
+/* build dynamic add form */
+function buildDynamicForm(){
   dynamicFields.innerHTML = '';
   if(!currentListMeta) return;
   if(currentListMeta.hasDate){
-    const d = document.createElement('input'); d.type='date'; d.id='field_date';
-    dynamicFields.appendChild(d);
+    const d = document.createElement('input'); d.type='date'; d.id='field_date'; d.className='input'; dynamicFields.appendChild(d);
   }
-  // create selects for duty will be prepended by buildSelectTaskOptions
-  // for other cols (excluding "Imię" since author is auto), create inputs
+  const sel = document.createElement('select'); sel.id='taskType'; sel.className='input';
+  const empty = document.createElement('option'); empty.value=''; empty.disabled=true; empty.selected=true; empty.textContent='Wybierz obowiązek';
+  sel.appendChild(empty);
+  // populate duties later by loadDutiesAll -> buildDynamicForm called after duties loaded
+  dynamicFields.appendChild(sel);
   currentListMeta.cols.forEach(col=>{
-    // skip "Imię" or "Użytkownik" column - we use author
     if(/imię|użytkownik|user/i.test(col)) return;
-    // if this col relates to checkbox and meta.hasCheckbox is true and name suggests done -> skip create text
-    if(currentListMeta.hasCheckbox && /zrobi|zrobione|done|zrobione/i.test(col)){
-      // create checkbox
-      const label = document.createElement('label');
-      label.style.display='flex'; label.style.alignItems='center'; label.style.gap='6px';
+    if(currentListMeta.hasCheckbox && /zrobi|zrobione|done/i.test(col.toLowerCase())){
+      const label = document.createElement('label'); label.style.display='flex'; label.style.alignItems='center'; label.style.gap='6px';
       const cb = document.createElement('input'); cb.type='checkbox'; cb.id='field_checkbox';
-      label.appendChild(cb); label.appendChild(document.createTextNode(col));
-      dynamicFields.appendChild(label);
+      label.appendChild(cb); label.appendChild(document.createTextNode(col)); dynamicFields.appendChild(label);
     } else {
-      const inp = document.createElement('input'); inp.type='text'; inp.placeholder = col; inp.dataset.col = col;
+      const inp = document.createElement('input'); inp.type='text'; inp.className='input'; inp.placeholder = col; inp.dataset.col = col;
       dynamicFields.appendChild(inp);
     }
   });
 }
 
-/* render table header */
-function renderTableHeader(){
+/* fill duty select options after duties loaded */
+async function fillDutySelects(){
+  const arr = [];
+  const g = await dutiesRef.child('global').get();
+  if(g.exists()) g.forEach(ch=> arr.push(ch.val()));
+  const l = await dutiesRef.child(currentListId).get();
+  if(l.exists()) l.forEach(ch=> arr.push(ch.val()));
+  const unique = Array.from(new Set(arr));
+  const sel = document.getElementById('taskType');
+  if(sel){
+    // remove old options except first placeholder
+    sel.querySelectorAll('option:not([value=""])').forEach(o=>o.remove());
+    unique.forEach(d=> { const o = document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o); });
+  }
+  // also update filter select
+  renderDutiesSelect(unique);
+}
+
+/* build table header based on meta */
+function buildTableHeader(){
   theadRow.innerHTML = '';
   if(!currentListMeta) return;
   if(currentListMeta.hasDate) theadRow.appendChild(createTH('Data'));
@@ -663,158 +553,122 @@ function renderTableHeader(){
     else theadRow.appendChild(createTH(c));
   });
   if(currentListMeta.hasCheckbox) theadRow.appendChild(createTH('Zrobione'));
-  if(currentUserMeta && currentUserMeta.role === 'admin') theadRow.appendChild(createTH('Akcje'));
+  if(currentUser && currentUser.role==='admin') theadRow.appendChild(createTH('Akcje'));
 }
-function createTH(t){ const th=document.createElement('th'); th.textContent = t; return th; }
+function createTH(t){ const th = document.createElement('th'); th.textContent = t; return th; }
 
-/* ======== Tasks listener (per-list) ======== */
+/* attach tasks listener */
+let currentListener = null;
 function attachTasksListener(){
-  if(tasksListener && currentListIdPrev) listsRef.child(currentListIdPrev + '/tasks').off('value', tasksListener);
-  currentListIdPrev = currentListId;
-  tasksListener = listsRef.child(currentListId + '/tasks').on('value', snap=>{
+  if(currentListener && prevListId) listsRef.child(prevListId + '/tasks').off('value', currentListener);
+  prevListId = currentListId;
+  currentListener = listsRef.child(currentListId + '/tasks').on('value', snap => {
     tbody.innerHTML = '';
-    snap.forEach(ch=>{
+    snap.forEach(ch => {
       const d = ch.val();
       const tr = document.createElement('tr');
       if(currentListMeta.hasDate) tr.appendChild(td(d.date || ''));
-      currentListMeta.cols.forEach(col=>{
-        // if user column, print author displayName
-        if(/imię|użytkownik|user/i.test(col)){
-          tr.appendChild(td(d.authorName || getDisplayNameByUid(d.authorUid) || d.author || ''));
-        } else {
-          tr.appendChild(td(d[col] || ''));
-        }
+      currentListMeta.cols.forEach(col => {
+        if(/imię|użytkownik|user/i.test(col)) tr.appendChild(td(d.authorName || d.author || ''));
+        else tr.appendChild(td(d[col] || ''));
       });
       if(currentListMeta.hasCheckbox){
-        const tdcb = document.createElement('td'); const cb = document.createElement('input'); cb.type='checkbox'; cb.disabled=true;
-        cb.checked = !!d.checkbox; tdcb.appendChild(cb); tr.appendChild(tdcb);
+        const tdcb = document.createElement('td'); const cb = document.createElement('input'); cb.type='checkbox'; cb.disabled=true; cb.checked=!!d.checkbox; tdcb.appendChild(cb); tr.appendChild(tdcb);
       }
-      if(currentUserMeta && currentUserMeta.role === 'admin'){
-        const tdAct = document.createElement('td');
-        const del = document.createElement('button'); del.className='btn small'; del.textContent='Usuń';
+      if(currentUser && currentUser.role==='admin'){
+        const act = document.createElement('td'); const del = document.createElement('button'); del.className='btn small'; del.textContent='Usuń';
         del.onclick = ()=> { if(confirm('Usuń wpis?')) listsRef.child(currentListId + '/tasks/' + ch.key).remove(); };
-        tdAct.appendChild(del);
-        tr.appendChild(tdAct);
-      } else {
-        tr.appendChild(td(''));
-      }
+        act.appendChild(del); tr.appendChild(act);
+      } else tr.appendChild(td(''));
       tbody.appendChild(tr);
     });
+    // fill duty selects now that we have tasks (to include list-specific duties)
+    fillDutySelects();
   });
 }
+function td(t){ const el=document.createElement('td'); el.textContent = t; return el; }
 
-/* small helper: create td */
-function td(txt){ const t = document.createElement('td'); t.textContent = txt; return t }
-
-/* get displayName by uid (cached) */
-const userNameCache = {};
-async function getDisplayNameByUid(uid){
-  if(!uid) return '';
-  if(userNameCache[uid]) return userNameCache[uid];
-  const snap = await usersRef.child(uid).get();
-  if(snap.exists()){ userNameCache[uid] = snap.val().displayName || ''; return userNameCache[uid]; }
-  return '';
-}
-
-/* add task (submit form) */
-document.getElementById('addTaskForm').addEventListener('submit', async (e)=>{
+/* add task form */
+addForm.addEventListener('submit', async (e)=> {
   e.preventDefault();
-  if(!currentListId) return alert('Wybierz listę');
+  if(!currentListId) return alert('Wybierz listę po prawej');
+  if(!currentUser) return alert('Zaloguj się');
   const payload = {};
   if(currentListMeta.hasDate){
-    const dateEl = document.getElementById('field_date');
-    payload.date = dateEl ? dateEl.value : '';
+    const dateEl = document.getElementById('field_date'); payload.date = dateEl ? dateEl.value : '';
   }
-  // duty from select
-  const dutySel = document.getElementById('taskType');
-  if(dutySel && dutySel.value) payload.task = dutySel.value;
-  currentListMeta.cols.forEach(col=>{
-    if(/imię|użytkownik|user/i.test(col)) return; // skip name
-    // text inputs with data-col
+  const duty = document.getElementById('taskType'); if(!duty || !duty.value){ formMsg.textContent = 'Wybierz obowiązek'; return; }
+  payload.task = duty.value;
+  currentListMeta.cols.forEach(col => {
+    if(/imię|użytkownik|user/i.test(col)) return;
     const inp = dynamicFields.querySelector(`input[data-col="${col}"]`);
     if(inp) payload[col] = inp.value || '';
   });
   if(currentListMeta.hasCheckbox){
-    const cb = document.getElementById('field_checkbox');
-    payload.checkbox = !!(cb && cb.checked);
+    const cb = document.getElementById('field_checkbox'); payload.checkbox = !!(cb && cb.checked);
   }
-  // author
-  payload.authorUid = currentUser.uid;
-  payload.authorName = currentUserMeta.displayName || currentUser.email;
-  // push to list tasks
+  payload.author = currentUser.username;
+  payload.authorName = currentUser.displayName || currentUser.username;
   await listsRef.child(currentListId + '/tasks').push(payload);
-  // clear small fields (not date)
-  dynamicFields.querySelectorAll('input[type="text"]').forEach(i=>i.value='');
-  dynamicFields.querySelectorAll('input[type="checkbox"]').forEach(i=>i.checked=false);
-  const addMsg = document.getElementById('addMsg'); addMsg.textContent='Dodano wpis'; setTimeout(()=>addMsg.textContent='',1500);
+  formMsg.textContent = 'Dodano';
+  setTimeout(()=> formMsg.textContent = '', 1200);
+  dynamicFields.querySelectorAll('input[type="text"]').forEach(i=> i.value='');
+  dynamicFields.querySelectorAll('input[type="checkbox"]').forEach(i=> i.checked=false);
 });
 
-/* ======== Filters (client-side) ======== */
-btnApplyFilter.addEventListener('click', async ()=>{
+/* filters */
+btnFilter.addEventListener('click', async ()=>{
   if(!currentListId) return;
   const dateF = filterDate.value;
   const userF = (filterUser.value || '').toLowerCase();
   const dutyF = (filterDuty.value || '').toLowerCase();
   const snap = await listsRef.child(currentListId + '/tasks').get();
   tbody.innerHTML = '';
-  snap.forEach(ch=>{
+  snap.forEach(ch => {
     const d = ch.val();
     let ok = true;
-    if(dateF && d.date !== dateF) ok=false;
-    if(userF && !( (d.authorName||'').toLowerCase().includes(userF) || (d.author||'').toLowerCase().includes(userF) )) ok=false;
-    if(dutyF && !((d.task||'').toLowerCase().includes(dutyF))) ok=false;
+    if(dateF && d.date !== dateF) ok = false;
+    if(userF && !((d.authorName||'').toLowerCase().includes(userF))) ok = false;
+    if(dutyF && !((d.task||'').toLowerCase().includes(dutyF))) ok = false;
     if(ok){
       const tr = document.createElement('tr');
-      if(currentListMeta.hasDate) tr.appendChild(td(d.date || ''));
-      currentListMeta.cols.forEach(col=>{
-        if(/imię|użytkownik|user/i.test(col)) tr.appendChild(td(d.authorName || d.author || ''));
+      if(currentListMeta.hasDate) tr.appendChild(td(d.date||''));
+      currentListMeta.cols.forEach(col => {
+        if(/imię|użytkownik|user/i.test(col)) tr.appendChild(td(d.authorName || ''));
         else tr.appendChild(td(d[col] || ''));
       });
       if(currentListMeta.hasCheckbox){ const tdcb=document.createElement('td'); const cb=document.createElement('input'); cb.type='checkbox'; cb.disabled=true; cb.checked=!!d.checkbox; tdcb.appendChild(cb); tr.appendChild(tdcb); }
-      if(currentUserMeta && currentUserMeta.role==='admin'){
-        const act=document.createElement('td'); const del=document.createElement('button'); del.className='btn small'; del.textContent='Usuń';
-        del.onclick = ()=> listsRef.child(currentListId + '/tasks/' + ch.key).remove();
-        act.appendChild(del); tr.appendChild(act);
-      } else tr.appendChild(td(''));
+      if(currentUser && currentUser.role==='admin'){ const act=document.createElement('td'); const del=document.createElement('button'); del.className='btn small'; del.textContent='Usuń'; del.onclick=()=>listsRef.child(currentListId + '/tasks/' + ch.key).remove(); act.appendChild(del); tr.appendChild(act); } else tr.appendChild(td(''));
       tbody.appendChild(tr);
     }
   });
 });
-btnResetFilter.addEventListener('click', ()=>{ filterDate.value=''; filterUser.value=''; filterDuty.value=''; attachTasksListener(); });
+btnReset.addEventListener('click', ()=>{ filterDate.value=''; filterUser.value=''; filterDuty.value=''; attachTasksListener(); });
 
-/* ======== Duties per-list add / global duties loaded earlier ======== */
-/* admin can add duty for current list */
-document.getElementById('createList')?.addEventListener('click', async ()=>{
-  // createList handled earlier by createListBtn; this fallback for older element id
-});
-document.getElementById('addDutyGlobal')?.addEventListener('click', ()=>{}); // placeholder
-
-/* ======== Users admin section: list users and change role/block ======== */
+/* ===== Admin: users management ===== */
 async function renderUsersAdmin(){
-  usersAdminArea.innerHTML = '';
-  if(!currentUserMeta || currentUserMeta.role!=='admin') return;
+  usersAdmin.innerHTML = '';
+  if(!currentUser || currentUser.role!=='admin') return;
   const snap = await usersRef.get();
   snap.forEach(ch=>{
-    const uid = ch.key; const u = ch.val();
+    const uname = ch.key; const u = ch.val();
     const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.margin='6px 0';
-    const left = document.createElement('div'); left.innerHTML = `<div><strong>${u.displayName || '(brak)'}</strong> <small class="muted">${u.email || ''}</small></div>`;
-    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='6px'; right.style.alignItems='center';
-    const roleSel = document.createElement('select'); ['user','admin','viewer'].forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; if(u.role===r) o.selected=true; roleSel.appendChild(o); });
-    roleSel.onchange = ()=> { usersRef.child(uid).update({ role: roleSel.value }); };
-    const blockBtn = document.createElement('button'); blockBtn.className='btn small'; blockBtn.textContent = u.disabled ? 'OdkBlock' : 'Zablokuj';
-    blockBtn.onclick = ()=>{ usersRef.child(uid).update({ disabled: !u.disabled }).then(()=>renderUsersAdmin()); };
-    const delBtn = document.createElement('button'); delBtn.className='btn small ghost'; delBtn.textContent='Usuń';
-    delBtn.onclick = ()=>{ if(confirm('Usunąć użytkownika i jego meta? (Auth user pozostanie w Auth)')) usersRef.child(uid).remove().then(()=>renderUsersAdmin()); };
-    right.appendChild(roleSel); right.appendChild(blockBtn); right.appendChild(delBtn);
-    row.appendChild(left); row.appendChild(right);
-    usersAdminArea.appendChild(row);
+    const left = document.createElement('div'); left.innerHTML = `<strong>${u.displayName || uname}</strong> <div class="muted">${uname}</div>`;
+    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='6px';
+    const sel = document.createElement('select'); ['user','admin','viewer'].forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; if(u.role===r) o.selected=true; sel.appendChild(o); });
+    sel.onchange = ()=> usersRef.child(uname).update({ role: sel.value });
+    const block = document.createElement('button'); block.className='btn small'; block.textContent = u.disabled ? 'Odblokuj' : 'Zablokuj';
+    block.onclick = ()=> usersRef.child(uname).update({ disabled: !u.disabled }).then(()=> renderUsersAdmin());
+    const reset = document.createElement('button'); reset.className='btn small ghost'; reset.textContent='Reset hasła';
+    reset.onclick = async ()=> { const np = prompt('Nowe hasło (min 6 znaków) dla ' + uname); if(np && np.length>=6){ const h = await sha256Hex(np); await usersRef.child(uname).update({ passwordHash: h }); alert('Hasło zresetowane'); } else alert('Hasło za krótkie');};
+    const del = document.createElement('button'); del.className='btn small ghost'; del.textContent='Usuń';
+    del.onclick = ()=> { if(confirm('Usunąć meta użytkownika?')) usersRef.child(uname).remove().then(()=> renderUsersAdmin());};
+    right.appendChild(sel); right.appendChild(block); right.appendChild(reset); right.appendChild(del);
+    row.appendChild(left); row.appendChild(right); usersAdmin.appendChild(row);
   });
 }
 
-/* call periodically when admin area shown */
-setInterval(()=>{ if(currentUserMeta && currentUserMeta.role==='admin') renderUsersAdmin(); }, 60000); // refresh list every 60s
-
-/* ======== Export CSV for current list ======== */
+/* ===== Export CSV & ClearAll (admin) ===== */
 btnExportCSV.addEventListener('click', async ()=>{
   if(!currentListId) return alert('Wybierz listę');
   const snap = await listsRef.child(currentListId + '/tasks').get();
@@ -826,70 +680,71 @@ btnExportCSV.addEventListener('click', async ()=>{
   header.push('Author');
   rows.push(header.join(','));
   snap.forEach(ch=>{
-    const d = ch.val();
-    const row=[];
+    const d = ch.val(); const row=[];
     if(currentListMeta.hasDate) row.push('"' + (d.date || '') + '"');
-    currentListMeta.cols.forEach(c => row.push('"' + ((d[c]||'').toString().replace(/"/g,'""')) + '"'));
+    currentListMeta.cols.forEach(c => row.push('"' + ((d[c]||'')+'').replace(/"/g,'""') + '"'));
     if(currentListMeta.hasCheckbox) row.push(d.checkbox ? 'TRUE' : 'FALSE');
     row.push('"' + (d.authorName || '') + '"');
     rows.push(row.join(','));
   });
-  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (currentListMeta.name || currentListId) + '.csv'; a.click();
   URL.revokeObjectURL(a.href);
 });
 
-/* ======== Clear all tasks in current list ======== */
 btnClearAll.addEventListener('click', async ()=>{
-  if(!currentListId) return;
+  if(!currentListId) return alert('Wybierz listę');
   if(!confirm('Na pewno usunąć wszystkie wpisy z tej listy?')) return;
   await listsRef.child(currentListId + '/tasks').remove();
 });
 
-/* ======== Apply/save style (admin) ======== */
+/* ======= Styling apply/save ======= */
 applyStyleBtn.addEventListener('click', ()=> applyStyle(false));
 saveStyleBtn.addEventListener('click', ()=> applyStyle(true));
 function applyStyle(save){
   document.documentElement.style.setProperty('--accent', cfgAccent.value);
-  document.querySelectorAll('th').forEach(th => th.style.background = cfgHeader.value);
-  document.querySelectorAll('button').forEach(b => b.style.background = cfgAccent.value); // note: single variable for simplicity
   document.body.style.fontFamily = cfgFont.value;
-  if(save) localStorage.setItem('siteStyle', JSON.stringify({ accent: cfgAccent.value, header: cfgHeader.value, font: cfgFont.value }));
+  if(themeMode.value === 'dark'){
+    document.body.style.background = '#0b1220';
+    document.body.style.color = '#e6eef3';
+    document.querySelectorAll('.card').forEach(c=> c.style.background = '#071026');
+  } else {
+    document.body.style.background = 'var(--bg)';
+    document.body.style.color = '#0f1720';
+    document.querySelectorAll('.card').forEach(c=> c.style.background = 'var(--card)');
+  }
+  document.querySelector('header').style.background = cfgAccent.value;
+  document.querySelectorAll('th').forEach(th => th.style.background = cfgAccent.value);
+  if(save) localStorage.setItem('uiStyle', JSON.stringify({ accent: cfgAccent.value, font: cfgFont.value, mode: themeMode.value }));
 }
 function applySavedStyle(){
-  const s = localStorage.getItem('siteStyle');
-  if(s){
-    try{
-      const o = JSON.parse(s);
-      if(o.accent) document.documentElement.style.setProperty('--accent', o.accent);
-      if(o.header) document.querySelectorAll('th').forEach(th => th.style.background = o.header);
-      if(o.font) document.body.style.fontFamily = o.font;
-      cfgAccent.value = o.accent || cfgAccent.value;
-      cfgHeader.value = o.header || cfgHeader.value;
-      cfgFont.value = o.font || cfgFont.value;
-    }catch(e){}
-  }
+  const s = localStorage.getItem('uiStyle');
+  if(!s) return;
+  try{
+    const o = JSON.parse(s);
+    if(o.accent) cfgAccent.value=o.accent;
+    if(o.font) cfgFont.value=o.font;
+    if(o.mode) themeMode.value=o.mode;
+    applyStyle(false);
+  }catch(e){}
 }
 
-/* ======== initial boot ======== */
+/* ======== initial boot (ensure main list & global duties) ======== */
 (async function init(){
-  // apply saved style if any
   applySavedStyle();
-  // attempt to ensure default main list exists
-  const mainSnap = await listsRef.child('main/meta').get();
-  if(!mainSnap.exists()){
+  // ensure main list exists
+  const main = await listsRef.child('main/meta').get();
+  if(!main.exists()){
     await listsRef.child('main/meta').set({ name:'Obowiązki domowe', cols:['Co zrobił','Imię'], hasDate:true, hasCheckbox:false });
     await dutiesRef.child('main').set(['Odkurzanie','Zmywarka','Zwierzaki']);
   }
-  // render duties global (if none)
   const g = await dutiesRef.child('global').get();
-  if(!g.exists()) {
-    await dutiesRef.child('global').push('Odkurzanie');
-    await dutiesRef.child('global').push('Zmywarka');
+  if(!g.exists()){
+    await dutiesRef.child('global').push('Odkurzanie'); await dutiesRef.child('global').push('Zmywarka'); await dutiesRef.child('global').push('Zwierzaki');
   }
-  // load lists to populate select (user will login and onLogin we reload properly)
   await loadLists();
 })();
+
 </script>
 </body>
 </html>
