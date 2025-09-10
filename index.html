@@ -5,71 +5,118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obowiązki domowe</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
-header { background:#4caf50; color:white; padding:20px; text-align:center; }
-
-/* Logowanie na środku */
-#loginScreen {
-  position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
-  background:white; padding:30px; box-shadow:0 2px 10px rgba(0,0,0,0.3); border-radius:8px; text-align:center;
-}
-
-/* Panele boczne */
-.sidePanel {
-  position:fixed; top:0; width:250px; height:100%; background:#fff;
-  box-shadow:2px 0 5px rgba(0,0,0,0.3); overflow:auto; transition:0.3s; z-index:1000;
-}
-#leftPanel { left:-250px; }
-#rightPanel { right:-250px; }
-
-/* Przycisk wysuwania */
-.panelBtn {
-  position:fixed; top:20px; width:30px; height:30px; background:#4caf50;
-  color:white; border:none; cursor:pointer; z-index:1100;
-}
-#leftPanelBtn { left:0; border-radius:0 5px 5px 0; }
-#rightPanelBtn { right:0; border-radius:5px 0 0 5px; }
-
-/* Tabela */
-#taskTable { width:90%; margin:20px auto; border-collapse:collapse; }
-th, td { padding:10px; border:1px solid #ddd; }
-th { background:#4caf50; color:white; }
-tr:nth-child(even){background:#f9f9f9;}
-tr:hover { background:#e0f7e9; }
-
-/* Panel admin i filtry */
-#rightPanel h3, #rightPanel h4 { margin-left:10px; }
-#filters input, #filters select, #filters button { display:block; margin:5px 10px; width:90%; }
-#adminPanel input, #adminPanel button { display:block; margin:5px 10px; width:90%; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f3f3;
+    margin: 0;
+    padding: 0;
+  }
+  #loginScreen {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    text-align:center;
+  }
+  input, button, select {
+    padding:10px;
+    margin:5px;
+    font-size:14px;
+  }
+  button {
+    background:#4caf50;
+    color:white;
+    border:none;
+    cursor:pointer;
+  }
+  button:hover{background:#45a049;}
+  header{
+    background:#4caf50;
+    color:white;
+    padding:20px;
+    text-align:center;
+  }
+  #mainContent{
+    display:none;
+    position:relative;
+  }
+  /* Boczne panele */
+  .sidePanel{
+    position:fixed;
+    top:0;
+    width:300px;
+    height:100%;
+    background:white;
+    box-shadow:2px 0 5px rgba(0,0,0,0.2);
+    overflow:auto;
+    transition: transform 0.3s;
+    z-index:1000;
+  }
+  #leftPanel{
+    left:0;
+    transform:translateX(-100%);
+  }
+  #rightPanel{
+    right:0;
+    transform:translateX(100%);
+  }
+  .toggleBtn{
+    position:fixed;
+    top:20px;
+    width:40px;
+    height:40px;
+    background:#4caf50;
+    color:white;
+    border:none;
+    cursor:pointer;
+    z-index:1100;
+  }
+  #leftToggle{left:0;}
+  #rightToggle{right:0;}
+  table{
+    width:90%;
+    margin:20px auto;
+    border-collapse:collapse;
+    background:white;
+  }
+  th, td{
+    padding:10px;
+    border:1px solid #ddd;
+    text-align:center;
+  }
+  th{background:#4caf50; color:white;}
+  tr:nth-child(even){background:#f9f9f9;}
+  tr:hover{background:#e0f7e9;}
+  form{margin:20px;}
 </style>
 </head>
 <body>
+<header>
+  <h1>Obowiązki domowe 🏡</h1>
+</header>
 
-<header><h1>Obowiązki domowe 🏡</h1></header>
-
-<!-- Logowanie -->
 <div id="loginScreen">
-  <h2>Wprowadź hasło</h2>
+  <h2>Wprowadź hasło, aby wejść</h2>
   <input type="password" id="passwordInput" placeholder="Hasło">
   <button id="loginBtn">Zaloguj</button>
   <p id="loginError" style="color:red;"></p>
 </div>
 
-<!-- Lewy panel -->
-<div id="leftPanel" class="sidePanel">
-  <h3>Lista zakupów</h3>
-  <ul id="shoppingList">
-    <li>Mleko</li>
-    <li>Chleb</li>
-    <li>Jajka</li>
-  </ul>
-</div>
-<button id="leftPanelBtn" class="panelBtn">&#9776;</button>
+<div id="mainContent">
+  <!-- Przyciski do wysuwania paneli -->
+  <button class="toggleBtn" id="leftToggle">☰</button>
+  <button class="toggleBtn" id="rightToggle">⚙</button>
 
-<!-- Prawy panel -->
-<div id="rightPanel" class="sidePanel">
-  <h3>Filtry</h3>
-  <div id="filters">
+  <!-- Lewy panel (przykładowo przyszłe listy) -->
+  <div id="leftPanel" class="sidePanel">
+    <h3>Panel lewy</h3>
+    <p>Tu w przyszłości pojawią się inne listy.</p>
+  </div>
+
+  <!-- Prawy panel (filtry + admin) -->
+  <div id="rightPanel" class="sidePanel">
+    <h3>Filtry</h3>
     <input type="date" id="filterDate">
     <input type="text" id="filterName" placeholder="Filtruj po imieniu">
     <select id="filterTask">
@@ -80,21 +127,18 @@ tr:hover { background:#e0f7e9; }
     </select>
     <button id="applyFilter">Filtruj</button>
     <button id="resetFilter">Resetuj filtr</button>
+
+    <div id="adminPanel" style="display:none; margin-top:20px;">
+      <h3>Panel Admina</h3>
+      <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+      <button id="exportCSVBtn">Eksportuj CSV</button>
+      <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+      <button id="addTaskBtn">Dodaj obowiązek</button>
+    </div>
   </div>
 
-  <div id="adminPanel" style="display:none; margin-top:20px;">
-    <h4>Panel Admina</h4>
-    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
-    <button id="exportCSVBtn">Eksportuj CSV</button>
-    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-    <button id="addTaskBtn">Dodaj obowiązek</button>
-  </div>
-</div>
-<button id="rightPanelBtn" class="panelBtn">&#9881;</button>
-
-<!-- Główna zawartość -->
-<div id="mainContent" style="display:none;">
-  <form id="taskForm" style="text-align:center; margin-top:20px;">
+  <!-- Formularz dodawania wpisów -->
+  <form id="taskForm">
     <input type="date" id="date" required>
     <select id="taskType" required>
       <option value="" disabled selected>Wybierz obowiązek</option>
@@ -106,6 +150,7 @@ tr:hover { background:#e0f7e9; }
     <button type="submit">Dodaj</button>
   </form>
 
+  <!-- Tabela -->
   <table id="taskTable">
     <thead>
       <tr>
@@ -123,28 +168,19 @@ tr:hover { background:#e0f7e9; }
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-// Firebase
+// Firebase config
 const firebaseConfig = {
   apiKey: "TWÓJ_API_KEY",
   authDomain: "TWÓJ_AUTH_DOMAIN",
-  databaseURL: "TWÓJ_DATABASE_URL",
+  databaseURL: "TWÓJ_DB_URL",
   projectId: "TWÓJ_PROJECT_ID",
-  storageBucket: "TWÓJ_STORAGE_BUCKET",
-  messagingSenderId: "TWÓJ_SENDER_ID",
+  storageBucket: "TWÓJ_STORAGE",
+  messagingSenderId: "TWÓJ_SENDER",
   appId: "TWÓJ_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const tasksRef = db.ref("tasks");
-
-// Panele boczne
-const leftPanel = document.getElementById("leftPanel");
-const leftBtn = document.getElementById("leftPanelBtn");
-const rightPanel = document.getElementById("rightPanel");
-const rightBtn = document.getElementById("rightPanelBtn");
-
-leftBtn.addEventListener("click",()=>{leftPanel.style.left=(leftPanel.style.left==='0px'?'-250px':'0px');});
-rightBtn.addEventListener("click",()=>{rightPanel.style.right=(rightPanel.style.right==='0px'?'-250px':'0px');});
 
 // Logowanie
 const loginScreen = document.getElementById("loginScreen");
@@ -153,106 +189,143 @@ const loginBtn = document.getElementById("loginBtn");
 const passwordInput = document.getElementById("passwordInput");
 const loginError = document.getElementById("loginError");
 const adminPanel = document.getElementById("adminPanel");
-let isAdmin=false;
+let isAdmin = false;
 
-loginBtn.addEventListener("click", ()=>{
+loginBtn.addEventListener("click", () => {
   const pwd = passwordInput.value.trim();
-  if(pwd==="admin123!"){ 
-    isAdmin=true; 
-    loginScreen.style.display="none"; 
-    mainContent.style.display="block"; 
-    adminPanel.style.display="block"; 
+  if(pwd === "admin123!"){
+    isAdmin = true;
+    adminPanel.style.display="block";
+    loginScreen.style.display="none";
+    mainContent.style.display="block";
     loadTable();
-  }
-  else if(pwd==="lista123!"){ 
-    isAdmin=false; 
-    loginScreen.style.display="none"; 
-    mainContent.style.display="block"; 
+  } else if(pwd === "lista123!"){
+    isAdmin = false;
+    adminPanel.style.display="none";
+    loginScreen.style.display="none";
+    mainContent.style.display="block";
     loadTable();
-  }
-  else { 
-    loginError.textContent="Nieprawidłowe hasło!"; 
+  } else{
+    loginError.textContent="Nieprawidłowe hasło!";
     passwordInput.value="";
+  }
+});
+
+// Toggle panele
+const leftPanel = document.getElementById("leftPanel");
+const rightPanel = document.getElementById("rightPanel");
+document.getElementById("leftToggle").addEventListener("click",()=>{
+  if(leftPanel.style.transform=="translateX(0%)"){
+    leftPanel.style.transform="translateX(-100%)";
+  }else{
+    leftPanel.style.transform="translateX(0%)";
+  }
+});
+document.getElementById("rightToggle").addEventListener("click",()=>{
+  if(rightPanel.style.transform=="translateX(0%)"){
+    rightPanel.style.transform="translateX(100%)";
+  }else{
+    rightPanel.style.transform="translateX(0%)";
   }
 });
 
 // Formularz dodawania
 const form = document.getElementById("taskForm");
 const tableBody = document.querySelector("#taskTable tbody");
-form.addEventListener("submit",(e)=>{
+form.addEventListener("submit", e=>{
   e.preventDefault();
-  const date = document.getElementById("date").value;
-  const task = document.getElementById("taskType").value;
-  const name = document.getElementById("name").value.trim();
-  if(!date||!task||!name){alert("Wypełnij wszystkie pola"); return;}
-  tasksRef.push({date, task, name});
+  const date=document.getElementById("date").value;
+  const task=document.getElementById("taskType").value;
+  const name=document.getElementById("name").value.trim();
+  if(!date || !task || !name){alert("Wypełnij wszystkie pola"); return;}
+  tasksRef.push({date,task,name});
   form.reset();
 });
 
-// Tabela
+// Wczytanie tabeli
 function loadTable(){
-  tasksRef.on("value", snapshot=>{
+  tasksRef.on("value",snapshot=>{
     tableBody.innerHTML="";
     const thead=document.querySelector("#taskTable thead tr");
     if(isAdmin && !thead.querySelector(".actionsHeader")){
-      const th=document.createElement("th"); th.textContent="Akcje"; th.classList.add("actionsHeader"); thead.appendChild(th);
+      const th=document.createElement("th");
+      th.textContent="Akcje"; th.classList.add("actionsHeader"); thead.appendChild(th);
     }
     snapshot.forEach(child=>{
       const data=child.val();
       const row=document.createElement("tr");
-      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}`;
       tableBody.appendChild(row);
-      if(isAdmin) row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+      if(isAdmin){
+        row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+      }
     });
   });
 }
 
-// Admin funkcje
-document.getElementById("clearAllBtn").addEventListener("click",()=>{if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();});
+// Admin - usuń wszystkie
+document.getElementById("clearAllBtn").addEventListener("click",()=>{
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")){
+    tasksRef.remove();
+  }
+});
+
+// Admin - eksport CSV
 document.getElementById("exportCSVBtn").addEventListener("click",()=>{
   tasksRef.get().then(snapshot=>{
     let csv="Data,Obowiązek,Imię\n";
-    snapshot.forEach(child=>{const data=child.val(); csv+=`${data.date},${data.task},${data.name}\n`;});
+    snapshot.forEach(child=>{
+      const data=child.val();
+      csv+=`${data.date},${data.task},${data.name}\n`;
+    });
     const blob=new Blob([csv],{type:'text/csv'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='obowiazki.csv'; a.click(); URL.revokeObjectURL(url);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='obowiazki.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   });
 });
-const addTaskBtn=document.getElementById("addTaskBtn");
-const newTaskInput=document.getElementById("newTaskInput");
-addTaskBtn.addEventListener("click",()=>{
-  const newTask=newTaskInput.value.trim();
+
+// Admin - dodawanie nowego obowiązku
+document.getElementById("addTaskBtn").addEventListener("click",()=>{
+  const newTask=document.getElementById("newTaskInput").value.trim();
   if(newTask){
     const select=document.getElementById("taskType");
     const filterSelect=document.getElementById("filterTask");
     const option=document.createElement("option"); option.value=newTask; option.textContent=newTask; select.appendChild(option);
     const filterOption=document.createElement("option"); filterOption.value=newTask; filterOption.textContent=newTask; filterSelect.appendChild(filterOption);
-    newTaskInput.value=""; alert("Nowy obowiązek dodany!");
-  } else { alert("Wpisz nazwę obowiązku"); }
+    document.getElementById("newTaskInput").value="";
+    alert("Nowy obowiązek dodany!");
+  } else{alert("Wpisz nazwę obowiązku");}
 });
 
 // Filtry
 document.getElementById("applyFilter").addEventListener("click",()=>{
-  const dateFilter=document.getElementById("filterDate").value;
-  const nameFilter=document.getElementById("filterName").value.toLowerCase();
-  const taskFilter=document.getElementById("filterTask").value;
+  const dateF=document.getElementById("filterDate").value;
+  const nameF=document.getElementById("filterName").value.toLowerCase();
+  const taskF=document.getElementById("filterTask").value;
   tasksRef.get().then(snapshot=>{
     tableBody.innerHTML="";
     snapshot.forEach(child=>{
-      const data=child.val();
-      let show=true;
-      if(dateFilter && data.date!==dateFilter) show=false;
-      if(nameFilter && !data.name.toLowerCase().includes(nameFilter)) show=false;
-      if(taskFilter && data.task!==taskFilter) show=false;
+      const data=child.val(); let show=true;
+      if(dateF && data.date!==dateF) show=false;
+      if(nameF && !data.name.toLowerCase().includes(nameF)) show=false;
+      if(taskF && data.task!==taskF) show=false;
       if(show){
         const row=document.createElement("tr");
-        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?`<td><button class="deleteBtn">Usuń</button></td>`:""}`;
+        row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>${isAdmin?'<td><button class="deleteBtn">Usuń</button></td>':''}`;
         tableBody.appendChild(row);
-        if(isAdmin) row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+        if(isAdmin){
+          row.querySelector(".deleteBtn").addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+        }
       }
     });
   });
 });
+
+// Reset filtrów
 document.getElementById("resetFilter").addEventListener("click",()=>{
   document.getElementById("filterDate").value="";
   document.getElementById("filterName").value="";
