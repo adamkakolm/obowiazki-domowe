@@ -3,89 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamiczne listy - Obowiązki domowe</title>
+<title>Obowiązki domowe</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3;}
-header { background:#4caf50; color:white; padding:20px; text-align:center;}
-#loginScreen {display:flex; flex-direction:column; align-items:center; justify-content:center; height:80vh;}
-#mainContent {display:none; padding:20px; position:relative;}
-#leftPanel, #rightPanel {
-    position: fixed; top:0; bottom:0; width:250px; background:#2c3e50; color:white; overflow:auto;
-    transition: transform 0.3s ease;
-}
-#leftPanel { left:0; transform: translateX(-220px); }
-#rightPanel { right:0; transform: translateX(220px); }
-.panelButton { position:fixed; top:50px; width:30px; height:30px; background:#4caf50; color:white; border:none; cursor:pointer; z-index:10; }
-#leftBtn { left:0; transform:translateX(0);}
-#rightBtn { right:0; transform:translateX(0);}
-#taskTable { width:90%; margin:0 auto; border-collapse:collapse; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-th,td{padding:10px;border:1px solid #ddd;}
-th{background:#4caf50;color:white;}
-tr:nth-child(even){background:#f9f9f9;}
-tr:hover{background:#e0f7e9;}
-input, select, button { padding:5px; margin:5px;}
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f3f3; }
+  header { background:#4caf50; color:white; padding:20px; text-align:center; }
+  #loginScreen { display:flex; flex-direction:column; justify-content:center; align-items:center; height:80vh; }
+  #loginScreen input { padding:10px; margin:5px; font-size:16px; }
+  #loginScreen button { padding:10px 20px; font-size:16px; background:#4caf50; color:white; border:none; cursor:pointer; }
+  #mainContent { display:none; padding:20px; position:relative; }
+  table { width:80%; margin:0 auto; border-collapse:collapse; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+  th,td { padding:10px; border:1px solid #ddd; text-align:center; }
+  th { background:#4caf50; color:white; }
+  tr:nth-child(even) { background:#f9f9f9; }
+  tr:hover { background:#e0f7e9; }
+  /* Panele boczne */
+  .sidePanel { position:fixed; top:0; width:250px; height:100%; background:#333; color:white; padding:20px; overflow:auto; transition:transform 0.3s ease; z-index:1000;}
+  #leftPanel { left:0; transform:translateX(-220px); }
+  #rightPanel { right:0; transform:translateX(220px); }
+  .panelButton { position:fixed; top:20px; width:40px; height:40px; background:#4caf50; color:white; border:none; cursor:pointer; z-index:1001; }
+  #leftBtn { left:0; }
+  #rightBtn { right:0; }
+  .panelButton:hover { background:#45a049; }
+  /* Form & filters */
+  #taskForm input, #taskForm select, #taskForm button, #filters input, #filters select, #filters button { padding:8px; margin:5px; font-size:14px; }
+  #filters { display:flex; flex-direction:column; margin-top:20px; }
+  #filters button { width:100%; }
 </style>
 </head>
 <body>
-
-<header>
-<h1>Obowiązki domowe 🏡</h1>
-</header>
+<header><h1>Obowiązki domowe 🏡</h1></header>
 
 <div id="loginScreen">
-<h2>Wprowadź hasło</h2>
-<input type="password" id="passwordInput" placeholder="Hasło">
-<button id="loginBtn">Zaloguj</button>
-<p id="loginError" style="color:red;"></p>
+  <input type="password" id="passwordInput" placeholder="Hasło">
+  <button id="loginBtn">Zaloguj</button>
+  <p id="loginError" style="color:red;"></p>
 </div>
 
-<div id="mainContent">
-
+<!-- Lewy panel: admin + filtr + dodawanie obowiązków -->
+<div id="leftPanel" class="sidePanel">
+  <h3>Opcje admina / filtr</h3>
+  <div id="adminOptions" style="display:none;">
+    <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
+    <button id="addTaskBtn">Dodaj obowiązek</button>
+    <button id="clearAllBtn">Usuń wszystkie wpisy</button>
+    <button id="exportCSVBtn">Eksportuj CSV</button>
+  </div>
+  <div id="userFilters">
+    <h4>Filtry</h4>
+    <input type="date" id="filterDate">
+    <input type="text" id="filterName" placeholder="Filtruj po imieniu">
+    <select id="filterTask"><option value="">Wszystkie obowiązki</option></select>
+    <button id="applyFilter">Filtruj</button>
+    <button id="resetFilter">Resetuj filtr</button>
+  </div>
+</div>
 <button id="leftBtn" class="panelButton">&#9776;</button>
+
+<!-- Prawy panel: wybór list -->
+<div id="rightPanel" class="sidePanel">
+  <h3>Wybór listy</h3>
+  <select id="listSelect"></select>
+</div>
 <button id="rightBtn" class="panelButton">&#9881;</button>
 
-<div id="leftPanel">
-<h3>Panel admina</h3>
-<div id="adminSection">
-<h4>Tworzenie nowej listy</h4>
-<input type="text" id="newListName" placeholder="Nazwa listy"><br>
-<label><input type="checkbox" id="hasDate"> Z datą</label><br>
-<label><input type="checkbox" id="hasCheckbox"> Z checkbox</label><br>
-<button id="createListBtn">Utwórz listę</button>
-<hr>
-<h4>Dodaj obowiązek do listy</h4>
-<select id="selectListForTask"></select><br>
-<input type="text" id="newTaskInput" placeholder="Obowiązek/tekst">
-<button id="addTaskBtn">Dodaj obowiązek</button>
-<hr>
-<h4>Filtry</h4>
-<input type="date" id="filterDate">
-<input type="text" id="filterName" placeholder="Filtruj po imieniu">
-<select id="filterTask"></select>
-<button id="applyFilter">Filtruj</button>
-<button id="resetFilter">Resetuj filtr</button>
-<hr>
-<button id="clearAllBtn">Usuń wszystkie wpisy</button>
-</div>
-</div>
+<div id="mainContent">
+  <!-- Formularz dodawania wpisów -->
+  <form id="taskForm">
+    <input type="date" id="date" required>
+    <select id="taskType" required>
+      <option value="" disabled selected>Wybierz obowiązek</option>
+      <option value="odkurzanie">odkurzanie</option>
+      <option value="zmywarka">zmywarka</option>
+      <option value="zwierzaki">zwierzaki</option>
+    </select>
+    <input type="text" id="name" placeholder="Imię" required>
+    <button type="submit">Dodaj</button>
+  </form>
 
-<div id="rightPanel">
-<h3>Wybierz listę</h3>
-<select id="selectList"></select>
+  <table id="taskTable">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Co zrobił</th>
+        <th>Imię</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
-<table id="taskTable">
-<thead></thead>
-<tbody></tbody>
-</table>
-
-</div>
-
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
   authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
@@ -97,152 +106,133 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-let isAdmin=false;
-let currentList="default";
+let currentList = "default";
+const tasksRef = db.ref("lists/"+currentList);
 
 // Logowanie
-const loginScreen=document.getElementById("loginScreen");
-const mainContent=document.getElementById("mainContent");
-const loginBtn=document.getElementById("loginBtn");
-const passwordInput=document.getElementById("passwordInput");
-const loginError=document.getElementById("loginError");
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("passwordInput");
+const loginError = document.getElementById("loginError");
+const adminOptions = document.getElementById("adminOptions");
+const filterTask = document.getElementById("filterTask");
+const taskForm = document.getElementById("taskForm");
+const tableBody = document.querySelector("#taskTable tbody");
+let isAdmin = false;
 
-loginBtn.addEventListener("click",()=>{
-    const pass=passwordInput.value;
-    if(pass==="admin123!"){
-        isAdmin=true;
-        loginScreen.style.display="none";
-        mainContent.style.display="block";
-        loadLists();
-    }else if(pass==="lista123!"){
-        isAdmin=false;
-        loginScreen.style.display="none";
-        mainContent.style.display="block";
-        loadLists();
-    }else{
-        loginError.textContent="Nieprawidłowe hasło!";
-        passwordInput.value="";
-    }
+loginBtn.addEventListener("click", ()=>{
+  const pw = passwordInput.value;
+  if(pw==="admin123!"){ isAdmin=true; adminOptions.style.display="block"; loginScreen.style.display="none"; mainContent.style.display="block"; loadTable();}
+  else if(pw==="lista123!"){ isAdmin=false; loginScreen.style.display="none"; mainContent.style.display="block"; loadTable();}
+  else{loginError.textContent="Nieprawidłowe hasło!"; passwordInput.value="";}
 });
 
 // Panele boczne
-const leftPanel=document.getElementById("leftPanel");
-const rightPanel=document.getElementById("rightPanel");
-const leftBtn=document.getElementById("leftBtn");
-const rightBtn=document.getElementById("rightBtn");
-
-leftBtn.addEventListener("click",()=>{
-    if(leftPanel.style.transform==="translateX(0px)") leftPanel.style.transform="translateX(-220px)";
-    else leftPanel.style.transform="translateX(0px)";
+const leftPanel = document.getElementById("leftPanel");
+const rightPanel = document.getElementById("rightPanel");
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+let leftOpen=false, rightOpen=false;
+leftBtn.addEventListener("click", ()=>{
+  leftOpen=!leftOpen;
+  leftPanel.style.transform=leftOpen?"translateX(0)":"translateX(-220px)";
+  leftBtn.style.left=leftOpen?"250px":"0";
 });
-rightBtn.addEventListener("click",()=>{
-    if(rightPanel.style.transform==="translateX(0px)") rightPanel.style.transform="translateX(220px)";
-    else rightPanel.style.transform="translateX(0px)";
+rightBtn.addEventListener("click", ()=>{
+  rightOpen=!rightOpen;
+  rightPanel.style.transform=rightOpen?"translateX(0)":"translateX(220px)";
+  rightBtn.style.right=rightOpen?"250px":"0";
 });
 
-// Tworzenie list
-const createListBtn=document.getElementById("createListBtn");
-const newListName=document.getElementById("newListName");
-const hasDate=document.getElementById("hasDate");
-const hasCheckbox=document.getElementById("hasCheckbox");
+// Formularz dodawania
+taskForm.addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const date=document.getElementById("date").value;
+  const task=document.getElementById("taskType").value;
+  const name=document.getElementById("name").value.trim();
+  if(!date || !task || !name){alert("Wypełnij wszystkie pola"); return;}
+  tasksRef.push({date, task, name});
+  taskForm.reset();
+});
 
-createListBtn.addEventListener("click",()=>{
-    const name=newListName.value.trim();
-    if(!name) return alert("Wpisz nazwę listy");
-    db.ref("lists/"+name).set({
-        name:name,
-        date:hasDate.checked,
-        checkbox:hasCheckbox.checked,
-        columns:["tekst"]
+// Funkcja wczytywania tabeli
+function loadTable(){
+  tasksRef.on("value", snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const data=child.val();
+      const row=document.createElement("tr");
+      row.innerHTML=`<td>${data.date}</td><td>${data.task}</td><td>${data.name}</td>`;
+      if(isAdmin){
+        const btn=document.createElement("button");
+        btn.textContent="Usuń"; btn.addEventListener("click",()=>{tasksRef.child(child.key).remove();});
+        const td=document.createElement("td"); td.appendChild(btn); row.appendChild(td);
+      }
+      tableBody.appendChild(row);
     });
-    newListName.value="";
-    hasDate.checked=false;
-    hasCheckbox.checked=false;
-    loadLists();
+  });
+}
+
+// Admin funkcje
+document.getElementById("addTaskBtn").addEventListener("click",()=>{
+  const val=document.getElementById("newTaskInput").value.trim();
+  if(!val){alert("Wpisz nazwę obowiązku"); return;}
+  const option=document.createElement("option"); option.value=val; option.textContent=val; filterTask.appendChild(option);
+  const selTask=document.getElementById("taskType"); const opt=document.createElement("option"); opt.value=val; opt.textContent=val; selTask.appendChild(opt);
+  document.getElementById("newTaskInput").value="";
+  alert("Nowy obowiązek dodany!");
 });
-
-// Dodawanie wpisów
-const selectListForTask=document.getElementById("selectListForTask");
-const newTaskInput=document.getElementById("newTaskInput");
-const addTaskBtn=document.getElementById("addTaskBtn");
-
-addTaskBtn.addEventListener("click",()=>{
-    const listName=selectListForTask.value;
-    if(!listName) return alert("Wybierz listę");
-    const text=newTaskInput.value.trim();
-    if(!text) return alert("Wpisz wartość");
-    db.ref("tasks/"+listName).push({tekst:text, date:null, checkbox:false});
-    newTaskInput.value="";
+document.getElementById("clearAllBtn").addEventListener("click",()=>{
+  if(confirm("Na pewno chcesz usunąć wszystkie wpisy?")) tasksRef.remove();
 });
-
-// Wybór listy
-const selectList=document.getElementById("selectList");
-selectList.addEventListener("change",()=>{
-    currentList=selectList.value;
-    loadTable();
+document.getElementById("exportCSVBtn").addEventListener("click",()=>{
+  tasksRef.get().then(snapshot=>{
+    let csv="Data,Obowiązek,Imię\n";
+    snapshot.forEach(child=>{const d=child.val(); csv+=`${d.date},${d.task},${d.name}\n`;});
+    const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="obowiazki.csv"; a.click(); URL.revokeObjectURL(url);
+  });
 });
 
 // Filtry
-const filterDate=document.getElementById("filterDate");
-const filterName=document.getElementById("filterName");
-const filterTask=document.getElementById("filterTask");
-document.getElementById("applyFilter").addEventListener("click",loadTable);
+document.getElementById("applyFilter").addEventListener("click",()=>{
+  const dateF=document.getElementById("filterDate").value.toLowerCase();
+  const nameF=document.getElementById("filterName").value.toLowerCase();
+  const taskF=document.getElementById("filterTask").value;
+  tasksRef.get().then(snapshot=>{
+    tableBody.innerHTML="";
+    snapshot.forEach(child=>{
+      const d=child.val();
+      let show=true;
+      if(dateF && d.date!==dateF) show=false;
+      if(nameF && !d.name.toLowerCase().includes(nameF)) show=false;
+      if(taskF && d.task!==taskF) show=false;
+      if(show){
+        const row=document.createElement("tr");
+        row.innerHTML=`<td>${d.date}</td><td>${d.task}</td><td>${d.name}</td>`;
+        if(isAdmin){const btn=document.createElement("button"); btn.textContent="Usuń"; btn.addEventListener("click",()=>{tasksRef.child(child.key).remove();}); const td=document.createElement("td"); td.appendChild(btn); row.appendChild(td);}
+        tableBody.appendChild(row);
+      }
+    });
+  });
+});
 document.getElementById("resetFilter").addEventListener("click",()=>{
-    filterDate.value=""; filterName.value=""; filterTask.value="";
-    loadTable();
+  document.getElementById("filterDate").value="";
+  document.getElementById("filterName").value="";
+  document.getElementById("filterTask").value="";
+  loadTable();
 });
 
-// Usuń wszystkie
-document.getElementById("clearAllBtn").addEventListener("click",()=>{
-    if(confirm("Na pewno usunąć wszystkie wpisy?")){
-        db.ref("tasks/"+currentList).remove();
-    }
+// Lista wyboru (prawy panel)
+const listSelect=document.getElementById("listSelect");
+const defaultOption=document.createElement("option"); defaultOption.value="default"; defaultOption.textContent="Główna lista"; listSelect.appendChild(defaultOption);
+listSelect.value="default";
+listSelect.addEventListener("change",()=>{
+  currentList=listSelect.value;
+  tasksRef=db.ref("lists/"+currentList);
+  loadTable();
 });
-
-// Wczytywanie list
-function loadLists(){
-    db.ref("lists").get().then(snapshot=>{
-        selectList.innerHTML=""; selectListForTask.innerHTML="";
-        snapshot.forEach(child=>{
-            const l=child.val();
-            const option=document.createElement("option");
-            option.value=l.name; option.textContent=l.name;
-            selectList.appendChild(option);
-            if(isAdmin) selectListForTask.appendChild(option.cloneNode(true));
-        });
-        currentList=selectList.value||currentList;
-        loadTable();
-    });
-}
-
-// Tabela dynamiczna
-const tableBody=document.querySelector("#taskTable tbody");
-function loadTable(){
-    if(!currentList) return;
-    db.ref("tasks/"+currentList).get().then(snapshot=>{
-        tableBody.innerHTML="";
-        snapshot.forEach(child=>{
-            const data=child.val();
-            const row=document.createElement("tr");
-            let html="";
-            if(data.date!==undefined && data.date!==null) html+=`<td>${data.date||""}</td>`;
-            html+=`<td>${data.tekst||""}</td>`;
-            if(data.checkbox!==undefined) html+=`<td><input type="checkbox" ${data.checkbox?"checked":""} disabled></td>`;
-            tableBody.appendChild(row);
-            row.innerHTML=html;
-            if(isAdmin){
-                const del=document.createElement("button");
-                del.textContent="Usuń";
-                del.addEventListener("click",()=>{db.ref("tasks/"+currentList+"/"+child.key).remove();});
-                const td=document.createElement("td");
-                td.appendChild(del);
-                row.appendChild(td);
-            }
-        });
-    });
-}
 </script>
-
 </body>
 </html>
