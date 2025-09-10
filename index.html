@@ -7,87 +7,84 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Ekran logowania -->
-  <div id="loginScreen" class="center-screen">
-    <h1>🔑 Logowanie</h1>
-    <input type="text" id="usernameInput" placeholder="Nazwa użytkownika">
-    <input type="password" id="passwordInput" placeholder="Hasło">
-    <button id="loginBtn">Zaloguj</button>
-    <button id="registerBtn">Rejestracja</button>
-    <p id="loginError" class="error"></p>
+  <!-- Logowanie -->
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Logowanie</h2>
+      <input type="text" id="username" placeholder="Nazwa użytkownika">
+      <input type="password" id="password" placeholder="Hasło">
+      <button onclick="login()">Zaloguj</button>
+      <p>Nie masz konta? <a href="#" onclick="showRegister()">Zarejestruj się</a></p>
+    </div>
   </div>
 
-  <!-- Główna zawartość -->
-  <div id="mainContent" style="display:none;">
-    <header>
-      <h1>📋 Obowiązki Domowe</h1>
-    </header>
-
-    <!-- Tabela obowiązków -->
-    <main>
-      <form id="taskForm">
-        <input type="date" id="date" required>
-        <select id="taskType" required></select>
-        <button type="submit">Dodaj wpis</button>
-      </form>
-
-      <table id="taskTable">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Obowiązek</th>
-            <th>Użytkownik</th>
-            <th id="actionsHeader" style="display:none;">Akcje</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </main>
+  <!-- Rejestracja -->
+  <div id="register-screen" style="display:none;">
+    <div class="login-box">
+      <h2>Rejestracja</h2>
+      <input type="text" id="reg-username" placeholder="Nazwa użytkownika">
+      <input type="password" id="reg-password" placeholder="Hasło">
+      <button onclick="register()">Zarejestruj</button>
+      <p><a href="#" onclick="showLogin()">Masz konto? Zaloguj się</a></p>
+    </div>
   </div>
 
-  <!-- Panele boczne -->
-  <div id="leftPanel" class="side-panel">
-    <div class="panel-content">
-      <h2>⚙️ Panel Admina</h2>
-      <div id="adminSection" style="display:none;">
-        <button id="clearAllBtn">Usuń wszystkie wpisy</button>
-        <button id="exportCSVBtn">Eksportuj CSV</button>
-
-        <h3>Dodaj nowy obowiązek</h3>
-        <input type="text" id="newTaskInput" placeholder="Nowy obowiązek">
-        <button id="addTaskBtn">Dodaj</button>
-
-        <h3>🎨 Konfiguracja wyglądu</h3>
-        <label>Motyw:
-          <select id="themeSelect">
-            <option value="light">Jasny</option>
-            <option value="dark">Ciemny</option>
-          </select>
-        </label>
-
-        <h3>👥 Zarządzanie użytkownikami</h3>
-        <input type="text" id="newUser" placeholder="Nazwa">
-        <input type="password" id="newPass" placeholder="Hasło">
-        <select id="newRole">
-          <option value="user">Użytkownik</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button id="addUserBtn">Dodaj użytkownika</button>
+  <!-- Główna aplikacja -->
+  <div id="app" style="display:none;">
+    <!-- Lewy panel (Admin + Filtry) -->
+    <div id="left-panel" class="side-panel">
+      <button class="panel-toggle" onclick="togglePanel('left-panel')">☰</button>
+      <div class="panel-content">
+        <h3>Filtry</h3>
+        <input type="text" id="filterTask" placeholder="Obowiązek">
+        <input type="text" id="filterUser" placeholder="Użytkownik">
+        <button onclick="applyFilters()">Filtruj</button>
+        <hr>
+        <div id="admin-section" style="display:none;">
+          <h3>Panel Admina</h3>
+          <button onclick="exportCSV()">Eksportuj CSV</button>
+          <button onclick="deleteAll()">Usuń wszystkie</button>
+          <h4>Dodaj obowiązek</h4>
+          <input type="text" id="newTask" placeholder="Nowy obowiązek">
+          <button onclick="addTask()">Dodaj</button>
+          <h4>Dodaj listę</h4>
+          <input type="text" id="listName" placeholder="Nazwa listy">
+          <input type="text" id="col1" placeholder="Kolumna 1">
+          <input type="text" id="col2" placeholder="Kolumna 2">
+          <input type="text" id="col3" placeholder="Kolumna 3">
+          <label><input type="checkbox" id="withDate"> Z datą</label>
+          <label><input type="checkbox" id="withCheck"> Z checkbox</label>
+          <button onclick="createList()">Utwórz listę</button>
+        </div>
       </div>
     </div>
-    <div id="leftToggle" class="panel-toggle">⮞</div>
-  </div>
 
-  <div id="rightPanel" class="side-panel right">
-    <div class="panel-content">
-      <h2>📑 Listy</h2>
-      <ul id="listMenu"></ul>
+    <!-- Prawy panel (Wybór listy) -->
+    <div id="right-panel" class="side-panel right">
+      <button class="panel-toggle" onclick="togglePanel('right-panel')">≡</button>
+      <div class="panel-content">
+        <h3>Listy</h3>
+        <ul id="listMenu"></ul>
+      </div>
     </div>
-    <div id="rightToggle" class="panel-toggle">⮜</div>
+
+    <!-- Główna tabela -->
+    <div class="main">
+      <h2 id="currentListTitle">Obowiązki Domowe</h2>
+      <form id="entryForm">
+        <select id="taskSelect"></select>
+        <input type="text" id="userInput" placeholder="Użytkownik">
+        <button type="submit">Dodaj wpis</button>
+      </form>
+      <table id="entriesTable">
+        <thead><tr id="tableHead"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
