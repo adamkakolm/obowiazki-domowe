@@ -16,7 +16,12 @@ body{margin:0;font-family:Arial, sans-serif;background:var(--background);color:v
 .topbar button{margin-left:6px;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;}
 .auth-box{width:320px;margin:10vh auto;padding:20px;background:var(--surface);border-radius:10px;box-shadow:var(--shadow);text-align:center;}
 .auth-box input{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;}
-.main{margin:80px auto;width:92%;max-width:1000px;background:var(--surface);padding:20px;border-radius:10px;box-shadow:var(--shadow);}
+.layout{display:flex;margin-top:60px;}
+.sidebar{width:220px;background:var(--surface);box-shadow:var(--shadow);padding:12px;}
+.sidebar h3{margin-top:0;}
+.sidebar button{display:block;width:100%;margin:6px 0;padding:8px;border:none;background:var(--primary);color:white;border-radius:6px;cursor:pointer;}
+.main{flex:1;background:var(--surface);margin:0 12px;padding:20px;border-radius:10px;box-shadow:var(--shadow);}
+.rightbar{width:240px;background:var(--surface);box-shadow:var(--shadow);padding:12px;}
 #entryForm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 #entryForm input{padding:8px;border:1px solid #ccc;border-radius:6px;}
 #entryForm button{padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;}
@@ -55,13 +60,27 @@ th{background:var(--primary);color:white;}
       <button onclick="logout()">🚪 Wyloguj</button>
     </div>
   </div>
-  <div class="main">
-    <h2 id="currentListTitle">Lista: default</h2>
-    <form id="entryForm"></form>
-    <table>
-      <thead><tr id="tableHead"></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <div class="layout">
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+      <h3>📋 Listy</h3>
+      <div id="lists"></div>
+      <button onclick="newList()">➕ Nowa lista</button>
+    </div>
+    <!-- MAIN -->
+    <div class="main">
+      <h2 id="currentListTitle">Lista: default</h2>
+      <form id="entryForm"></form>
+      <table>
+        <thead><tr id="tableHead"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <!-- RIGHT SIDEBAR -->
+    <div class="rightbar">
+      <h3>⚙️ Ustawienia</h3>
+      <div id="settings"></div>
+    </div>
   </div>
 </div>
 
@@ -105,18 +124,68 @@ function afterLogin(){
   loginScr().style.display=regScr().style.display="none";
   document.getElementById("app").style.display="block";
   document.getElementById("userInfo").innerText="👤 "+currentUser.name+" ("+currentUser.role+")";
+  loadLists();
   switchList("default");
 }
 
-// --- Lists & Entries ---
+// --- Lists ---
+function loadLists(){
+  db.ref("lists").on("value",snap=>{
+    const l=document.getElementById("lists");l.innerHTML="";
+    snap.forEach(ch=>{
+      const n=ch.key;
+      const btn=document.createElement("button");
+      btn.innerText=n;
+      btn.onclick=()=>switchList(n);
+      l.appendChild(btn);
+    });
+  });
+}
+function newList(){
+  const name=prompt("Nazwa nowej listy:");
+  if(!name)return;
+  db.ref("lists/"+name+"/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true});
+}
 function switchList(n){
   currentList=n;
   db.ref("lists/"+n+"/settings").get().then(s=>{
     if(s.exists()) listSettings=s.val();
-    renderHead();renderForm();loadEntries();
+    renderHead();renderForm();loadEntries();renderSettings();
     currentListTitle.innerText="Lista: "+n;
   });
 }
+function renderSettings(){
+  const s=document.getElementById("settings");s.innerHTML="";
+  listSettings.columns.forEach((c,i)=>{
+    s.innerHTML+=`<div>Kolumna ${i+1}: <input value="${c}" onchange="editColumn(${i},this.value)"></div>`;
+  });
+  s.innerHTML+=`<button onclick="addColumn()">➕ Dodaj kolumnę</button>`;
+  s.innerHTML+=`<div><label><input type="checkbox" ${listSettings.withDate?"checked":""} onchange="toggleDate(this.checked)"> Data</label></div>`;
+  if(currentList!=="default") s.innerHTML+=`<button onclick="deleteList()">🗑️ Usuń listę</button>`;
+}
+function editColumn(i,v){
+  listSettings.columns[i]=v;
+  db.ref("lists/"+currentList+"/settings").set(listSettings);
+  renderHead();renderForm();renderSettings();
+}
+function addColumn(){
+  listSettings.columns.push("Nowa kolumna");
+  db.ref("lists/"+currentList+"/settings").set(listSettings);
+  renderHead();renderForm();renderSettings();
+}
+function toggleDate(ch){
+  listSettings.withDate=ch;
+  db.ref("lists/"+currentList+"/settings").set(listSettings);
+  renderHead();renderForm();renderSettings();
+}
+function deleteList(){
+  if(confirm("Usunąć listę "+currentList+"?")){
+    db.ref("lists/"+currentList).remove();
+    switchList("default");
+  }
+}
+
+// --- Entries ---
 function renderHead(){
   const h=document.getElementById("tableHead");h.innerHTML="";
   listSettings.columns.forEach(c=>h.innerHTML+="<th>"+c+"</th>");
