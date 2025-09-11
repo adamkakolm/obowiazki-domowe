@@ -1,398 +1,155 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Obowiązki Domowe — pełne dodawanie list</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obowiązki Domowe</title>
 <style>
 :root{
-  --primary:#4CAF50; --bg:#f4f6f9; --surface:#fff; --text:#222;
-  --shadow:0 6px 18px rgba(0,0,0,0.08); --radius:10px;
+  --primary:#4CAF50;--background:#f4f6f9;
+  --surface:#fff;--text:#333;--shadow:0 4px 12px rgba(0,0,0,0.08);
 }
-body.dark{ --bg:#111; --surface:#1f1f1f; --text:#ddd; }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter, Roboto, Arial, sans-serif;background:var(--bg);color:var(--text);}
-.topbar{position:fixed;top:0;left:0;right:0;background:var(--primary);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;z-index:1200;box-shadow:var(--shadow);}
-.topbar button{background:#fff;color:var(--primary);border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
-.auth-box{width:360px;margin:10vh auto;padding:22px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow);text-align:center}
-.auth-box input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #ddd}
-.link{color:var(--primary);cursor:pointer;text-decoration:underline}
-.side-panel{position:fixed;top:64px;bottom:0;width:320px;padding:18px;background:var(--surface);box-shadow:var(--shadow);overflow:auto;z-index:1100;transform:translateX(-120%);transition:transform .28s}
-.side-panel.right{right:0;transform:translateX(120%)}
-.side-panel.open{transform:translateX(0)}
-.panel-toggle{position:absolute;top:18px;right:-42px;background:var(--primary);color:#fff;border:none;width:44px;height:44px;border-radius:50%;cursor:pointer;box-shadow:var(--shadow)}
-.main{margin:100px auto 60px auto;width:94%;max-width:1100px;background:var(--surface);padding:20px;border-radius:12px;box-shadow:var(--shadow)}
-#entryForm{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-#entryForm input, #entryForm select{padding:10px;border-radius:8px;border:1px solid #ddd;min-width:140px;flex:1}
-#entryForm button{padding:10px 16px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
-th{background:var(--primary);color:white}
-tr.done{background:#eaffea}
-.small{font-size:13px;color:#666}
-@media (max-width:800px){
-  .side-panel{width:260px}
-  .auth-box{width:92%}
-}
+body.dark{--background:#1e1e1e;--surface:#2c2c2c;--text:#ddd;}
+body{margin:0;font-family:Arial, sans-serif;background:var(--background);color:var(--text);}
+.topbar{position:fixed;top:0;left:0;right:0;background:var(--primary);color:white;
+  padding:12px;display:flex;justify-content:space-between;z-index:1000;}
+.topbar button{margin-left:6px;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;}
+.auth-box{width:320px;margin:10vh auto;padding:20px;background:var(--surface);border-radius:10px;box-shadow:var(--shadow);text-align:center;}
+.auth-box input{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;}
+.main{margin:80px auto;width:92%;max-width:1000px;background:var(--surface);padding:20px;border-radius:10px;box-shadow:var(--shadow);}
+#entryForm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+#entryForm input{padding:8px;border:1px solid #ccc;border-radius:6px;}
+#entryForm button{padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;}
+th{background:var(--primary);color:white;}
 </style>
 </head>
 <body>
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="auth-box">
-      <h2>🔑 Logowanie</h2>
-      <input id="username" placeholder="Nazwa użytkownika" />
-      <input id="password" placeholder="Hasło" type="password" />
-      <div style="margin-top:10px"><button onclick="login()">Zaloguj</button></div>
-      <p class="small" style="margin-top:12px">Nie masz konta? <span class="link" onclick="showRegister()">Zarejestruj się</span></p>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="auth-box">
+    <h2>🔑 Logowanie</h2>
+    <input id="username" placeholder="Login">
+    <input id="password" type="password" placeholder="Hasło">
+    <button onclick="login()">Zaloguj</button>
+    <p>Nie masz konta? <a href="#" onclick="showRegister()">Rejestracja</a></p>
+  </div>
+</div>
+<!-- REGISTER -->
+<div id="register-screen" style="display:none">
+  <div class="auth-box">
+    <h2>📝 Rejestracja</h2>
+    <input id="reg-username" placeholder="Login">
+    <input id="reg-password" type="password" placeholder="Hasło">
+    <button onclick="register()">Zarejestruj</button>
+    <p><a href="#" onclick="showLogin()">Masz konto? Zaloguj</a></p>
+  </div>
+</div>
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div><span id="userInfo"></span></div>
+    <div>
+      <button onclick="toggleDarkMode()">🌓</button>
+      <button onclick="logout()">🚪 Wyloguj</button>
     </div>
   </div>
-
-  <!-- REGISTER -->
-  <div id="register-screen" style="display:none">
-    <div class="auth-box">
-      <h2>📝 Rejestracja</h2>
-      <input id="reg-username" placeholder="Nazwa użytkownika" />
-      <input id="reg-password" placeholder="Hasło" type="password" />
-      <div style="margin-top:10px"><button onclick="register()">Zarejestruj</button></div>
-      <p class="small" style="margin-top:12px"><span class="link" onclick="showLogin()">Masz konto? Zaloguj się</span></p>
-    </div>
+  <div class="main">
+    <h2 id="currentListTitle">Lista: default</h2>
+    <form id="entryForm"></form>
+    <table>
+      <thead><tr id="tableHead"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
+</div>
 
-  <!-- APP -->
-  <div id="app" style="display:none">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button onclick="togglePanel('left-panel')">☰</button>
-        <div id="userInfo">—</div>
-      </div>
-      <div>
-        <button onclick="togglePanel('right-panel')">📋 Listy</button>
-        <button onclick="toggleDarkMode()">🌓</button>
-        <button onclick="logout()">🚪 Wyloguj</button>
-      </div>
-    </div>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
+  authDomain:"obowiazki-domowe-b2312.firebaseapp.com",
+  databaseURL:"https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"obowiazki-domowe-b2312",
+  storageBucket:"obowiazki-domowe-b2312.firebasestorage.app",
+  messagingSenderId:"348397631566",
+  appId:"1:348397631566:web:fef9f724dbf737b8cf6b1f"
+});
+const db=firebase.database();
+let currentUser=null,currentList="default",listSettings={columns:["Obowiązek","Użytkownik"],withDate:true};
 
-    <!-- left: filters & admin -->
-    <div id="left-panel" class="side-panel">
-      <button class="panel-toggle" onclick="togglePanel('left-panel')">‹</button>
-      <h3>🔍 Filtry</h3>
-      <input id="filterTask" placeholder="Szukaj po treści" />
-      <input id="filterUser" placeholder="Szukaj po użytkowniku" style="margin-top:8px"/>
-      <div style="margin-top:8px"><button onclick="applyFilters()">Filtruj</button> <button onclick="clearFilters()">Wyczyść</button></div>
-      <hr style="margin:12px 0"/>
-      <div id="admin-section" style="display:none">
-        <h3>⚙️ Panel Admina — dodaj listę</h3>
-        <p class="small">Podaj nazwę listy, a poniżej kolumny (maks. 6). Puste pola zostaną pominięte.</p>
-        <input id="listName" placeholder="Nazwa listy (bez spacji)" />
-        <input id="col1" placeholder="Kolumna 1" />
-        <input id="col2" placeholder="Kolumna 2" />
-        <input id="col3" placeholder="Kolumna 3" />
-        <input id="col4" placeholder="Kolumna 4 (opcjonalna)" />
-        <input id="col5" placeholder="Kolumna 5 (opcjonalna)" />
-        <label style="display:block;margin-top:6px"><input type="checkbox" id="withDate" /> Dodaj kolumnę Data</label>
-        <label><input type="checkbox" id="withCheck" /> Dodaj checkbox status</label>
-        <div style="margin-top:8px"><button onclick="createList()">➕ Utwórz listę</button></div>
-      </div>
-    </div>
+// --- Auth ---
+function showRegister(){loginScr().style.display="none";regScr().style.display="block";}
+function showLogin(){loginScr().style.display="block";regScr().style.display="none";}
+function loginScr(){return document.getElementById("login-screen");}
+function regScr(){return document.getElementById("register-screen");}
+function login(){
+  const u=username.value.trim(),p=password.value;
+  db.ref("users/"+u).get().then(s=>{
+    if(s.exists()&&s.val().password===p){currentUser={name:u,role:s.val().role};afterLogin();}
+    else alert("Błędne dane logowania");
+  });
+}
+function register(){
+  const u=document.getElementById("reg-username").value.trim(),p=document.getElementById("reg-password").value;
+  db.ref("users/"+u).set({password:p,role:"user"}).then(()=>{alert("Zarejestrowano!");showLogin();});
+}
+function logout(){document.getElementById("app").style.display="none";loginScr().style.display="block";}
 
-    <!-- right: lists menu -->
-    <div id="right-panel" class="side-panel right">
-      <button class="panel-toggle" onclick="togglePanel('right-panel')">›</button>
-      <h3>📋 Listy</h3>
-      <ul id="listMenu"></ul>
-      <div class="small" style="margin-top:8px">Kliknij nazwę, aby otworzyć listę. Admin widzi przyciski usuwania.</div>
-    </div>
+// --- UI ---
+function toggleDarkMode(){document.body.classList.toggle("dark");}
+function afterLogin(){
+  loginScr().style.display=regScr().style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("userInfo").innerText="👤 "+currentUser.name+" ("+currentUser.role+")";
+  switchList("default");
+}
 
-    <!-- main -->
-    <main class="main">
-      <h2 id="currentListTitle">Obowiązki Domowe</h2>
+// --- Lists & Entries ---
+function switchList(n){
+  currentList=n;
+  db.ref("lists/"+n+"/settings").get().then(s=>{
+    if(s.exists()) listSettings=s.val();
+    renderHead();renderForm();loadEntries();
+    currentListTitle.innerText="Lista: "+n;
+  });
+}
+function renderHead(){
+  const h=document.getElementById("tableHead");h.innerHTML="";
+  listSettings.columns.forEach(c=>h.innerHTML+="<th>"+c+"</th>");
+  if(listSettings.withDate) h.innerHTML+="<th>Data</th>";
+}
+function renderForm(){
+  const f=document.getElementById("entryForm");f.innerHTML="";
+  listSettings.columns.forEach(c=>f.innerHTML+=`<input id="form-${c}" placeholder="${c}">`);
+  if(listSettings.withDate) f.innerHTML+=`<input id="form-date" type="date">`;
+  f.innerHTML+=`<button type="button" onclick="addEntry()">Dodaj</button>`;
+}
+function addEntry(){
+  const e={};listSettings.columns.forEach(c=>e[c]=document.getElementById("form-"+c).value);
+  if(listSettings.withDate) e.date=document.getElementById("form-date").value;
+  db.ref("lists/"+currentList+"/entries").push(e);
+}
+function loadEntries(){
+  db.ref("lists/"+currentList+"/entries").on("value",snap=>{
+    const b=document.getElementById("tableBody");b.innerHTML="";
+    snap.forEach(ch=>{
+      const e=ch.val();let tr=document.createElement("tr");
+      listSettings.columns.forEach(c=>tr.innerHTML+=`<td>${e[c]||""}</td>`);
+      if(listSettings.withDate) tr.innerHTML+=`<td>${e.date||""}</td>`;
+      b.appendChild(tr);
+    });
+  });
+}
 
-      <form id="entryForm"></form>
-
-      <table id="entriesTable">
-        <thead><tr id="tableHead"></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </main>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <script>
-    // Firebase config (jak wcześniej)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
-      authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
-      databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "obowiazki-domowe-b2312",
-      storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
-      messagingSenderId: "348397631566",
-      appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // stan
-    let currentUser = null;
-    let currentList = 'default';
-    let listSettings = { columns: ["Obowiązek","Użytkownik"], withDate: true, withCheck: true };
-
-    // UI helper refs
-    const loginScreen = document.getElementById('login-screen');
-    const registerScreen = document.getElementById('register-screen');
-    const appDiv = document.getElementById('app');
-    const userInfo = document.getElementById('userInfo');
-    const adminSection = document.getElementById('admin-section');
-    const listMenu = document.getElementById('listMenu');
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const entryForm = document.getElementById('entryForm');
-
-    // --- AUTH ---
-    function showRegister(){ loginScreen.style.display='none'; registerScreen.style.display='block'; }
-    function showLogin(){ registerScreen.style.display='none'; loginScreen.style.display='block'; }
-
-    function login(){
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value;
-      if(!u || !p){ alert('Wpisz login i hasło'); return; }
-      db.ref('users/'+u).get().then(snap=>{
-        if(snap.exists() && snap.val().password === p){
-          currentUser = { name: u, role: snap.val().role || 'user' };
-          afterLogin();
-        } else alert('Błędne dane logowania');
-      }).catch(e=>{ console.error(e); alert('Błąd logowania') });
-    }
-
-    function register(){
-      const u = document.getElementById('reg-username').value.trim();
-      const p = document.getElementById('reg-password').value;
-      if(!u || !p){ alert('Wpisz login i hasło'); return; }
-      db.ref('users/'+u).get().then(snap=>{
-        if(snap.exists()){ alert('Użytkownik już istnieje'); return; }
-        db.ref('users/'+u).set({ password: p, role: 'user' }).then(()=>{ alert('Zarejestrowano — możesz się zalogować'); showLogin(); });
-      }).catch(e=>{ console.error(e); alert('Błąd rejestracji') });
-    }
-
-    function logout(){
-      currentUser = null;
-      appDiv.style.display = 'none';
-      loginScreen.style.display = 'block';
-      // close panels
-      document.getElementById('left-panel').classList.remove('open');
-      document.getElementById('right-panel').classList.remove('open');
-    }
-
-    // --- ensure admin and default list exist (auto-create) ---
-    function ensureAdminAndDefault(){
-      // admin
-      db.ref('users/admin').get().then(snap=>{
-        if(!snap.exists()){
-          db.ref('users/admin').set({ password: '1234', role: 'admin' });
-          console.log('Admin account created: admin / 1234');
-        }
-      });
-      // default list settings
-      db.ref('lists/default/settings').get().then(snap=>{
-        if(!snap.exists()){
-          db.ref('lists/default/settings').set({
-            columns: ["Obowiązek","Użytkownik"],
-            withDate: true,
-            withCheck: true
-          });
-        }
-      });
-    }
-    ensureAdminAndDefault();
-
-    // --- Panels / theme ---
-    function togglePanel(id){ document.getElementById(id).classList.toggle('open'); }
-    function toggleDarkMode(){ document.body.classList.toggle('dark'); }
-
-    // --- Lists: load menu, create, delete, switch ---
-    function loadLists(){
-      db.ref('lists').on('value', snap=>{
-        listMenu.innerHTML = '';
-        const lists = snap.val() || {};
-        // sort keys: default first
-        const keys = Object.keys(lists).sort((a,b)=> a==='default'? -1 : (b==='default'? 1 : a.localeCompare(b)));
-        keys.forEach(name=>{
-          const li = document.createElement('li');
-          // delete button only if admin
-          const deleteBtn = (currentUser && currentUser.role==='admin' && name!=='default') ? `<button onclick="deleteList('${escapeJs(name)}')">❌</button>` : '';
-          li.innerHTML = `<span style="cursor:pointer" onclick="switchList('${escapeJs(name)}')">${escapeHtml(name)}</span> ${deleteBtn}`;
-          listMenu.appendChild(li);
-        });
-      });
-    }
-
-    // helper to escape single quotes for onclick string
-    function escapeJs(s){ return s.replace(/'/g, "\\'"); }
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    function createList(){
-      if(!currentUser || currentUser.role !== 'admin'){ alert('Tylko admin może tworzyć listy'); return; }
-      const name = document.getElementById('listName').value.trim();
-      if(!name){ alert('Podaj nazwę listy'); return; }
-      // sanitize name: no slashes, no spaces ideally
-      const safeName = name.replace(/[./\\\[\]#$]/g,'_');
-      const cols = [];
-      for(let i=1;i<=6;i++){
-        const v = (document.getElementById('col'+i) && document.getElementById('col'+i).value) ? document.getElementById('col'+i).value.trim() : '';
-        if(v) cols.push(v);
-      }
-      if(cols.length===0) cols.push('Kolumna1');
-      const withDate = !!document.getElementById('withDate').checked;
-      const withCheck = !!document.getElementById('withCheck').checked;
-      // write to DB under lists/<safeName>/settings
-      db.ref('lists/'+safeName+'/settings').set({ columns: cols, withDate, withCheck })
-        .then(()=> {
-          alert('Utworzono listę: ' + safeName);
-          // clear inputs
-          document.getElementById('listName').value=''; for(let i=1;i<=6;i++){ const el=document.getElementById('col'+i); if(el) el.value=''; }
-          document.getElementById('withDate').checked=false; document.getElementById('withCheck').checked=false;
-          // auto-open
-          switchList(safeName);
-        }).catch(e=>{ console.error(e); alert('Błąd tworzenia listy'); });
-    }
-
-    function deleteList(name){
-      if(!currentUser || currentUser.role !== 'admin'){ alert('Tylko admin może usuwać listy'); return; }
-      if(name === 'default'){ alert('Nie można usuwać listy default'); return; }
-      if(!confirm('Usunąć listę "'+name+'"? Wszystkie wpisy zostaną utracone.')) return;
-      db.ref('lists/'+name).remove().then(()=>{ if(currentList === name) switchList('default'); });
-    }
-
-    function switchList(name){
-      currentList = name;
-      // read its settings
-      db.ref('lists/'+name+'/settings').get().then(snap=>{
-        if(snap.exists()){
-          listSettings = snap.val();
-        } else {
-          // fallback minimal
-          listSettings = { columns: ["Obowiązek","Użytkownik"], withDate:true, withCheck:true };
-        }
-        document.getElementById('currentListTitle').innerText = 'Lista: ' + name;
-        renderTableHead();
-        renderEntryForm();
-        loadEntries();
-        // close right panel for UX
-        document.getElementById('right-panel').classList.remove('open');
-      });
-    }
-
-    // --- Entries rendering and CRUD ---
-    function renderTableHead(){
-      tableHead.innerHTML = '';
-      const tr = document.createElement('tr');
-      listSettings.columns.forEach(c=>{ const th = document.createElement('th'); th.textContent = c; tr.appendChild(th); });
-      if(listSettings.withDate){ const th = document.createElement('th'); th.textContent = 'Data'; tr.appendChild(th); }
-      if(listSettings.withCheck){ const th = document.createElement('th'); th.textContent = 'Zrobione'; tr.appendChild(th); }
-      tableHead.appendChild(tr);
-    }
-
-    function renderEntryForm(){
-      entryForm.innerHTML = '';
-      listSettings.columns.forEach(c=>{
-        const inp = document.createElement('input'); inp.placeholder = c; inp.id = 'form-'+c; entryForm.appendChild(inp);
-      });
-      if(listSettings.withDate){
-        const din = document.createElement('input'); din.type='date'; din.id='form-date'; entryForm.appendChild(din);
-      }
-      const btn = document.createElement('button'); btn.type='button'; btn.textContent='Dodaj wpis'; btn.onclick = addEntry;
-      entryForm.appendChild(btn);
-    }
-
-    function addEntry(){
-      const payload = {};
-      listSettings.columns.forEach(c=>{
-        const v = document.getElementById('form-'+c) ? document.getElementById('form-'+c).value : '';
-        payload[c] = v || '';
-      });
-      if(listSettings.withDate){ payload.date = document.getElementById('form-date') ? document.getElementById('form-date').value : ''; }
-      if(listSettings.withCheck) payload.done = false;
-      db.ref('lists/'+currentList+'/entries').push(payload).then(()=> {
-        // clear form
-        listSettings.columns.forEach(c=>{ if(document.getElementById('form-'+c)) document.getElementById('form-'+c).value=''; });
-        if(listSettings.withDate && document.getElementById('form-date')) document.getElementById('form-date').value='';
-      });
-    }
-
-    function loadEntries(){
-      db.ref('lists/'+currentList+'/entries').on('value', snap=>{
-        tableBody.innerHTML = '';
-        const entries = snap.val() || {};
-        Object.keys(entries).forEach(id=>{
-          const e = entries[id];
-          const tr = document.createElement('tr'); if(e.done) tr.classList.add('done');
-          listSettings.columns.forEach(c=>{ const td=document.createElement('td'); td.textContent = e[c] || ''; tr.appendChild(td); });
-          if(listSettings.withDate){ const td=document.createElement('td'); td.textContent = e.date || ''; tr.appendChild(td); }
-          if(listSettings.withCheck){
-            const td = document.createElement('td');
-            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!e.done;
-            cb.onchange = ()=> db.ref('lists/'+currentList+'/entries/'+id+'/done').set(cb.checked);
-            td.appendChild(cb); tr.appendChild(td);
-          }
-          tableBody.appendChild(tr);
-        });
-        // apply filters if any
-        applyFilters();
-      });
-    }
-
-    // --- Filters ---
-    function applyFilters(){
-      const t = (document.getElementById('filterTask').value || '').toLowerCase();
-      const u = (document.getElementById('filterUser').value || '').toLowerCase();
-      Array.from(document.querySelectorAll('#tableBody tr')).forEach(tr=>{
-        const text = tr.innerText.toLowerCase();
-        tr.style.display = (text.includes(t) && text.includes(u)) ? '' : 'none';
-      });
-    }
-    function clearFilters(){ document.getElementById('filterTask').value=''; document.getElementById('filterUser').value=''; applyFilters(); }
-
-    // --- After login setup ---
-    function afterLogin(){
-      loginScreen.style.display='none';
-      registerScreen.style.display='none';
-      appDiv.style.display='block';
-      userInfo.innerText = '👤 ' + currentUser.name + ' (' + currentUser.role + ')';
-      adminSection.style.display = (currentUser.role === 'admin') ? 'block' : 'none';
-      loadLists();
-      // ensure current list exists and switch to it
-      switchList(currentList);
-    }
-
-    // --- init: ensure default list & admin exist ---
-    ensureAdminAndDefault(); // called above
-
-    // Expose some functions used in onclicks inside created innerHTML
-    window.switchList = switchList;
-    window.deleteList = deleteList;
-    window.createList = createList;
-    window.togglePanel = togglePanel;
-    window.toggleDarkMode = toggleDarkMode;
-    window.login = login;
-    window.register = register;
-    window.showRegister = showRegister;
-    window.showLogin = showLogin;
-    window.logout = logout;
-    window.addEntry = addEntry;
-    window.applyFilters = applyFilters;
-    window.clearFilters = clearFilters;
-    window.toggleDone = function(id,v){ db.ref('lists/'+currentList+'/entries/'+id+'/done').set(v); };
-
-    // Quick: create inputs col4..col6 elements so createList can read them (they may not exist in old UI)
-    for(let i=4;i<=6;i++){
-      if(!document.getElementById('col'+i)){
-        const hidden = document.createElement('input'); hidden.id='col'+i; hidden.style.display='none'; document.body.appendChild(hidden);
-      }
-    }
-  </script>
+// --- Ensure admin always exists/reset ---
+db.ref("users/admin").set({password:"1234",role:"admin"});
+db.ref("lists/default/settings").get().then(s=>{
+  if(!s.exists()) db.ref("lists/default/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true});
+});
+</script>
 </body>
 </html>
