@@ -39,9 +39,7 @@ table{width:100%;border-collapse:collapse;margin-top:14px;border-radius:8px;over
 th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
 th{background:var(--primary);color:white;font-weight:600;cursor:pointer;}
 tr:hover{background:#f7fff7;}
-tr.done{background:#e0ffe0;}
-body.dark tr.done{background:#2a4a2a;}
-button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
+body.dark tr:hover{background:#2a2a2a;}
 .center{text-align:center;}
 .small{font-size:13px;color:#666;}
 </style>
@@ -91,16 +89,12 @@ button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
       <hr style="margin:12px 0"/>
       <div id="admin-section" style="display:none">
         <h3>⚙️ Panel Admina</h3>
-        <h4>➕ Dodaj obowiązek</h4>
-        <input id="newTask" placeholder="Nowy obowiązek"/>
-        <div style="margin-top:6px"><button onclick="addTask()">Dodaj</button></div>
-        <h4 style="margin-top:10px">🗂 Zarządzanie listami</h4>
+        <h4>🗂 Zarządzanie listami</h4>
         <input id="listName" placeholder="Nazwa listy"/>
         <input id="col1" placeholder="Kolumna 1"/>
         <input id="col2" placeholder="Kolumna 2"/>
         <input id="col3" placeholder="Kolumna 3"/>
         <label><input type="checkbox" id="withDate"/> Z datą</label><br>
-        <label><input type="checkbox" id="withCheck"/> Z checkbox</label><br>
         <button onclick="createList()">Utwórz listę</button>
       </div>
     </div>
@@ -143,7 +137,7 @@ const db=firebase.database();
 
 let currentUser=null;
 let currentList='default';
-let listSettings={columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true};
+let listSettings={columns:["Obowiązek","Użytkownik"],withDate:true};
 let darkMode=false;
 
 // ---- AUTH ----
@@ -214,8 +208,7 @@ function createList(){
               document.getElementById("col2").value||"Kolumna2",
               document.getElementById("col3").value||"Kolumna3"];
   const withDate=document.getElementById("withDate").checked;
-  const withCheck=document.getElementById("withCheck").checked;
-  db.ref("lists/"+name+"/settings").set({columns:cols,withDate,withCheck});
+  db.ref("lists/"+name+"/settings").set({columns:cols,withDate});
 }
 function deleteList(name){if(confirm("Usunąć listę "+name+"?")) db.ref("lists/"+name).remove();}
 
@@ -224,8 +217,6 @@ function renderTableHead(){
   const head=document.getElementById("tableHead");head.innerHTML="";
   listSettings.columns.forEach(c=>{head.innerHTML+=`<th>${c}</th>`;});
   if(listSettings.withDate) head.innerHTML+="<th>Data</th>";
-  if(listSettings.withCheck) head.innerHTML+="<th>Status</th>";
-  head.innerHTML+="<th>Akcje</th>";
   renderEntryForm();
 }
 function renderEntryForm(){
@@ -240,7 +231,6 @@ function addEntry(){
   const entry={};
   listSettings.columns.forEach(c=>{entry[c]=document.getElementById("form-"+c).value;});
   if(listSettings.withDate) entry.date=document.getElementById("form-date").value;
-  entry.done=false;
   db.ref("lists/"+currentList+"/entries").push(entry);
 }
 function loadEntries(){
@@ -248,18 +238,14 @@ function loadEntries(){
     const body=document.getElementById("tableBody");body.innerHTML="";
     snap.forEach(child=>{
       const e=child.val();
-      const tr=document.createElement("tr");if(e.done) tr.classList.add("done");
+      const tr=document.createElement("tr");
       listSettings.columns.forEach(c=>{tr.innerHTML+=`<td>${e[c]||""}</td>`;});
       if(listSettings.withDate) tr.innerHTML+=`<td>${e.date||""}</td>`;
-      if(listSettings.withCheck) tr.innerHTML+=`<td><input type="checkbox" ${e.done?"checked":""} onclick="toggleDone('${child.key}',this.checked)"></td>`;
-      tr.innerHTML+=`<td><button onclick="deleteEntry('${child.key}')">❌</button></td>`;
       body.appendChild(tr);
     });
     renderTableHead();
   });
 }
-function toggleDone(id,state){db.ref("lists/"+currentList+"/entries/"+id+"/done").set(state);}
-function deleteEntry(id){db.ref("lists/"+currentList+"/entries/"+id).remove();}
 
 // ---- FILTERS ----
 function applyFilters(){
@@ -281,7 +267,7 @@ function ensureAdminAccount() {
   });
   db.ref("lists/default/settings").get().then(snap=>{
     if(!snap.exists()){
-      db.ref("lists/default/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true});
+      db.ref("lists/default/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true});
     }
   });
 }
