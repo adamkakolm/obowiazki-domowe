@@ -40,7 +40,7 @@ th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
 th{background:var(--primary);color:white;font-weight:600;cursor:pointer;}
 tr:hover{background:#f7fff7;}
 tr.done{background:#e0ffe0;}
-tr.dark.done{background:#2a4a2a;}
+body.dark tr.done{background:#2a4a2a;}
 button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
 .center{text-align:center;}
 .small{font-size:13px;color:#666;}
@@ -102,7 +102,6 @@ button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
         <label><input type="checkbox" id="withDate"/> Z datą</label><br>
         <label><input type="checkbox" id="withCheck"/> Z checkbox</label><br>
         <button onclick="createList()">Utwórz listę</button>
-        <div id="editListSection" style="margin-top:12px;"></div>
       </div>
     </div>
   </div>
@@ -147,7 +146,7 @@ let currentList='default';
 let listSettings={columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true};
 let darkMode=false;
 
-// Auth
+// ---- AUTH ----
 function showRegister(){document.getElementById('login-screen').style.display='none';document.getElementById('register-screen').style.display='block';}
 function showLogin(){document.getElementById('register-screen').style.display='none';document.getElementById('login-screen').style.display='block';}
 function login(){
@@ -170,17 +169,119 @@ function register(){
     db.ref('users/'+u).set({password:p,role:'user'}).then(()=>{alert('Zarejestrowano!');showLogin();});
   });
 }
+function logout(){currentUser=null;document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='block';}
 
-// Utwórz domyślnego admina
+// ---- PANELS & THEME ----
+function togglePanel(id){document.getElementById(id).classList.toggle('open');}
+function toggleDarkMode(){document.body.classList.toggle('dark');darkMode=!darkMode;}
+
+// ---- APP INIT ----
+function afterLogin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('register-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('userInfo').innerText="👤 "+currentUser.name+" ("+currentUser.role+")";
+  document.getElementById('admin-section').style.display=(currentUser.role==='admin')?'block':'none';
+  loadLists();
+  loadEntries();
+}
+
+// ---- LISTS ----
+function loadLists(){
+  db.ref("lists").on("value",snap=>{
+    const menu=document.getElementById("listMenu");menu.innerHTML="";
+    snap.forEach(child=>{
+      const li=document.createElement("li");
+      li.innerHTML=`<span style="cursor:pointer" onclick="switchList('${child.key}')">${child.key}</span>
+        <button onclick="deleteList('${child.key}')">❌</button>`;
+      menu.appendChild(li);
+    });
+  });
+}
+function switchList(name){
+  currentList=name;
+  db.ref("lists/"+name+"/settings").get().then(snap=>{
+    if(snap.exists()) listSettings=snap.val();
+    renderTableHead();
+    loadEntries();
+    document.getElementById("currentListTitle").innerText="Lista: "+name;
+  });
+}
+function createList(){
+  const name=document.getElementById("listName").value.trim();
+  if(!name) return;
+  const cols=[document.getElementById("col1").value||"Kolumna1",
+              document.getElementById("col2").value||"Kolumna2",
+              document.getElementById("col3").value||"Kolumna3"];
+  const withDate=document.getElementById("withDate").checked;
+  const withCheck=document.getElementById("withCheck").checked;
+  db.ref("lists/"+name+"/settings").set({columns:cols,withDate,withCheck});
+}
+function deleteList(name){if(confirm("Usunąć listę "+name+"?")) db.ref("lists/"+name).remove();}
+
+// ---- ENTRIES ----
+function renderTableHead(){
+  const head=document.getElementById("tableHead");head.innerHTML="";
+  listSettings.columns.forEach(c=>{head.innerHTML+=`<th>${c}</th>`;});
+  if(listSettings.withDate) head.innerHTML+="<th>Data</th>";
+  if(listSettings.withCheck) head.innerHTML+="<th>Status</th>";
+  head.innerHTML+="<th>Akcje</th>";
+  renderEntryForm();
+}
+function renderEntryForm(){
+  const form=document.getElementById("entryForm");form.innerHTML="";
+  listSettings.columns.forEach(c=>{
+    form.innerHTML+=`<input placeholder="${c}" id="form-${c}"/>`;
+  });
+  if(listSettings.withDate) form.innerHTML+=`<input type="date" id="form-date"/>`;
+  form.innerHTML+=`<button type="button" onclick="addEntry()">Dodaj</button>`;
+}
+function addEntry(){
+  const entry={};
+  listSettings.columns.forEach(c=>{entry[c]=document.getElementById("form-"+c).value;});
+  if(listSettings.withDate) entry.date=document.getElementById("form-date").value;
+  entry.done=false;
+  db.ref("lists/"+currentList+"/entries").push(entry);
+}
+function loadEntries(){
+  db.ref("lists/"+currentList+"/entries").on("value",snap=>{
+    const body=document.getElementById("tableBody");body.innerHTML="";
+    snap.forEach(child=>{
+      const e=child.val();
+      const tr=document.createElement("tr");if(e.done) tr.classList.add("done");
+      listSettings.columns.forEach(c=>{tr.innerHTML+=`<td>${e[c]||""}</td>`;});
+      if(listSettings.withDate) tr.innerHTML+=`<td>${e.date||""}</td>`;
+      if(listSettings.withCheck) tr.innerHTML+=`<td><input type="checkbox" ${e.done?"checked":""} onclick="toggleDone('${child.key}',this.checked)"></td>`;
+      tr.innerHTML+=`<td><button onclick="deleteEntry('${child.key}')">❌</button></td>`;
+      body.appendChild(tr);
+    });
+    renderTableHead();
+  });
+}
+function toggleDone(id,state){db.ref("lists/"+currentList+"/entries/"+id+"/done").set(state);}
+function deleteEntry(id){db.ref("lists/"+currentList+"/entries/"+id).remove();}
+
+// ---- FILTERS ----
+function applyFilters(){
+  const task=document.getElementById("filterTask").value.toLowerCase();
+  const user=document.getElementById("filterUser").value.toLowerCase();
+  Array.from(document.querySelectorAll("#tableBody tr")).forEach(tr=>{
+    const txt=tr.innerText.toLowerCase();
+    tr.style.display=(txt.includes(task)&&txt.includes(user))?"":"none";
+  });
+}
+function clearFilters(){document.getElementById("filterTask").value="";document.getElementById("filterUser").value="";applyFilters();}
+
+// ---- DEFAULT ADMIN & LIST ----
 function ensureAdminAccount() {
   db.ref("users/admin").get().then(snap => {
     if (!snap.exists()) {
-      db.ref("users/admin").set({
-        password: "1234",
-        role: "admin"
-      }).then(() => {
-        console.log("Utworzono konto admin (login: admin, hasło: 1234)");
-      });
+      db.ref("users/admin").set({password:"1234",role:"admin"});
+    }
+  });
+  db.ref("lists/default/settings").get().then(snap=>{
+    if(!snap.exists()){
+      db.ref("lists/default/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true});
     }
   });
 }
