@@ -6,7 +6,7 @@
 <title>Obowiązki Domowe</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-:root {
+:root{
   --primary:#4CAF50;
   --secondary:#2e7d32;
   --background:#f4f6f9;
@@ -15,7 +15,7 @@
   --shadow:0 4px 12px rgba(0,0,0,0.08);
   --radius:10px;
 }
-body.dark {
+body.dark{
   --background:#1e1e1e;
   --surface:#2c2c2c;
   --text:#ddd;
@@ -30,18 +30,20 @@ body{margin:0;font-family:"Segoe UI", Roboto, Arial,sans-serif;background:var(--
 .side-panel{position:fixed;top:60px;bottom:0;width:300px;padding:18px;background:var(--surface);box-shadow:var(--shadow);overflow:auto;z-index:1100;transform:translateX(-110%);transition:transform .28s ease;}
 .side-panel.right{right:0;transform:translateX(110%);}
 .side-panel.open{transform:translateX(0);}
-.panel-toggle{position:absolute;top:18px;right:-42px;background:var(--primary);color:white;border:none;width:44px;height:44px;border-radius:50%;cursor:pointer;box-shadow:var(--shadow);}
+.panel-toggle{position:absolute;top:18px;right:-42px;background:var(--primary);color:white;border:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);}
 .main{margin:90px auto 60px auto;width:92%;max-width:1100px;background:var(--surface);padding:22px;border-radius:12px;box-shadow:var(--shadow);}
 #entryForm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-#entryForm input{padding:10px;border-radius:8px;border:1px solid #ddd;min-width:150px;}
+#entryForm select,#entryForm input{padding:10px;border-radius:8px;border:1px solid #ddd;flex:1;min-width:150px;}
 #entryForm button{padding:10px 16px;border-radius:8px;border:none;background:var(--primary);color:white;cursor:pointer;}
 table{width:100%;border-collapse:collapse;margin-top:14px;border-radius:8px;overflow:hidden;}
 th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
 th{background:var(--primary);color:white;font-weight:600;cursor:pointer;}
 tr:hover{background:#f7fff7;}
 tr.done{background:#e0ffe0;}
-body.dark tr.done{background:#2a4a2a;}
+tr.dark.done{background:#2a4a2a;}
 button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
+.center{text-align:center;}
+.small{font-size:13px;color:#666;}
 </style>
 </head>
 <body>
@@ -68,48 +70,49 @@ button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
 <!-- APP -->
 <div id="app" style="display:none">
   <div class="topbar">
-    <div><button onclick="togglePanel('left-panel')">☰</button> <span id="userInfo"></span></div>
+    <div class="left">
+      <button onclick="togglePanel('left-panel')">☰</button>
+      <div class="username" id="userInfo">—</div>
+    </div>
     <div>
       <button onclick="togglePanel('right-panel')">📋 Listy</button>
       <button onclick="toggleDarkMode()">🌓</button>
-      <button onclick="logout()">🚪 Wyloguj</button>
+      <button onclick="logout()" style="margin-left:8px">🚪 Wyloguj</button>
     </div>
   </div>
   <!-- Left panel -->
   <div id="left-panel" class="side-panel">
     <button class="panel-toggle" onclick="togglePanel('left-panel')">‹</button>
-    <div>
+    <div class="panel-content">
       <h3>🔍 Filtry</h3>
       <input id="filterTask" placeholder="Obowiązek" />
-      <input id="filterUser" placeholder="Użytkownik" />
-      <div><button onclick="applyFilters()">Filtruj</button> <button onclick="clearFilters()">Wyczyść</button></div>
-      <hr>
+      <input id="filterUser" placeholder="Użytkownik" style="margin-top:6px"/>
+      <div style="margin-top:6px"><button onclick="applyFilters()">Filtruj</button> <button onclick="clearFilters()">Wyczyść</button></div>
+      <hr style="margin:12px 0"/>
       <div id="admin-section" style="display:none">
         <h3>⚙️ Panel Admina</h3>
-        <h4>🗂 Zarządzanie listami</h4>
+        <h4>➕ Dodaj obowiązek</h4>
+        <input id="newTask" placeholder="Nowy obowiązek"/>
+        <div style="margin-top:6px"><button onclick="addTask()">Dodaj</button></div>
+        <h4 style="margin-top:10px">🗂 Zarządzanie listami</h4>
         <input id="listName" placeholder="Nazwa listy"/>
         <input id="col1" placeholder="Kolumna 1"/>
         <input id="col2" placeholder="Kolumna 2"/>
-        <label><input type="checkbox" id="withDate"/> Z datą</label>
-        <label><input type="checkbox" id="withCheck"/> Z checkbox</label>
-        <button onclick="createList()">➕ Utwórz</button>
-        <hr>
-        <h4>✏️ Edytuj listę</h4>
-        <input id="editName" placeholder="Nowa nazwa listy"/>
-        <input id="editCol1" placeholder="Kolumna 1"/>
-        <input id="editCol2" placeholder="Kolumna 2"/>
-        <label><input type="checkbox" id="editDate"/> Z datą</label>
-        <label><input type="checkbox" id="editCheck"/> Z checkbox</label>
-        <button onclick="editList()">💾 Zapisz</button>
+        <input id="col3" placeholder="Kolumna 3"/>
+        <label><input type="checkbox" id="withDate"/> Z datą</label><br>
+        <label><input type="checkbox" id="withCheck"/> Z checkbox</label><br>
+        <button onclick="createList()">Utwórz listę</button>
+        <div id="editListSection" style="margin-top:12px;"></div>
       </div>
     </div>
   </div>
   <!-- Right panel -->
   <div id="right-panel" class="side-panel right">
     <button class="panel-toggle" onclick="togglePanel('right-panel')">›</button>
-    <div>
+    <div class="panel-content">
       <h3>📋 Listy</h3>
       <ul id="listMenu"></ul>
+      <div class="small" style="margin-top:6px">Kliknij nazwę listy aby przełączyć, ❌ usuwa listę</div>
     </div>
   </div>
   <!-- Main -->
@@ -127,54 +130,61 @@ button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
 // Firebase
-const firebaseConfig={apiKey:"AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",authDomain:"obowiazki-domowe-b2312.firebaseapp.com",databaseURL:"https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",projectId:"obowiazki-domowe-b2312",storageBucket:"obowiazki-domowe-b2312.firebasestorage.app",messagingSenderId:"348397631566",appId:"1:348397631566:web:fef9f724dbf737b8cf6b1f"};firebase.initializeApp(firebaseConfig);const db=firebase.database();
-let currentUser=null,currentList='default',listSettings={columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true},darkMode=false;
+const firebaseConfig = {
+  apiKey:"AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
+  authDomain:"obowiazki-domowe-b2312.firebaseapp.com",
+  databaseURL:"https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"obowiazki-domowe-b2312",
+  storageBucket:"obowiazki-domowe-b2312.firebasestorage.app",
+  messagingSenderId:"348397631566",
+  appId:"1:348397631566:web:fef9f724dbf737b8cf6b1f"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+let currentUser=null;
+let currentList='default';
+let listSettings={columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true};
+let darkMode=false;
 
 // Auth
-function showRegister(){loginScreen.style.display='none';registerScreen.style.display='block';}
-function showLogin(){registerScreen.style.display='none';loginScreen.style.display='block';}
-function login(){const u=username.value.trim(),p=password.value;if(!u||!p)return alert("Wpisz login i hasło");db.ref('users/'+u).get().then(s=>{if(s.exists()&&s.val().password===p){currentUser={name:u,role:s.val().role||'user'};afterLogin();}else alert("Błędne dane");});}
-function register(){const u=regUsername.value.trim(),p=regPassword.value;if(!u||!p)return alert("Wpisz login i hasło");db.ref('users/'+u).get().then(s=>{if(s.exists())return alert("Użytkownik istnieje");db.ref('users/'+u).set({password:p,role:'user'}).then(()=>{alert("Zarejestrowano!");showLogin();});});}
-function logout(){location.reload();}
+function showRegister(){document.getElementById('login-screen').style.display='none';document.getElementById('register-screen').style.display='block';}
+function showLogin(){document.getElementById('register-screen').style.display='none';document.getElementById('login-screen').style.display='block';}
+function login(){
+  const u=document.getElementById('username').value.trim();
+  const p=document.getElementById('password').value;
+  if(!u||!p){alert('Wpisz login i hasło');return;}
+  db.ref('users/'+u).get().then(snap=>{
+    if(snap.exists() && snap.val().password===p){
+      currentUser={name:u,role:snap.val().role||'user'};
+      afterLogin();
+    }else alert('Błędne dane logowania');
+  });
+}
+function register(){
+  const u=document.getElementById('reg-username').value.trim();
+  const p=document.getElementById('reg-password').value;
+  if(!u||!p){alert('Wpisz login i hasło');return;}
+  db.ref('users/'+u).get().then(snap=>{
+    if(snap.exists()){alert('Użytkownik już istnieje');return;}
+    db.ref('users/'+u).set({password:p,role:'user'}).then(()=>{alert('Zarejestrowano!');showLogin();});
+  });
+}
 
-// UI
-function togglePanel(id){document.getElementById(id).classList.toggle('open');}
-function toggleDarkMode(){darkMode=!darkMode;document.body.classList.toggle('dark',darkMode);}
-function applyFilters(){renderEntries();}
-function clearFilters(){filterTask.value='';filterUser.value='';renderEntries();}
-
-// After login
-function afterLogin(){loginScreen.style.display='none';registerScreen.style.display='none';app.style.display='block';userInfo.innerText=currentUser.name+' ('+currentUser.role+')';if(currentUser.role==='admin')adminSection.style.display='block';ensureDefaultList();loadLists();}
-
-// Ensure default
-function ensureDefaultList(){db.ref('lists/default').get().then(s=>{if(!s.exists()){db.ref('lists/default').set({columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true});}switchList('default');});}
-
-// Load lists
-function loadLists(){db.ref('lists').on('value',s=>{const lists=s.val()||{};listMenu.innerHTML='';Object.keys(lists).forEach(n=>{const li=document.createElement('li');li.innerHTML=`<span onclick="switchList('${n}')">${n}</span>`+(n!=='default'&&currentUser.role==='admin'?` <button onclick="deleteList('${n}')">❌</button>`:'');listMenu.appendChild(li);});});}
-
-// Switch
-function switchList(name){currentList=name;db.ref('lists/'+name).get().then(s=>{listSettings=s.val();currentListTitle.innerText=name;renderForm();renderEntries();});}
-
-// Form
-function renderForm(){const f=entryForm;f.innerHTML='';listSettings.columns.forEach(c=>{const i=document.createElement('input');i.placeholder=c;i.id='form-'+c;f.appendChild(i);});if(listSettings.withDate){const d=document.createElement('input');d.type='date';d.id='form-date';f.appendChild(d);}const b=document.createElement('button');b.type='button';b.innerText='Dodaj';b.onclick=addEntry;f.appendChild(b);}
-
-// Add entry
-function addEntry(){const data={};listSettings.columns.forEach(c=>{data[c]=document.getElementById('form-'+c).value;});if(listSettings.withDate)data.date=formDate.value;if(listSettings.withCheck)data.done=false;db.ref('entries/'+currentList).push(data);renderEntries();}
-
-// Render entries
-function renderEntries(){const h=tableHead;h.innerHTML='';listSettings.columns.forEach(c=>{const th=document.createElement('th');th.innerText=c;h.appendChild(th);});if(listSettings.withDate){const th=document.createElement('th');th.innerText='Data';h.appendChild(th);}if(listSettings.withCheck){const th=document.createElement('th');th.innerText='Status';h.appendChild(th);}if(currentUser.role==='admin'){const th=document.createElement('th');th.innerText='Akcje';h.appendChild(th);}tableBody.innerHTML='';db.ref('entries/'+currentList).once('value').then(s=>{const e=s.val()||{};Object.keys(e).forEach(id=>{const tr=document.createElement('tr');const x=e[id];if(x.done)tr.classList.add('done');listSettings.columns.forEach(c=>{const td=document.createElement('td');td.innerText=x[c]||'';tr.appendChild(td);});if(listSettings.withDate){const td=document.createElement('td');td.innerText=x.date||'';tr.appendChild(td);}if(listSettings.withCheck){const td=document.createElement('td');td.innerHTML=`<input type="checkbox" ${x.done?'checked':''} onchange="toggleDone('${id}',this.checked)">`;tr.appendChild(td);}if(currentUser.role==='admin'){const td=document.createElement('td');td.innerHTML=`<button class="action" onclick="editEntry('${id}')">✏️</button><button class="action" onclick="deleteEntry('${id}')">🗑️</button>`;tr.appendChild(td);}tableBody.appendChild(tr);});});}
-
-// Toggle done
-function toggleDone(id,v){db.ref('entries/'+currentList+'/'+id+'/done').set(v).then(renderEntries);}
-
-// Edit / delete entry
-function editEntry(id){const vals=prompt("Nowe wartości (oddzielone przecinkami): "+listSettings.columns.join(', '));if(!vals)return;const arr=vals.split(',').map(x=>x.trim());const data={};listSettings.columns.forEach((c,i)=>data[c]=arr[i]||'');if(listSettings.withDate)data.date=prompt("Nowa data (yyyy-mm-dd):")||'';db.ref('entries/'+currentList+'/'+id).update(data).then(renderEntries);}
-function deleteEntry(id){if(confirm("Usunąć wpis?"))db.ref('entries/'+currentList+'/'+id).remove().then(renderEntries);}
-
-// Admin list actions
-function createList(){const n=listName.value.trim();if(!n)return alert("Podaj nazwę");const cols=[col1.value,col2.value].filter(Boolean);const withDate=withDateBox.checked,withCheck=withCheckBox.checked;db.ref('lists/'+n).set({columns:cols,withDate,withCheck});loadLists();}
-function editList(){if(!currentList)return alert("Brak listy");const n=editName.value.trim()||currentList;const cols=[editCol1.value,editCol2.value].filter(Boolean);const withDate=editDateBox.checked,withCheck=editCheckBox.checked;db.ref('lists/'+currentList).set({columns:cols.length?cols:listSettings.columns,withDate,withCheck});if(n!==currentList){db.ref('lists/'+n).set(listSettings);db.ref('lists/'+currentList).remove();currentList=n;}switchList(n);}
-function deleteList(n){if(confirm("Usunąć listę "+n+"?"))db.ref('lists/'+n).remove();}
+// Utwórz domyślnego admina
+function ensureAdminAccount() {
+  db.ref("users/admin").get().then(snap => {
+    if (!snap.exists()) {
+      db.ref("users/admin").set({
+        password: "1234",
+        role: "admin"
+      }).then(() => {
+        console.log("Utworzono konto admin (login: admin, hasło: 1234)");
+      });
+    }
+  });
+}
+ensureAdminAccount();
 </script>
 </body>
 </html>
