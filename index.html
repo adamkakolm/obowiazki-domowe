@@ -11,20 +11,40 @@
 }
 body.dark{--background:#1e1e1e;--surface:#2c2c2c;--text:#ddd;}
 body{margin:0;font-family:Arial, sans-serif;background:var(--background);color:var(--text);}
+
+/* Topbar */
 .topbar{position:fixed;top:0;left:0;right:0;background:var(--primary);color:white;
   padding:12px;display:flex;justify-content:space-between;z-index:1000;}
-.topbar button{margin-left:6px;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;}
-.auth-box{width:320px;margin:10vh auto;padding:20px;background:var(--surface);border-radius:10px;box-shadow:var(--shadow);text-align:center;}
+.topbar button{margin-right:6px;padding:6px 10px;border:none;border-radius:6px;cursor:pointer;}
+
+/* Auth */
+.auth-box{width:320px;margin:10vh auto;padding:20px;background:var(--surface);
+  border-radius:10px;box-shadow:var(--shadow);text-align:center;}
 .auth-box input{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;}
-.layout{display:flex;margin-top:60px;}
-.sidebar{width:220px;background:var(--surface);box-shadow:var(--shadow);padding:12px;}
-.sidebar h3{margin-top:0;}
-.sidebar button{display:block;width:100%;margin:6px 0;padding:8px;border:none;background:var(--primary);color:white;border-radius:6px;cursor:pointer;}
-.main{flex:1;background:var(--surface);margin:0 12px;padding:20px;border-radius:10px;box-shadow:var(--shadow);}
-.rightbar{width:240px;background:var(--surface);box-shadow:var(--shadow);padding:12px;}
+
+/* Sidebars */
+.sidebar,.rightbar{
+  position:fixed;top:60px;bottom:0;width:240px;background:var(--surface);
+  box-shadow:var(--shadow);padding:12px;overflow:auto;transition:transform 0.3s ease;
+  z-index:999;
+}
+.sidebar{left:0;transform:translateX(-100%);}
+.sidebar.open{transform:translateX(0);}
+.rightbar{right:0;transform:translateX(100%);}
+.rightbar.open{transform:translateX(0);}
+.sidebar button,.rightbar button{width:100%;margin:6px 0;padding:8px;border:none;
+  background:var(--primary);color:white;border-radius:6px;cursor:pointer;}
+
+/* Layout */
+.layout{margin-top:70px;padding:20px;}
+.main{max-width:1000px;margin:0 auto;background:var(--surface);
+  padding:20px;border-radius:10px;box-shadow:var(--shadow);}
+
+/* Form & Table */
 #entryForm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 #entryForm input{padding:8px;border:1px solid #ccc;border-radius:6px;}
-#entryForm button{padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;}
+#entryForm button{padding:8px 12px;background:var(--primary);color:white;border:none;
+  border-radius:6px;cursor:pointer;}
 table{width:100%;border-collapse:collapse;}
 th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;}
 th{background:var(--primary);color:white;}
@@ -54,20 +74,28 @@ th{background:var(--primary);color:white;}
 <!-- APP -->
 <div id="app" style="display:none">
   <div class="topbar">
-    <div><span id="userInfo"></span></div>
     <div>
+      <button onclick="toggleSidebar()">☰ Listy</button>
+      <span id="userInfo"></span>
+    </div>
+    <div>
+      <button onclick="toggleRightbar()">⚙️</button>
       <button onclick="toggleDarkMode()">🌓</button>
-      <button onclick="logout()">🚪 Wyloguj</button>
+      <button onclick="logout()">🚪</button>
     </div>
   </div>
+  <!-- Sidebars -->
+  <div class="sidebar" id="sidebar">
+    <h3>📋 Listy</h3>
+    <div id="lists"></div>
+    <button onclick="newList()">➕ Nowa lista</button>
+  </div>
+  <div class="rightbar" id="rightbar">
+    <h3>⚙️ Ustawienia</h3>
+    <div id="settings"></div>
+  </div>
+  <!-- Main -->
   <div class="layout">
-    <!-- LEFT SIDEBAR -->
-    <div class="sidebar">
-      <h3>📋 Listy</h3>
-      <div id="lists"></div>
-      <button onclick="newList()">➕ Nowa lista</button>
-    </div>
-    <!-- MAIN -->
     <div class="main">
       <h2 id="currentListTitle">Lista: default</h2>
       <form id="entryForm"></form>
@@ -75,11 +103,6 @@ th{background:var(--primary);color:white;}
         <thead><tr id="tableHead"></tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
-    </div>
-    <!-- RIGHT SIDEBAR -->
-    <div class="rightbar">
-      <h3>⚙️ Ustawienia</h3>
-      <div id="settings"></div>
     </div>
   </div>
 </div>
@@ -120,6 +143,8 @@ function logout(){document.getElementById("app").style.display="none";loginScr()
 
 // --- UI ---
 function toggleDarkMode(){document.body.classList.toggle("dark");}
+function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open");}
+function toggleRightbar(){document.getElementById("rightbar").classList.toggle("open");}
 function afterLogin(){
   loginScr().style.display=regScr().style.display="none";
   document.getElementById("app").style.display="block";
