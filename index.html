@@ -159,10 +159,17 @@ function loadLists(){
     const l=document.getElementById("lists");l.innerHTML="";
     snap.forEach(ch=>{
       const n=ch.key;
+      const div=document.createElement("div");
+      div.style.display="flex";div.style.alignItems="center";div.style.gap="4px";
       const btn=document.createElement("button");
       btn.innerText=n;
+      btn.style.flex="1";
       btn.onclick=()=>switchList(n);
-      l.appendChild(btn);
+      const edit=document.createElement("button");
+      edit.innerText="✏️"; edit.style.width="40px";
+      edit.onclick=(e)=>{e.stopPropagation();renameList(n);};
+      div.appendChild(btn); div.appendChild(edit);
+      l.appendChild(div);
     });
   });
 }
@@ -177,6 +184,18 @@ function switchList(n){
     if(s.exists()) listSettings=s.val();
     renderHead();renderForm();loadEntries();renderSettings();
     currentListTitle.innerText="Lista: "+n;
+  });
+}
+function renameList(oldName){
+  const newName=prompt("Nowa nazwa listy:", oldName);
+  if(!newName||newName===oldName)return;
+  db.ref("lists/"+oldName).get().then(s=>{
+    if(s.exists()){
+      db.ref("lists/"+newName).set(s.val()).then(()=>{
+        db.ref("lists/"+oldName).remove();
+        switchList(newName);
+      });
+    }
   });
 }
 function renderSettings(){
