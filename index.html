@@ -11,20 +11,14 @@
 }
 body.dark{--background:#1e1e1e;--surface:#2c2c2c;--text:#ddd;}
 body{margin:0;font-family:Arial, sans-serif;background:var(--background);color:var(--text);}
-
-/* Topbar */
 .topbar{position:fixed;top:0;left:0;right:0;background:var(--primary);color:white;
   padding:12px;display:flex;justify-content:space-between;z-index:1000;}
 .topbar button{margin-right:6px;padding:6px 10px;border:none;border-radius:6px;cursor:pointer;}
-
-/* Auth */
 .auth-box{width:320px;margin:10vh auto;padding:20px;background:var(--surface);
   border-radius:10px;box-shadow:var(--shadow);text-align:center;}
 .auth-box input{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;}
-
-/* Sidebars */
 .sidebar,.rightbar{
-  position:fixed;top:60px;bottom:0;width:240px;background:var(--surface);
+  position:fixed;top:60px;bottom:0;width:260px;background:var(--surface);
   box-shadow:var(--shadow);padding:12px;overflow:auto;transition:transform 0.3s ease;
   z-index:999;
 }
@@ -34,13 +28,9 @@ body{margin:0;font-family:Arial, sans-serif;background:var(--background);color:v
 .rightbar.open{transform:translateX(0);}
 .sidebar button,.rightbar button{width:100%;margin:6px 0;padding:8px;border:none;
   background:var(--primary);color:white;border-radius:6px;cursor:pointer;}
-
-/* Layout */
 .layout{margin-top:70px;padding:20px;}
 .main{max-width:1000px;margin:0 auto;background:var(--surface);
   padding:20px;border-radius:10px;box-shadow:var(--shadow);}
-
-/* Form & Table */
 #entryForm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 #entryForm input{padding:8px;border:1px solid #ccc;border-radius:6px;}
 #entryForm button{padding:8px 12px;background:var(--primary);color:white;border:none;
@@ -93,6 +83,10 @@ th{background:var(--primary);color:white;}
   <div class="rightbar" id="rightbar">
     <h3>⚙️ Ustawienia</h3>
     <div id="settings"></div>
+    <div id="adminPanel" style="margin-top:20px;display:none;">
+      <h3>👑 Panel Admina</h3>
+      <div id="users"></div>
+    </div>
   </div>
   <!-- Main -->
   <div class="layout">
@@ -151,6 +145,10 @@ function afterLogin(){
   document.getElementById("userInfo").innerText="👤 "+currentUser.name+" ("+currentUser.role+")";
   loadLists();
   switchList("default");
+  if(currentUser.role==="admin"){
+    document.getElementById("adminPanel").style.display="block";
+    loadUsers();
+  }
 }
 
 // --- Lists ---
@@ -206,6 +204,7 @@ function renderSettings(){
   s.innerHTML+=`<button onclick="addColumn()">➕ Dodaj kolumnę</button>`;
   s.innerHTML+=`<div><label><input type="checkbox" ${listSettings.withDate?"checked":""} onchange="toggleDate(this.checked)"> Data</label></div>`;
   if(currentList!=="default") s.innerHTML+=`<button onclick="deleteList()">🗑️ Usuń listę</button>`;
+  s.innerHTML+=`<button onclick="resetList()">🔄 Resetuj listę</button>`;
 }
 function editColumn(i,v){
   listSettings.columns[i]=v;
@@ -228,12 +227,18 @@ function deleteList(){
     switchList("default");
   }
 }
+function resetList(){
+  if(confirm("Na pewno wyczyścić wszystkie wpisy z listy '"+currentList+"'?")){
+    db.ref("lists/"+currentList+"/entries").remove();
+  }
+}
 
-// --- Entries ---
+// --- Entries with editing & delete row ---
 function renderHead(){
   const h=document.getElementById("tableHead");h.innerHTML="";
   listSettings.columns.forEach(c=>h.innerHTML+="<th>"+c+"</th>");
   if(listSettings.withDate) h.innerHTML+="<th>Data</th>";
+  h.innerHTML+="<th>Akcje</th>";
 }
 function renderForm(){
   const f=document.getElementById("entryForm");f.innerHTML="";
@@ -250,10 +255,74 @@ function loadEntries(){
   db.ref("lists/"+currentList+"/entries").on("value",snap=>{
     const b=document.getElementById("tableBody");b.innerHTML="";
     snap.forEach(ch=>{
+      const entryKey = ch.key;
       const e=ch.val();let tr=document.createElement("tr");
-      listSettings.columns.forEach(c=>tr.innerHTML+=`<td>${e[c]||""}</td>`);
-      if(listSettings.withDate) tr.innerHTML+=`<td>${e.date||""}</td>`;
+
+      listSettings.columns.forEach(c=>{
+        let td=document.createElement("td");
+        td.innerText = e[c] || "";
+        td.style.cursor="pointer";
+        td.onclick=()=>{
+          const newVal = prompt("Edytuj wartość:", td.innerText);
+          if(newVal!==null){
+            db.ref("lists/"+currentList+"/entries/"+entryKey+"/"+c).set(newVal);
+          }
+        };
+        tr.appendChild(td);
+      });
+
+      if(listSettings.withDate){
+        let td=document.createElement("td");
+        td.innerText = e.date || "";
+        td.style.cursor="pointer";
+        td.onclick=()=>{
+          const newVal = prompt("Edytuj datę:", td.innerText);
+          if(newVal!==null){
+            db.ref("lists/"+currentList+"/entries/"+entryKey+"/date").set(newVal);
+          }
+        };
+        tr.appendChild(td);
+      }
+
+      // 🗑️ usuwanie wiersza
+      let tdAct=document.createElement("td");
+      let delBtn=document.createElement("button");
+      delBtn.innerText="🗑️";
+      delBtn.onclick=()=>db.ref("lists/"+currentList+"/entries/"+entryKey).remove();
+      tdAct.appendChild(delBtn);
+      tr.appendChild(tdAct);
+
       b.appendChild(tr);
+    });
+  });
+}
+
+// --- Admin Panel ---
+function loadUsers(){
+  db.ref("users").on("value",snap=>{
+    const uDiv=document.getElementById("users");uDiv.innerHTML="";
+    snap.forEach(ch=>{
+      const name=ch.key;const data=ch.val();
+      const row=document.createElement("div");
+      row.style.display="flex";row.style.justifyContent="space-between";row.style.margin="4px 0";
+      row.innerHTML=`<span>${name} (${data.role})</span>`;
+      const controls=document.createElement("div");
+      const toggleBtn=document.createElement("button");
+      toggleBtn.innerText="🔄 Rola";
+      toggleBtn.onclick=()=>{
+        const newRole=data.role==="admin"?"user":"admin";
+        db.ref("users/"+name+"/role").set(newRole);
+      };
+      const delBtn=document.createElement("button");
+      delBtn.innerText="🗑️";
+      delBtn.onclick=()=>{
+        if(confirm("Usunąć użytkownika "+name+"?")){
+          db.ref("users/"+name).remove();
+        }
+      };
+      controls.appendChild(toggleBtn);controls.appendChild(delBtn);
+      row.appendChild(controls);
+      uDiv.appendChild(row);
     });
   });
 }
