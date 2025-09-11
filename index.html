@@ -1,481 +1,180 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Obowiązki Domowe</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-    :root{
-      --primary:#4CAF50;
-      --secondary:#2e7d32;
-      --background:#f4f6f9;
-      --surface:#fff;
-      --text:#333;
-      --shadow:0 4px 12px rgba(0,0,0,0.08);
-      --radius:10px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:"Segoe UI", Roboto, Arial, sans-serif;
-      background:var(--background); color:var(--text);
-    }
-
-    /* Topbar */
-    .topbar{
-      position:fixed; top:0; left:0; right:0;
-      background:var(--primary); color:#fff;
-      padding:12px 20px; display:flex; align-items:center; justify-content:space-between;
-      box-shadow:var(--shadow); z-index:1200;
-    }
-    .topbar .left {display:flex; align-items:center; gap:12px;}
-    .topbar .username {font-weight:600}
-    .topbar button{background:#fff;color:var(--primary);border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
-    .topbar button:hover{opacity:.95}
-
-    /* Auth boxes */
-    .auth-box{
-      width:340px; margin:11vh auto; padding:26px; background:var(--surface);
-      border-radius:12px; box-shadow:var(--shadow); text-align:center;
-    }
-    .auth-box h2{margin:0 0 12px 0}
-    .auth-box input{
-      width:100%; padding:10px 12px; margin:8px 0; border-radius:8px; border:1px solid #ddd;
-    }
-    .auth-box .row{display:flex; gap:8px}
-    .link{color:var(--primary); cursor:pointer; text-decoration:underline}
-
-    /* Panels */
-    .side-panel{
-      position:fixed; top:60px; bottom:0; width:300px; padding:18px;
-      background:var(--surface); box-shadow:var(--shadow); overflow:auto; z-index:1100;
-      transform:translateX(-110%); transition:transform .28s ease;
-    }
-    .side-panel.right{ right:0; transform:translateX(110%); }
-    .side-panel.open{ transform:translateX(0); }
-    .panel-toggle{ position:absolute; top:18px; right:-42px; background:var(--primary); color:white;
-      border:none; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;
-      box-shadow:var(--shadow);
-    }
-    .panel-content h3{ margin-top:0 }
-
-    /* Main */
-    .main{
-      margin:90px auto 60px auto; width:92%; max-width:1100px;
-      background:var(--surface); padding:22px; border-radius:12px; box-shadow:var(--shadow);
-    }
-
-    /* Entry form */
-    #entryForm{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
-    #entryForm select, #entryForm input{ padding:10px; border-radius:8px; border:1px solid #ddd; flex:1; min-width:160px }
-    #entryForm button{ padding:10px 16px; border-radius:8px; border:none; background:var(--primary); color:white; cursor:pointer }
-
-    /* Table */
-    table{ width:100%; border-collapse:collapse; margin-top:14px; border-radius:8px; overflow:hidden }
-    th, td{ padding:12px; text-align:left; border-bottom:1px solid #eee }
-    th{ background:var(--primary); color:white; font-weight:600 }
-    tr:hover{ background:#f7fff7 }
-
-    /* small */
-    .small{ font-size:13px; color:#666 }
-
-    /* action */
-    button.action{ background:transparent; border:none; cursor:pointer; font-size:18px }
-    .center {text-align:center}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obowiązki Domowe</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root {
+  --primary:#4CAF50;
+  --secondary:#2e7d32;
+  --background:#f4f6f9;
+  --surface:#fff;
+  --text:#333;
+  --shadow:0 4px 12px rgba(0,0,0,0.08);
+  --radius:10px;
+}
+body.dark {
+  --background:#1e1e1e;
+  --surface:#2c2c2c;
+  --text:#ddd;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI", Roboto, Arial,sans-serif;background:var(--background);color:var(--text);}
+.topbar{position:fixed;top:0;left:0;right:0;background:var(--primary);color:white;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);z-index:1200;}
+.topbar button{background:white;color:var(--primary);border:none;padding:8px 10px;border-radius:8px;cursor:pointer;}
+.auth-box{width:340px;margin:10vh auto;padding:26px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow);text-align:center;}
+.auth-box input{width:100%;padding:10px 12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;}
+.auth-box .link{color:var(--primary);cursor:pointer;text-decoration:underline;}
+.side-panel{position:fixed;top:60px;bottom:0;width:300px;padding:18px;background:var(--surface);box-shadow:var(--shadow);overflow:auto;z-index:1100;transform:translateX(-110%);transition:transform .28s ease;}
+.side-panel.right{right:0;transform:translateX(110%);}
+.side-panel.open{transform:translateX(0);}
+.panel-toggle{position:absolute;top:18px;right:-42px;background:var(--primary);color:white;border:none;width:44px;height:44px;border-radius:50%;cursor:pointer;box-shadow:var(--shadow);}
+.main{margin:90px auto 60px auto;width:92%;max-width:1100px;background:var(--surface);padding:22px;border-radius:12px;box-shadow:var(--shadow);}
+#entryForm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+#entryForm input{padding:10px;border-radius:8px;border:1px solid #ddd;min-width:150px;}
+#entryForm button{padding:10px 16px;border-radius:8px;border:none;background:var(--primary);color:white;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:14px;border-radius:8px;overflow:hidden;}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
+th{background:var(--primary);color:white;font-weight:600;cursor:pointer;}
+tr:hover{background:#f7fff7;}
+tr.done{background:#e0ffe0;}
+body.dark tr.done{background:#2a4a2a;}
+button.action{background:transparent;border:none;cursor:pointer;font-size:18px;}
+</style>
 </head>
 <body>
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="auth-box">
-      <h2>🔑 Logowanie</h2>
-      <input id="username" placeholder="Nazwa użytkownika" />
-      <input id="password" placeholder="Hasło" type="password" />
-      <div style="margin-top:10px">
-        <button onclick="login()">Zaloguj</button>
-      </div>
-      <p class="small" style="margin-top:12px">Nie masz konta? <span class="link" onclick="showRegister()">Zarejestruj się</span></p>
-      <p class="small" style="margin-top:6px; color:#999">Dla testów dodaj w Firebase: users/admin {password: "1234", role: "admin"}</p>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="auth-box">
+    <h2>🔑 Logowanie</h2>
+    <input id="username" placeholder="Nazwa użytkownika" />
+    <input id="password" placeholder="Hasło" type="password" />
+    <div style="margin-top:10px"><button onclick="login()">Zaloguj</button></div>
+    <p class="small" style="margin-top:12px">Nie masz konta? <span class="link" onclick="showRegister()">Zarejestruj się</span></p>
+  </div>
+</div>
+<!-- REGISTER -->
+<div id="register-screen" style="display:none">
+  <div class="auth-box">
+    <h2>📝 Rejestracja</h2>
+    <input id="reg-username" placeholder="Nazwa użytkownika" />
+    <input id="reg-password" placeholder="Hasło" type="password" />
+    <div style="margin-top:10px"><button onclick="register()">Zarejestruj</button></div>
+    <p class="small" style="margin-top:12px"><span class="link" onclick="showLogin()">Masz konto? Zaloguj się</span></p>
+  </div>
+</div>
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div><button onclick="togglePanel('left-panel')">☰</button> <span id="userInfo"></span></div>
+    <div>
+      <button onclick="togglePanel('right-panel')">📋 Listy</button>
+      <button onclick="toggleDarkMode()">🌓</button>
+      <button onclick="logout()">🚪 Wyloguj</button>
     </div>
   </div>
-
-  <!-- REGISTER -->
-  <div id="register-screen" style="display:none">
-    <div class="auth-box">
-      <h2>📝 Rejestracja</h2>
-      <input id="reg-username" placeholder="Nazwa użytkownika" />
-      <input id="reg-password" placeholder="Hasło" type="password" />
-      <div style="margin-top:10px">
-        <button onclick="register()">Zarejestruj</button>
-      </div>
-      <p class="small" style="margin-top:12px"><span class="link" onclick="showLogin()">Masz konto? Zaloguj się</span></p>
-    </div>
-  </div>
-
-  <!-- APP -->
-  <div id="app" style="display:none">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="left">
-        <button onclick="togglePanel('left-panel')" title="Otwórz panel">☰</button>
-        <div class="username" id="userInfo">—</div>
-      </div>
-      <div>
-        <button onclick="togglePanel('right-panel')" title="Listy">📋 Listy</button>
-        <button onclick="logout()" style="margin-left:8px">🚪 Wyloguj</button>
-      </div>
-    </div>
-
-    <!-- Left panel (filters + admin) -->
-    <div id="left-panel" class="side-panel">
-      <button class="panel-toggle" onclick="togglePanel('left-panel')">‹</button>
-      <div class="panel-content">
-        <h3>🔍 Filtry</h3>
-        <input id="filterTask" placeholder="Obowiązek (część nazwy)" />
-        <input id="filterUser" placeholder="Użytkownik (część nazwy)" style="margin-top:8px" />
-        <div style="margin-top:8px">
-          <button onclick="applyFilters()">Filtruj</button>
-          <button onclick="clearFilters()" style="margin-left:8px;background:#eee;color:#333;border-radius:8px;padding:8px 12px">Wyczyść</button>
-        </div>
-
-        <hr style="margin:14px 0">
-
-        <div id="admin-section" style="display:none">
-          <h3>⚙️ Panel Admina</h3>
-          <div style="display:flex; gap:8px; flex-wrap:wrap">
-            <button onclick="exportCSV()">📥 Eksport CSV</button>
-            <button onclick="deleteAll()" style="background:#ff6b6b">🗑 Usuń wszystkie</button>
-          </div>
-
-          <h4 style="margin-top:14px">➕ Dodaj obowiązek</h4>
-          <input id="newTask" placeholder="Nowy obowiązek" />
-          <div style="margin-top:8px"><button onclick="addTask()">Dodaj</button></div>
-
-          <h4 style="margin-top:14px">🗂 Utwórz listę</h4>
-          <input id="listName" placeholder="Nazwa listy" />
-          <input id="col1" placeholder="Kolumna 1" style="margin-top:6px" />
-          <input id="col2" placeholder="Kolumna 2" style="margin-top:6px" />
-          <input id="col3" placeholder="Kolumna 3" style="margin-top:6px" />
-          <div style="margin-top:6px">
-            <label><input type="checkbox" id="withDate" /> Z datą</label><br>
-            <label><input type="checkbox" id="withCheck" /> Z checkbox</label>
-          </div>
-          <div style="margin-top:8px"><button onclick="createList()">Utwórz</button></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Right panel (list menu) -->
-    <div id="right-panel" class="side-panel right">
-      <button class="panel-toggle" onclick="togglePanel('right-panel')">›</button>
-      <div class="panel-content">
-        <h3>📋 Listy</h3>
-        <ul id="listMenu"></ul>
+  <!-- Left panel -->
+  <div id="left-panel" class="side-panel">
+    <button class="panel-toggle" onclick="togglePanel('left-panel')">‹</button>
+    <div>
+      <h3>🔍 Filtry</h3>
+      <input id="filterTask" placeholder="Obowiązek" />
+      <input id="filterUser" placeholder="Użytkownik" />
+      <div><button onclick="applyFilters()">Filtruj</button> <button onclick="clearFilters()">Wyczyść</button></div>
+      <hr>
+      <div id="admin-section" style="display:none">
+        <h3>⚙️ Panel Admina</h3>
+        <h4>🗂 Zarządzanie listami</h4>
+        <input id="listName" placeholder="Nazwa listy"/>
+        <input id="col1" placeholder="Kolumna 1"/>
+        <input id="col2" placeholder="Kolumna 2"/>
+        <label><input type="checkbox" id="withDate"/> Z datą</label>
+        <label><input type="checkbox" id="withCheck"/> Z checkbox</label>
+        <button onclick="createList()">➕ Utwórz</button>
         <hr>
-        <div class="small">Kliknij nazwę, aby przełączyć tabelę.</div>
+        <h4>✏️ Edytuj listę</h4>
+        <input id="editName" placeholder="Nowa nazwa listy"/>
+        <input id="editCol1" placeholder="Kolumna 1"/>
+        <input id="editCol2" placeholder="Kolumna 2"/>
+        <label><input type="checkbox" id="editDate"/> Z datą</label>
+        <label><input type="checkbox" id="editCheck"/> Z checkbox</label>
+        <button onclick="editList()">💾 Zapisz</button>
       </div>
     </div>
-
-    <!-- Main content -->
-    <div class="main">
-      <h2 id="currentListTitle">Obowiązki Domowe</h2>
-
-      <form id="entryForm">
-        <select id="taskSelect"></select>
-        <input id="userInput" placeholder="Użytkownik (opcjonalnie)" />
-        <button type="submit">Dodaj wpis</button>
-      </form>
-
-      <table id="entriesTable">
-        <thead><tr id="tableHead"></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+  </div>
+  <!-- Right panel -->
+  <div id="right-panel" class="side-panel right">
+    <button class="panel-toggle" onclick="togglePanel('right-panel')">›</button>
+    <div>
+      <h3>📋 Listy</h3>
+      <ul id="listMenu"></ul>
     </div>
   </div>
+  <!-- Main -->
+  <div class="main">
+    <h2 id="currentListTitle">Obowiązki Domowe</h2>
+    <form id="entryForm"></form>
+    <table id="entriesTable">
+      <thead><tr id="tableHead"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+// Firebase
+const firebaseConfig={apiKey:"AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",authDomain:"obowiazki-domowe-b2312.firebaseapp.com",databaseURL:"https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",projectId:"obowiazki-domowe-b2312",storageBucket:"obowiazki-domowe-b2312.firebasestorage.app",messagingSenderId:"348397631566",appId:"1:348397631566:web:fef9f724dbf737b8cf6b1f"};firebase.initializeApp(firebaseConfig);const db=firebase.database();
+let currentUser=null,currentList='default',listSettings={columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true},darkMode=false;
 
-  <script>
-    // KONFIGURACJA FIREBASE - zostaw własną lub ta testowa wklejona wcześniej
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeH4Ouu8XU09atWJMsawPrEsUCDTd8Pzo",
-      authDomain: "obowiazki-domowe-b2312.firebaseapp.com",
-      databaseURL: "https://obowiazki-domowe-b2312-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "obowiazki-domowe-b2312",
-      storageBucket: "obowiazki-domowe-b2312.firebasestorage.app",
-      messagingSenderId: "348397631566",
-      appId: "1:348397631566:web:fef9f724dbf737b8cf6b1f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+// Auth
+function showRegister(){loginScreen.style.display='none';registerScreen.style.display='block';}
+function showLogin(){registerScreen.style.display='none';loginScreen.style.display='block';}
+function login(){const u=username.value.trim(),p=password.value;if(!u||!p)return alert("Wpisz login i hasło");db.ref('users/'+u).get().then(s=>{if(s.exists()&&s.val().password===p){currentUser={name:u,role:s.val().role||'user'};afterLogin();}else alert("Błędne dane");});}
+function register(){const u=regUsername.value.trim(),p=regPassword.value;if(!u||!p)return alert("Wpisz login i hasło");db.ref('users/'+u).get().then(s=>{if(s.exists())return alert("Użytkownik istnieje");db.ref('users/'+u).set({password:p,role:'user'}).then(()=>{alert("Zarejestrowano!");showLogin();});});}
+function logout(){location.reload();}
 
-    let currentUser = null;
-    let currentList = "default";
+// UI
+function togglePanel(id){document.getElementById(id).classList.toggle('open');}
+function toggleDarkMode(){darkMode=!darkMode;document.body.classList.toggle('dark',darkMode);}
+function applyFilters(){renderEntries();}
+function clearFilters(){filterTask.value='';filterUser.value='';renderEntries();}
 
-    // --- UI helpers ---
-    function showRegister(){ document.getElementById('login-screen').style.display='none'; document.getElementById('register-screen').style.display='block'; }
-    function showLogin(){ document.getElementById('register-screen').style.display='none'; document.getElementById('login-screen').style.display='block'; }
+// After login
+function afterLogin(){loginScreen.style.display='none';registerScreen.style.display='none';app.style.display='block';userInfo.innerText=currentUser.name+' ('+currentUser.role+')';if(currentUser.role==='admin')adminSection.style.display='block';ensureDefaultList();loadLists();}
 
-    // --- AUTH ---
-    function login(){
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value;
-      if(!user || !pass){ alert('Wpisz login i hasło'); return; }
-      db.ref('users/' + user).get().then(snap=>{
-        if(snap.exists() && snap.val().password === pass){
-          currentUser = { name: user, role: snap.val().role || 'user' };
-          afterLogin();
-        } else {
-          alert('Błędne dane logowania');
-        }
-      }).catch(err=>{ console.error(err); alert('Błąd logowania')});
-    }
+// Ensure default
+function ensureDefaultList(){db.ref('lists/default').get().then(s=>{if(!s.exists()){db.ref('lists/default').set({columns:["Obowiązek","Użytkownik"],withDate:true,withCheck:true});}switchList('default');});}
 
-    function register(){
-      const user = document.getElementById('reg-username').value.trim();
-      const pass = document.getElementById('reg-password').value;
-      if(!user || !pass){ alert('Wpisz login i hasło'); return; }
-      db.ref('users/' + user).get().then(snap=>{
-        if(snap.exists()){ alert('Użytkownik już istnieje'); return; }
-        db.ref('users/' + user).set({ password: pass, role: 'user' }).then(()=>{
-          alert('Zarejestrowano. Możesz się zalogować.');
-          showLogin();
-        });
-      });
-    }
+// Load lists
+function loadLists(){db.ref('lists').on('value',s=>{const lists=s.val()||{};listMenu.innerHTML='';Object.keys(lists).forEach(n=>{const li=document.createElement('li');li.innerHTML=`<span onclick="switchList('${n}')">${n}</span>`+(n!=='default'&&currentUser.role==='admin'?` <button onclick="deleteList('${n}')">❌</button>`:'');listMenu.appendChild(li);});});}
 
-    function logout(){
-      currentUser = null;
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('login-screen').style.display = 'block';
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      // close panels if open
-      document.getElementById('left-panel').classList.remove('open');
-      document.getElementById('right-panel').classList.remove('open');
-    }
+// Switch
+function switchList(name){currentList=name;db.ref('lists/'+name).get().then(s=>{listSettings=s.val();currentListTitle.innerText=name;renderForm();renderEntries();});}
 
-    function afterLogin(){
-      document.getElementById('login-screen').style.display='none';
-      document.getElementById('register-screen').style.display='none';
-      document.getElementById('app').style.display='block';
-      document.getElementById('userInfo').textContent = `${currentUser.name} (${currentUser.role})`;
-      if(currentUser.role === 'admin'){
-        document.getElementById('admin-section').style.display = 'block';
-      } else {
-        document.getElementById('admin-section').style.display = 'none';
-      }
+// Form
+function renderForm(){const f=entryForm;f.innerHTML='';listSettings.columns.forEach(c=>{const i=document.createElement('input');i.placeholder=c;i.id='form-'+c;f.appendChild(i);});if(listSettings.withDate){const d=document.createElement('input');d.type='date';d.id='form-date';f.appendChild(d);}const b=document.createElement('button');b.type='button';b.innerText='Dodaj';b.onclick=addEntry;f.appendChild(b);}
 
-      ensureDefaultList();
-      loadTasks();
-      loadLists();
-      // show main default table immediately:
-      switchList('default', { columns:["Obowiązek","Użytkownik"], withDate:true, withCheck:true });
-    }
+// Add entry
+function addEntry(){const data={};listSettings.columns.forEach(c=>{data[c]=document.getElementById('form-'+c).value;});if(listSettings.withDate)data.date=formDate.value;if(listSettings.withCheck)data.done=false;db.ref('entries/'+currentList).push(data);renderEntries();}
 
-    // --- Panels toggle ---
-    function togglePanel(id){
-      const el = document.getElementById(id);
-      el.classList.toggle('open');
-    }
+// Render entries
+function renderEntries(){const h=tableHead;h.innerHTML='';listSettings.columns.forEach(c=>{const th=document.createElement('th');th.innerText=c;h.appendChild(th);});if(listSettings.withDate){const th=document.createElement('th');th.innerText='Data';h.appendChild(th);}if(listSettings.withCheck){const th=document.createElement('th');th.innerText='Status';h.appendChild(th);}if(currentUser.role==='admin'){const th=document.createElement('th');th.innerText='Akcje';h.appendChild(th);}tableBody.innerHTML='';db.ref('entries/'+currentList).once('value').then(s=>{const e=s.val()||{};Object.keys(e).forEach(id=>{const tr=document.createElement('tr');const x=e[id];if(x.done)tr.classList.add('done');listSettings.columns.forEach(c=>{const td=document.createElement('td');td.innerText=x[c]||'';tr.appendChild(td);});if(listSettings.withDate){const td=document.createElement('td');td.innerText=x.date||'';tr.appendChild(td);}if(listSettings.withCheck){const td=document.createElement('td');td.innerHTML=`<input type="checkbox" ${x.done?'checked':''} onchange="toggleDone('${id}',this.checked)">`;tr.appendChild(td);}if(currentUser.role==='admin'){const td=document.createElement('td');td.innerHTML=`<button class="action" onclick="editEntry('${id}')">✏️</button><button class="action" onclick="deleteEntry('${id}')">🗑️</button>`;tr.appendChild(td);}tableBody.appendChild(tr);});});}
 
-    // --- Tasks (preset tasks) ---
-    function loadTasks(){
-      db.ref('tasks').on('value', snap=>{
-        const sel = document.getElementById('taskSelect');
-        sel.innerHTML = '';
-        // If tasks list empty, add couple defaults locally (not persisted here)
-        if(!snap.exists()){
-          const defaults = ['Odkurzanie','Zmywanie','Wyprowadzanie psa','Zakupy'];
-          defaults.forEach(d=>{
-            const opt = document.createElement('option'); opt.value=d; opt.textContent=d; sel.appendChild(opt);
-          });
-        } else {
-          snap.forEach(s=>{
-            const opt = document.createElement('option'); opt.value = s.val(); opt.textContent = s.val(); sel.appendChild(opt);
-          });
-        }
-      });
-    }
-    function addTask(){
-      const val = document.getElementById('newTask').value.trim();
-      if(!val){ alert('Wpisz nazwę obowiązku'); return; }
-      db.ref('tasks').push(val).then(()=>{ document.getElementById('newTask').value=''; });
-    }
+// Toggle done
+function toggleDone(id,v){db.ref('entries/'+currentList+'/'+id+'/done').set(v).then(renderEntries);}
 
-    // --- Default list create if not exist ---
-    function ensureDefaultList(){
-      db.ref('lists/default').once('value').then(snap=>{
-        if(!snap.exists()){
-          db.ref('lists/default').set({
-            columns: ["Obowiązek","Użytkownik"],
-            withDate: true,
-            withCheck: true
-          });
-        }
-      }).catch(err=>console.error(err));
-    }
+// Edit / delete entry
+function editEntry(id){const vals=prompt("Nowe wartości (oddzielone przecinkami): "+listSettings.columns.join(', '));if(!vals)return;const arr=vals.split(',').map(x=>x.trim());const data={};listSettings.columns.forEach((c,i)=>data[c]=arr[i]||'');if(listSettings.withDate)data.date=prompt("Nowa data (yyyy-mm-dd):")||'';db.ref('entries/'+currentList+'/'+id).update(data).then(renderEntries);}
+function deleteEntry(id){if(confirm("Usunąć wpis?"))db.ref('entries/'+currentList+'/'+id).remove().then(renderEntries);}
 
-    // --- Lists ---
-    function createList(){
-      const name = document.getElementById('listName').value.trim();
-      const col1 = document.getElementById('col1').value.trim();
-      const col2 = document.getElementById('col2').value.trim();
-      const col3 = document.getElementById('col3').value.trim();
-      const withDate = document.getElementById('withDate').checked;
-      const withCheck = document.getElementById('withCheck').checked;
-      if(!name){ alert('Wpisz nazwę listy'); return; }
-      const cols = [];
-      if(col1) cols.push(col1);
-      if(col2) cols.push(col2);
-      if(col3) cols.push(col3);
-      if(cols.length === 0) cols.push("Kolumna");
-      db.ref('lists/' + name).set({ columns: cols, withDate, withCheck }).then(()=>{
-        document.getElementById('listName').value=''; document.getElementById('col1').value=''; document.getElementById('col2').value=''; document.getElementById('col3').value='';
-        alert('Utworzono listę');
-      });
-    }
-
-    function loadLists(){
-      db.ref('lists').on('value', snap=>{
-        const menu = document.getElementById('listMenu'); menu.innerHTML = '';
-        // ensure default present in menu even if DB empty
-        const lists = [];
-        snap.forEach(s=> lists.push({key:s.key, val:s.val()}));
-        // Sort alphabetically with default first
-        lists.sort((a,b)=>{
-          if(a.key === 'default') return -1;
-          if(b.key === 'default') return 1;
-          return a.key.localeCompare(b.key);
-        });
-        lists.forEach(item=>{
-          const li = document.createElement('li');
-          li.textContent = item.key;
-          li.style.cursor = 'pointer';
-          li.onclick = ()=> switchList(item.key, item.val);
-          menu.appendChild(li);
-        });
-      });
-    }
-
-    function switchList(name, data){
-      currentList = name;
-      document.getElementById('currentListTitle').textContent = name;
-      const head = document.getElementById('tableHead'); head.innerHTML = '';
-      // data may be an object from DB or an inline object
-      const cols = (data && data.columns) ? data.columns : ["Obowiązek","Użytkownik"];
-      cols.forEach(c=>{
-        const th = document.createElement('th'); th.textContent = c; head.appendChild(th);
-      });
-      // optional date column
-      const withDate = data && data.withDate;
-      const withCheck = data && data.withCheck;
-      if(withDate){ const th = document.createElement('th'); th.textContent='Data'; head.appendChild(th); }
-      if(withCheck){ const th = document.createElement('th'); th.textContent='Zrobione'; head.appendChild(th); }
-      if(currentUser && currentUser.role === 'admin'){ const th = document.createElement('th'); th.textContent='Akcje'; head.appendChild(th); }
-      loadEntries();
-      // close right panel after selection (UX)
-      document.getElementById('right-panel').classList.remove('open');
-    }
-
-    // --- Entries ---
-    document.getElementById('entryForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      if(!currentUser){ alert('Zaloguj się'); return; }
-      const task = document.getElementById('taskSelect').value;
-      let user = document.getElementById('userInput').value.trim();
-      if(!user) user = currentUser.name;
-      const payload = { task, user, date: new Date().toISOString(), done: false };
-      db.ref('entries/' + currentList).push(payload).then(()=>{
-        document.getElementById('userInput').value = '';
-      });
-    });
-
-    function loadEntries(){
-      db.ref('entries/' + currentList).on('value', snap=>{
-        const body = document.getElementById('tableBody'); body.innerHTML = '';
-        if(!snap.exists()){ // no entries
-          const tr = document.createElement('tr');
-          const td = document.createElement('td'); td.colSpan = 5; td.className='center small'; td.textContent='Brak wpisów';
-          tr.appendChild(td); body.appendChild(tr); return;
-        }
-        snap.forEach(s=>{
-          const e = s.val();
-          const tr = document.createElement('tr');
-          // We assume default list columns: task, user, date, done. For custom lists you'd want to store structured entries; keep simple here.
-          const tdTask = document.createElement('td'); tdTask.textContent = e.task || ''; tr.appendChild(tdTask);
-          const tdUser = document.createElement('td'); tdUser.textContent = e.user || ''; tr.appendChild(tdUser);
-          const tdDate = document.createElement('td'); tdDate.textContent = e.date ? e.date.split('T')[0] : ''; tr.appendChild(tdDate);
-          const tdDone = document.createElement('td'); tdDone.textContent = e.done ? '✔️' : ''; tr.appendChild(tdDone);
-          if(currentUser && currentUser.role === 'admin'){
-            const tdAct = document.createElement('td');
-            const btn = document.createElement('button'); btn.className='action'; btn.title='Usuń'; btn.textContent='❌';
-            // capture key to remove
-            btn.onclick = ()=> { if(confirm('Usunąć wpis?')) removeEntry(currentList, s.key) };
-            tdAct.appendChild(btn);
-            tr.appendChild(tdAct);
-          }
-          body.appendChild(tr);
-        });
-      });
-    }
-
-    function removeEntry(list, key){
-      db.ref('entries/' + list + '/' + key).remove();
-    }
-
-    function deleteAll(){
-      if(!currentUser || currentUser.role !== 'admin'){ alert('Tylko admin może usuwać'); return; }
-      if(!confirm('Naprawdę usunąć wszystkie wpisy z tej listy?')) return;
-      db.ref('entries/' + currentList).remove();
-    }
-
-    function exportCSV(){
-      db.ref('entries/' + currentList).once('value').then(snap=>{
-        let csv = 'Task,User,Date,Done\n';
-        snap.forEach(s=>{
-          const e = s.val();
-          // escape commas by wrapping fields in quotes and replacing quotes
-          const q = (str='') => `"${String(str).replace(/"/g,'""')}"`;
-          csv += `${q(e.task)},${q(e.user)},${q(e.date)},${q(e.done)}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${currentList}.csv`; a.style.display='none';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      });
-    }
-
-    // --- Filters ---
-    function applyFilters(){
-      const fTask = document.getElementById('filterTask').value.trim().toLowerCase();
-      const fUser = document.getElementById('filterUser').value.trim().toLowerCase();
-      const rows = document.querySelectorAll('#tableBody tr');
-      rows.forEach(r=>{
-        // skip "no entries" row
-        if(!r.children[0]) return;
-        const t = (r.children[0].textContent || '').toLowerCase();
-        const u = (r.children[1].textContent || '').toLowerCase();
-        if(t.includes(fTask) && u.includes(fUser)) r.style.display = '';
-        else r.style.display = 'none';
-      });
-    }
-    function clearFilters(){
-      document.getElementById('filterTask').value=''; document.getElementById('filterUser').value='';
-      applyFilters();
-    }
-
-    // --- Init: ensure panels closed and default state ---
-    window.addEventListener('load', ()=>{
-      document.getElementById('left-panel').classList.remove('open');
-      document.getElementById('right-panel').classList.remove('open');
-      // Optionally auto-create an example admin user in DB for quick testing (commented out).
-      // db.ref('users/admin').set({password:'1234', role:'admin'});
-    });
-
-  </script>
+// Admin list actions
+function createList(){const n=listName.value.trim();if(!n)return alert("Podaj nazwę");const cols=[col1.value,col2.value].filter(Boolean);const withDate=withDateBox.checked,withCheck=withCheckBox.checked;db.ref('lists/'+n).set({columns:cols,withDate,withCheck});loadLists();}
+function editList(){if(!currentList)return alert("Brak listy");const n=editName.value.trim()||currentList;const cols=[editCol1.value,editCol2.value].filter(Boolean);const withDate=editDateBox.checked,withCheck=editCheckBox.checked;db.ref('lists/'+currentList).set({columns:cols.length?cols:listSettings.columns,withDate,withCheck});if(n!==currentList){db.ref('lists/'+n).set(listSettings);db.ref('lists/'+currentList).remove();currentList=n;}switchList(n);}
+function deleteList(n){if(confirm("Usunąć listę "+n+"?"))db.ref('lists/'+n).remove();}
+</script>
 </body>
 </html>
