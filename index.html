@@ -78,7 +78,6 @@ th{background:var(--primary);color:white;}
   <div class="sidebar" id="sidebar">
     <h3>📋 Listy</h3>
     <div id="lists"></div>
-    <button onclick="newList()">➕ Nowa lista</button>
   </div>
   <div class="rightbar" id="rightbar">
     <h3>⚙️ Ustawienia</h3>
@@ -91,7 +90,7 @@ th{background:var(--primary);color:white;}
   <!-- Main -->
   <div class="layout">
     <div class="main">
-      <h2 id="currentListTitle">Lista: default</h2>
+      <h2 id="currentListTitle">Brak wybranej listy</h2>
       <form id="entryForm"></form>
       <table>
         <thead><tr id="tableHead"></tr></thead>
@@ -115,7 +114,7 @@ firebase.initializeApp({
   appId:"1:348397631566:web:fef9f724dbf737b8cf6b1f"
 });
 const db=firebase.database();
-let currentUser=null,currentList="default",listSettings={columns:["Obowiązek","Użytkownik"],withDate:true};
+let currentUser=null,currentList=null,listSettings={columns:["Obowiązek","Użytkownik"],withDate:true};
 
 // --- Auth ---
 function showRegister(){loginScr().style.display="none";regScr().style.display="block";}
@@ -144,7 +143,6 @@ function afterLogin(){
   document.getElementById("app").style.display="block";
   document.getElementById("userInfo").innerText="👤 "+currentUser.name+" ("+currentUser.role+")";
   loadLists();
-  switchList("default");
   if(currentUser.role==="admin"){
     document.getElementById("adminPanel").style.display="block";
     loadUsers();
@@ -163,12 +161,21 @@ function loadLists(){
       btn.innerText=n;
       btn.style.flex="1";
       btn.onclick=()=>switchList(n);
-      const edit=document.createElement("button");
-      edit.innerText="✏️"; edit.style.width="40px";
-      edit.onclick=(e)=>{e.stopPropagation();renameList(n);};
-      div.appendChild(btn); div.appendChild(edit);
+      div.appendChild(btn);
+      if(currentUser.role==="admin"){
+        const edit=document.createElement("button");
+        edit.innerText="✏️"; edit.style.width="40px";
+        edit.onclick=(e)=>{e.stopPropagation();renameList(n);};
+        div.appendChild(edit);
+      }
       l.appendChild(div);
     });
+    if(currentUser.role==="admin"){
+      const addBtn=document.createElement("button");
+      addBtn.innerText="➕ Nowa lista";
+      addBtn.onclick=newList;
+      l.appendChild(addBtn);
+    }
   });
 }
 function newList(){
@@ -198,12 +205,16 @@ function renameList(oldName){
 }
 function renderSettings(){
   const s=document.getElementById("settings");s.innerHTML="";
+  if(currentUser.role!=="admin"){
+    s.innerHTML="<p>Brak uprawnień do edycji ustawień.</p>";
+    return;
+  }
   listSettings.columns.forEach((c,i)=>{
     s.innerHTML+=`<div>Kolumna ${i+1}: <input value="${c}" onchange="editColumn(${i},this.value)"></div>`;
   });
   s.innerHTML+=`<button onclick="addColumn()">➕ Dodaj kolumnę</button>`;
   s.innerHTML+=`<div><label><input type="checkbox" ${listSettings.withDate?"checked":""} onchange="toggleDate(this.checked)"> Data</label></div>`;
-  if(currentList!=="default") s.innerHTML+=`<button onclick="deleteList()">🗑️ Usuń listę</button>`;
+  s.innerHTML+=`<button onclick="deleteList()">🗑️ Usuń listę</button>`;
   s.innerHTML+=`<button onclick="resetList()">🔄 Resetuj listę</button>`;
 }
 function editColumn(i,v){
@@ -224,7 +235,9 @@ function toggleDate(ch){
 function deleteList(){
   if(confirm("Usunąć listę "+currentList+"?")){
     db.ref("lists/"+currentList).remove();
-    switchList("default");
+    currentList=null;
+    currentListTitle.innerText="Brak wybranej listy";
+    entryForm.innerHTML="";tableHead.innerHTML="";tableBody.innerHTML="";
   }
 }
 function resetList(){
@@ -233,7 +246,7 @@ function resetList(){
   }
 }
 
-// --- Entries with editing & delete row ---
+// --- Entries ---
 function renderHead(){
   const h=document.getElementById("tableHead");h.innerHTML="";
   listSettings.columns.forEach(c=>h.innerHTML+="<th>"+c+"</th>");
@@ -261,35 +274,41 @@ function loadEntries(){
       listSettings.columns.forEach(c=>{
         let td=document.createElement("td");
         td.innerText = e[c] || "";
-        td.style.cursor="pointer";
-        td.onclick=()=>{
-          const newVal = prompt("Edytuj wartość:", td.innerText);
-          if(newVal!==null){
-            db.ref("lists/"+currentList+"/entries/"+entryKey+"/"+c).set(newVal);
-          }
-        };
+        if(currentUser.role==="admin"){
+          td.style.cursor="pointer";
+          td.onclick=()=>{
+            const newVal = prompt("Edytuj wartość:", td.innerText);
+            if(newVal!==null){
+              db.ref("lists/"+currentList+"/entries/"+entryKey+"/"+c).set(newVal);
+            }
+          };
+        }
         tr.appendChild(td);
       });
 
       if(listSettings.withDate){
         let td=document.createElement("td");
         td.innerText = e.date || "";
-        td.style.cursor="pointer";
-        td.onclick=()=>{
-          const newVal = prompt("Edytuj datę:", td.innerText);
-          if(newVal!==null){
-            db.ref("lists/"+currentList+"/entries/"+entryKey+"/date").set(newVal);
-          }
-        };
+        if(currentUser.role==="admin"){
+          td.style.cursor="pointer";
+          td.onclick=()=>{
+            const newVal = prompt("Edytuj datę:", td.innerText);
+            if(newVal!==null){
+              db.ref("lists/"+currentList+"/entries/"+entryKey+"/date").set(newVal);
+            }
+          };
+        }
         tr.appendChild(td);
       }
 
-      // 🗑️ usuwanie wiersza
+      // akcje tylko dla admina
       let tdAct=document.createElement("td");
-      let delBtn=document.createElement("button");
-      delBtn.innerText="🗑️";
-      delBtn.onclick=()=>db.ref("lists/"+currentList+"/entries/"+entryKey).remove();
-      tdAct.appendChild(delBtn);
+      if(currentUser.role==="admin"){
+        let delBtn=document.createElement("button");
+        delBtn.innerText="🗑️";
+        delBtn.onclick=()=>db.ref("lists/"+currentList+"/entries/"+entryKey).remove();
+        tdAct.appendChild(delBtn);
+      }
       tr.appendChild(tdAct);
 
       b.appendChild(tr);
@@ -327,11 +346,8 @@ function loadUsers(){
   });
 }
 
-// --- Ensure admin always exists/reset ---
+// --- Ensure admin exists ---
 db.ref("users/admin").set({password:"1234",role:"admin"});
-db.ref("lists/default/settings").get().then(s=>{
-  if(!s.exists()) db.ref("lists/default/settings").set({columns:["Obowiązek","Użytkownik"],withDate:true});
-});
 </script>
 </body>
 </html>
